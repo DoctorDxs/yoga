@@ -1,0 +1,428 @@
+<template>
+  <div class="beVip-page">
+    <div class="vip-tabbar" >
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;</div>
+      <div @click="selectType(1)" :class="svip? 'avtive-tab' : ''"><div>私教尊贵会员</div><div class="recommend-box"><span>推荐</span></div></div>
+      <div></div>
+      <div @click="selectType(2)" :class="svip? '' : 'avtive-tab'">会员</div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;</div>
+    </div>
+
+    <div v-if='svip'>
+      <div class="svip-box-title">
+        <div class="svip-bg">
+          <img src="../assets/vip_txtbg@3x.png" alt="">
+          <div>私教尊贵会员权益</div>
+        </div>
+      </div>
+
+      <div class="svip-item">
+        <div class="svip-icon"><img src="../assets/vip_icon01@3x.png" alt=""></div>
+        <div class="svip-info">
+          <div class="svip-desc">免费观看</div>
+          <div class="svip-subdesc">之前购买过的训练营免费观看</div>
+        </div>
+      </div>
+      <div class="svip-item">
+        <div class="svip-icon"><img src="../assets/vip_icon02@3x.png" alt=""></div>
+        <div class="svip-info">
+          <div class="svip-desc">折扣购买</div>
+          <div class="svip-subdesc">新的训练营折扣购买</div>
+        </div>
+      </div>
+      <div class="svip-item">
+        <div class="svip-icon"><img src="../assets/vip_icon03@3x.png" alt=""></div>
+        <div class="svip-info">
+          <div class="svip-desc">私教尊贵会员</div>
+          <div class="svip-subdesc">点亮私教尊贵会员标识</div>
+        </div>
+      </div>
+
+      <div class="svip-box-title martop20">
+        <div class="svip-bg">
+          <img src="../assets/vip_txtbg@3x.png" alt="">
+          <div>同时尊享会员权益</div>
+        </div>
+      </div>
+      <div class="svip-item">
+        <div class="svip-icon"><img src="../assets/vip_icon04@3x.png" alt=""></div>
+        <div class="svip-info">
+          <div class="svip-desc">私教尊贵会员</div>
+          <div class="svip-subdesc">点亮私教尊贵会员标识</div>
+        </div>
+      </div>
+
+      <div class="svip-bottom">
+        <div class="select-drop" @click="showSvpiSelectModal">
+          <div class="select-type">
+            <div class="new-price">￥550</div>
+            <div class="old-price">￥650</div>
+          </div>
+          <div class="drap-icon"><img src="../assets/vip_select@3x.png" alt=""></div>
+        </div>
+        <div class="confirm-btn">开通私教尊贵会员</div>
+      </div>
+    </div>
+    
+    <div class="vip-box martop20" v-if='!svip'>
+      <div class="svip-item">
+        <div class="svip-icon"><img src="../assets/vip_icon04@3x.png" alt=""></div>
+        <div class="svip-info">
+          <div class="svip-desc">课程优惠</div>
+          <div class="svip-subdesc">课程免费观看/折扣购买</div>
+        </div>
+      </div>
+      <div class="svip-item">
+        <div class="svip-icon"><img src="../assets/vip_icon05@3x.png" alt=""></div>
+        <div class="svip-info">
+          <div class="svip-desc">会员</div>
+          <div class="svip-subdesc">点亮会员标识</div>
+        </div>
+      </div>
+      <div class="svip-bottom">
+        <div class="select-drop" @click="showVpiSelectModal">
+          <div class="select-type">
+            <div class="new-price">￥550</div>
+          </div>
+          <div class="drap-icon"><img src="../assets/vip_select@3x.png" alt=""></div>
+        </div>
+        <div class="confirm-btn">开通会员</div>
+      </div>
+    </div>
+    <div class="modal-bg" v-if='showSvpiSelect && svip' @click="hideSvpiSelectModal">
+      <div class="select-item-box" @click.stop="stopFather">
+        <div class="select-items" @click="selectThis">
+          <div>月付</div>
+          <div class="new-price">￥30</div>
+        </div>
+        <div class="select-items" @click="selectThis">
+          <div>半年付</div>
+          <div class="new-price">￥180</div>
+        </div>
+        <div class="select-items" @click="selectThis">
+          <div class="year-icon">
+            <div>年付</div> 
+            <div class="limit-time-cout"><span>限时折扣</span></div> 
+          </div>
+          <div><span class="old-price">￥360</span> <span class="new-price">￥330</span></div>
+        </div>
+      </div>
+    </div>
+
+
+
+    <div class="modal-bg" v-if='showVpiSelect && !svip' @click="hideVpiSelectModal">
+      <div class="select-item-box" @click.stop="stopFather">
+        <div class="select-items" @click="selectThis">
+          <div>
+            <div>升为私教尊贵会员</div>  
+            <div>你已是轻伽瑜伽会员,补全会员剩余天数差价,即可升级为私教会员,还需0.7元*20天=14元</div>
+          </div>
+          <div class="new-price">￥30</div>
+        </div>
+        <div class="select-items" @click="selectThis">
+          <div>月付</div>
+          <div class="new-price">￥30</div>
+        </div>
+        <div class="select-items" @click="selectThis">
+          <div>半年付</div>
+          <div class="new-price">￥180</div>
+        </div>
+        <div class="select-items" @click="selectThis">
+          <div class="year-icon">
+            <div>年付</div> 
+            <div class="limit-time-cout"><span>限时折扣</span></div> 
+          </div>
+          <div><span class="old-price">￥360</span> <span class="new-price">￥330</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+     
+</template>
+
+<script>
+
+export default {
+  name: 'beVip',
+  data () {
+    return {
+      svip: true,
+      showSvpiSelect: false,
+      showVpiSelect: false
+    }
+  },
+  created() {
+    document.title = '会员';
+  },
+  mounted() {
+    document.getElementsByClassName('beVip-page')[0].style.minHeight = window.innerHeight + 'px'
+  },
+  methods: {
+    selectType(type) {
+      if (type ==1 ) {
+        this.svip = true
+      } else if (type == 2) {
+        this.svip = false
+      }
+    },
+    showSvpiSelectModal() {
+      this.showSvpiSelect = !this.showSvpiSelect
+    },
+    hideSvpiSelectModal() {
+      this.showSvpiSelect  = false
+    },
+    showVpiSelectModal() {
+      this.showVpiSelect = !this.showVpiSelect
+    },
+    hideVpiSelectModal() {
+      this.showVpiSelect  = false
+    },
+    selectThis() {
+      this.showSvpiSelect  = false
+      this.showVpiSelect  = false
+    },
+    stopFather() {
+      return false
+    }
+  },
+  
+
+}
+</script>
+
+<!-- Add "scoped" attribute to limit CSS to this component only -->
+<style scoped>
+
+.beVip-page {
+  background: #F4F6F9;
+  position: relative;
+}
+
+.vip-tabbar {
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #FBF7CD;
+  font-size: 32px;
+  font-weight: 600;
+  background: -webkit-linear-gradient(left, #E6C680, #E4C179, #DAAE5A, #D9AC57);
+  text-align: center;
+}
+
+.vip-tabbar .avtive-tab {
+  color: #1F1F1F;
+}
+
+.vip-tabbar > div {
+  position: relative;
+}
+
+.recommend-box {
+  position: absolute;
+  width: 56px;
+  height: 28px;
+  background: #FF7D8D;
+  border-radius: 14px 14px 14px 0;
+  font-size: 20px;
+  color: #fff;
+  text-align: center;
+  line-height: 28px;
+  top: -14px;
+  right: -60px;
+}
+
+.recommend-box span {
+  display: block;
+  height: 28px;
+  -webkit-transform: scale(0.8);
+  font-size: 12px;
+  line-height: 32px;
+}
+
+.svip-box-title {
+  height: 100px;
+  background: #fff;
+}
+
+.svip-bg {
+  position: relative;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.svip-bg > div {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+  line-height: 100px;
+  text-align: center;
+  font-size: 28px;
+  color: #D6A74C;
+}
+
+.svip-bg img {
+  width: 422px;
+  display: block;
+  margin: auto;
+}
+
+.svip-item {
+  height: 180px;
+  padding: 0 40px;
+  background: #fff;
+  border-top: 1px solid #F4F6F9;
+  display: flex;
+  align-items: center;
+}
+
+.svip-icon img {
+  width: 120px;
+  height: 120px;
+  margin-right: 36px;
+}
+
+.svip-desc  {
+  font-size: 30px;
+  color: #444C52;
+}
+
+.svip-subdesc {
+  font-size: 26px;
+  color: #808C92;
+  margin-top: 16px;
+}
+
+.martop20 {
+  margin-top: 20px;
+}
+
+.svip-bottom {
+  height: 130px;
+  background: #fff;
+  position: fixed;
+  bottom: 0;
+  left: 0; 
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.select-drop, .confirm-btn {
+  width: 336px;
+  height: 76px;
+}
+
+.select-drop {
+  border: 1px solid #F4F6F9;
+}
+
+.confirm-btn {
+  border: 1px solid #fff;
+  background: url('../assets/class_zhekoubg@3x.png');
+  color: #FAF7CC;
+  font-size: 32px;
+  text-align: center;
+  line-height: 76px;
+}
+
+.select-drop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+}
+
+.drap-icon {
+  vertical-align: middle;
+}
+
+.select-drop img {
+  width: 22px;
+  height: 12px;
+  vertical-align: middle;
+}
+
+.select-type {
+  display: flex;
+  align-items: center;
+}
+
+.new-price {
+  color: #FF7D8C;
+  font-size: 32px;
+  padding: 0 10px 0 0;
+}
+
+.old-price {
+  color: #AEB6BD;
+  padding: 0 10px;
+  font-size: 32px;
+  text-decoration: line-through;
+  font-weight: normal;
+}
+
+.select-item-box {
+  position: absolute;
+  width: 100%;
+  background: #fff;
+  bottom: 0;
+  font-weight: 600;
+}
+
+.select-items {
+  display: flex;
+  align-items: center;
+  font-size: 32px;
+  padding: 0 30px;
+  border-top: 1px solid #F4F6F9;
+  justify-content: space-between;
+  height: 100px;
+
+}
+
+.modal-bg {
+  position: fixed;
+  width: 100%;
+  height: calc(100% - 136px);
+  background: rgba(0,0,0, .5);
+  left: 0;
+  bottom: 133px;
+}
+
+.year-icon {
+  position: relative;
+}
+
+.limit-time-cout {
+  position: absolute;
+  width: 98px;
+  height: 28px;
+  border-radius: 18px 14px 14px 0;
+  background: #FF7D8D;
+  color: #fff;
+  top: 5px;
+  left: 80px;
+}
+
+.limit-time-cout span {
+  display: block;
+  height: 28px;
+  -webkit-transform: scale(0.8);
+  font-size: 12px;
+  line-height: 32px;
+}
+
+
+
+
+
+
+
+</style>
