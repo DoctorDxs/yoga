@@ -6,26 +6,26 @@
     <div class="submit-trend-imgs">
       <div v-for='(item,index) in imgs' :key='index' class="trend-imgs-box">
         <img :src="item" alt="" class="trend-img-item">
-        <img src="../assets/issue_del_icon@3x.png" alt="" class="del-trend-imgs" @click="deleteImg(item)">
+        <img src="../assets/issue_del_icon@3x.png" alt="" class="del-trend-imgs" @click="deleteImg(item, index)">
       </div>
-      <div class="trend-imgs-box" v-if='videoUrl'>
+      <div class="trend-imgs-box" v-if='videoUrl !== ""'>
         <img src="../assets/issue_del_icon@3x.png" alt="" class="del-trend-imgs" @click="deleteVideo(videoUrl)">
-        <video :src="videoUrl"></video>
+        <video :src="videoUrl" class="trend-img-item"></video>
         <img src="../assets/video_icon.png" alt="" class="video-icon"> 
       </div>
       <div class="add-img-box add-img" v-if='imgs.length != 0 && imgs.length < 9'>
         <img src="../assets/issue_addphoto@3x.png" alt="" class="add-img">
-        <input type="file" @change="selectImg" class="input-img" accept="image/*" ref="inputImg1">
+        <input type="file" @change="selectImg" class="input-img" name="img1" accept="image/*" ref="inputImg1">
       </div>
     </div>
     <div class="add-trend-btn">
       <div class="add-btns-box">
-        <div class="add-img-btn" @click='videoUrl != "" ? "" : toast()'>
+        <div class="add-img-btn" @click='videoUrl === "" ?  "" : toast()'>
           <img src="../assets/issue_photo_icon@3x.png" alt="">
           <span>图片</span>
-          <input type="file" @change="selectImg" class="input-img1" accept="image/*" ref="inputImg2" v-if='videoUrl === ""'>
+          <input type="file" @change="selectImg" class="input-img1" name="img2" accept="image/*" ref="inputImg2" v-if='videoUrl === ""'>
         </div>
-        <div class="add-video-btn" @click='imgs.length != 0 ? "" : toast()'>
+        <div class="add-video-btn" @click='imgs.length === 0 ? "" : toast()'>
           <img src="../assets/issue_phptp_icon@3x.png" alt="">
           <span>视频</span>
           <input type="file" @change='selectVideo' class="input-img1" accept="video/*" ref="inputVideo" v-if='imgs.length == 0'>
@@ -86,6 +86,7 @@ export default {
       }
     },
     selectVideo(e) {
+      const inputFile = this.$refs.inputVideo
       if(this.$refs.inputVideo.files[0].length !== 0){ 
         let data = new FormData();
         data.append('file', this.$refs.inputVideo.files[0]);
@@ -94,7 +95,7 @@ export default {
         postVideo(data).then(res => {
           this.showLoading = false
           if (res.state == 200) {
-            this.videoUrl = res.data[0]
+            this.videoUrl = res.data.url
             inputFile.outerHTML = inputFile.outerHTML;
           } else {
             this.$toast.top(res.msg)
@@ -106,20 +107,29 @@ export default {
     toast() {
       this.$toast.top('图片或视频只能上传一种！')
     },
-    deleteImg(url) {
-      const imgs = this.imgs
+    deleteImg(url, index) {
+      this.showLoading = true
       deleteImg({url: url}).then(res => {
-        this.$toast.top(res.msg)
-        const index=imgs.indexOf(url);
-        if(index>-1){
-            this.imgs.splice(index,1);
+        this.showLoading = false
+        if (res.state == 200) {
+          this.$toast.top(res.msg)
+          this.imgs.splice(index,1);
+        } else {
+          this.$toast.top(res.msg)
         }
       })
     },
     deleteVideo(url) {
+      this.showLoading = true
       deleteVideo({url: url}).then(res => {
-        this.videoUrl = ''
-        this.$toast.top(res.msg)
+        this.showLoading = false
+        if (res.state == 200) {
+          this.videoUrl = ''
+          this.$toast.top(res.msg)
+        } else {
+          this.$toast.top(res.msg)
+        }
+        
       })
     }
   }
@@ -175,11 +185,11 @@ export default {
 }
 
 .del-trend-imgs {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   position: absolute;
-  top: -20px;
-  right: -20px;
+  top: -18px;
+  right: -18px;
 }
 
 .add-img-box {
@@ -267,7 +277,7 @@ export default {
 }
 
 .loading-bg {
-  background: rgba(0,0,0,.5);
+  background: rgba(255,255,255,0);
   position: fixed;
   width: 100%;
   height: 100%;
