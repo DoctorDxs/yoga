@@ -139,7 +139,7 @@ export default {
       this.$router.push({name: 'buyCourse', query: {id: this.id, price: this.detail.price,name: this.detail.name}})
     },
     linkAddTrend(type) {
-      this.$router.push({name: 'submitTrend', query: {type: type} })
+      this.$router.push({name: 'submitTrend', query: {type: type, group_id: this.id}})
     },
     linkVideo(group_id, goods_id) {
       this.$router.push({

@@ -7,7 +7,13 @@
       <div class="trend-info">
         <div class='trend-username'>{{item.username}}</div>
         <div class="trend-time">{{item.time_desc}}{{item.type == 2 ? '·提了一个问题' : ''}}</div>
-        <div class="trend-content">
+        <div class="trend-content" v-if='item.type == 1'>
+          {{item.content}}
+        </div>
+        <div class="trend-content" v-if='item.type == 2'>
+          {{item.desc}}
+        </div>
+        <div class="trend-content" v-if='item.type == 3'>
           {{item.content}}
         </div>
         <div class="trend-img1" v-if='item.img_paths.length == 1 || item.img_paths.length == 2'>
@@ -22,7 +28,7 @@
         <div class="video-box" v-if='item.video_path'><video :src="item.video_path" controls></video></div>
         <div class="trend-problem-title" v-if='item.type == 2'>
           <img src="../assets/circle_question_icon@3x.png" alt="">
-          <div class="trend-problem-question">{{item.reply_content}}</div>
+          <div class="trend-problem-question">{{item.content}}</div>
         </div>
 
          <div class="trend-problem-title" v-if='item.type != 2' @click.stop="linkCourse(item.group_id, item.group_type)">
@@ -162,7 +168,7 @@ export default {
         })  
       } else if (type === '2') {
         this.$router.push({
-          name: 'trendDetail', query: {id: id, group_type: group_type}
+          name: 'answerDetail', query: {id: id, group_type: group_type}
         })  
       } else if (type === '3') {
         this.$router.push({

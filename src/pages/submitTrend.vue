@@ -1,7 +1,8 @@
 <template>
   <div class="submitTrend-page">
+    <div class="problem-title" v-if='type == 2'><input type="text" v-model.trim="title" placeholder="请输入您的问题，以问号结束"></div>
     <div class="submit-trend-wrap">
-      <textarea class="trend-text-input" placeholder="请输入你的动态" v-model.trim="content"></textarea>
+      <textarea class="trend-text-input" :placeholder="type == 1 ? '请输入你的动态' : ''" v-model.trim="content"></textarea>
     </div>
     <div class="submit-trend-imgs">
       <div v-for='(item,index) in imgs' :key='index' class="trend-imgs-box">
@@ -31,17 +32,16 @@
           <input type="file" @change='selectVideo' class="input-img1" accept="video/*" ref="inputVideo" v-if='imgs.length == 0'>
         </div>
       </div>
-      <div class="submit-trend-btn" style='background: #B78FDA;color: #fff;'>发表</div>
+      <div :class="[content !=='' ?  'can-submit' : '' , 'submit-trend-btn']"  @click="submitTrends">发表</div>
     </div>
     <div class="loading-bg" v-if='showLoading'>
       <loading></loading>
     </div>
   </div>
-     
 </template>
 
 <script>
-import { postVideo, postImg, deleteImg, deleteVideo } from '../fetch/api'
+import { postVideo, postImg, deleteImg, deleteVideo, addTrend } from '../fetch/api'
 export default {
   name: 'submitTrend',
   data () {
@@ -49,18 +49,22 @@ export default {
       type: 1,
       imgs: [],
       videoUrl: '',
-      showLoading: false
+      showLoading: false,
+      content: '',
+      id: '',
+      title: '',
     }
   },
   mounted() {
     document.getElementsByClassName('submitTrend-page')[0].style.minHeight = window.innerHeight + 'px'
   },
   created() {
-    const type = this.$route.query.type
-    this.type = type
-    if (type == 1) {
+    const query = this.$route.query
+    this.type = query.type
+    this.id  = query.group_id
+    if (query.type == 1) {
       document.title = '发动态'; 
-    } else if (type == 2) {
+    } else if (query.type == 2) {
      document.title = '提问题'; 
     }
   },
@@ -78,7 +82,7 @@ export default {
             if (this.imgs.length < 10) {
               this.imgs.push(res.data[0])
             }
-            inputFile.outerHTML = inputFile.outerHTML;
+            inputFile.value = ''
           } else {
             this.$toast.top(res.msg)
           }
@@ -96,14 +100,13 @@ export default {
           this.showLoading = false
           if (res.state == 200) {
             this.videoUrl = res.data.url
-            inputFile.outerHTML = inputFile.outerHTML;
+            inputFile.value = ''
           } else {
             this.$toast.top(res.msg)
           }
         })
       }
     },
-
     toast() {
       this.$toast.top('图片或视频只能上传一种！')
     },
@@ -131,8 +134,54 @@ export default {
         }
         
       })
+    },
+    submitTrends() {
+      if (this.type == 1) {
+        if (this.content) {
+          const params = {
+            type: this.type,
+            content:　this.content,
+            group_id: this.id,
+            video_path: this.videoUrl,
+            image_paths: this.imgs.length > 0 ? this.imgs.join(',') : ''
+          }
+          this.postTrend(params)
+        } else {
+          this.$toast.top('内容不能为空')
+        }   
+      } else if (this.type == 2) {
+        if (!this.title) {
+          this.$toast.top('问题标题不能为空')
+        } else if (!this.content) {
+          this.$toast.top('问题描述不能为空')
+        } else {
+          const params = {
+            content: this.title,
+            type: this.type,
+            desc:　this.content,
+            group_id: this.id,
+            video_path: this.videoUrl,
+            image_paths: this.imgs.length > 0 ? this.imgs.join(',') : ''
+          }
+          this.postTrend(params)
+        }
+      }
+    },
+
+    postTrend(params) {
+      addTrend(params).then(res => {
+        if (res.state == 200) {
+          this.$toast.top(res.msg)
+          this.$router.go(-1)
+        } else {
+          this.$toast.top(res.msg)
+          this.$router.go(-1)
+        }
+      })
     }
-  }
+
+  },
+  
 
 }
 </script>
@@ -142,6 +191,11 @@ export default {
 .submitTrend-page {
   background: #F4F6F9;
   position: relative;
+}
+
+.can-submit {
+  background: #B78FDA!important;
+  color: #fff!important;
 }
 
 .submit-trend-wrap {
@@ -283,6 +337,28 @@ export default {
   height: 100%;
   top: 0;
   left: 0;
+}
+
+.problem-title {
+  height: 100px;
+  padding: 0 30px;
+  background: #fff;
+  margin-bottom: 12px;
+}
+
+.problem-title input {
+  font-size: 32px;
+  line-height: 100px;
+  font-weight: 600;
+  color: #444C52;
+  border: 0;
+  outline: medium;
+  width: 690px;
+}
+
+
+.problem-title input::placeholder {
+  color: #ABB5BC;
 }
 
 

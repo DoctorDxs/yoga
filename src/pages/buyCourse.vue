@@ -62,27 +62,6 @@
           <div><span>实付</span><span class="real-pay">￥{{price}}</span><span class="orgin-pay">￥899</span></div>
           <div @click="submitOrder">立即支付</div>
         </div>
-
-        <!-- <div class="input-box-2" :style='showNameInput ? "display: block;" : ""'>
-          <div>
-            <input type="text" @blur='inputBlur' ref="input1" v-model.trim="userName" placeholder="请输入您的姓名">
-            <div class="confirm-btn" :style="userName ? 'background: #B78FDA;color:#fff;' : ''" @click="inputBlur">提交</div>
-          </div>
-        </div>
-        <div class="input-box-2" :style='showPhoneInput ? "display: block;" : ""'>
-          <div>
-            <input type="number" @blur='inputBlur' ref="input2" v-model.trim="phone" placeholder="请输入你的电话号码" maxlength="11">
-            <div class="confirm-btn" :style="phone ? 'background: #B78FDA;color:#fff;' : ''" @click="inputBlur">提交</div>
-          </div>
-        </div>
-        <div class="input-box-2" :style='showWxInput ? "display: block;" : ""'>
-          <div>
-            <input type="text" @blur='inputBlur' ref="input3" v-model.trim="wx" placeholder="请输入您的微信号">
-            <div class="confirm-btn" :style="wx ? 'background: #B78FDA;color:#fff;' : ''" @click="inputBlur">提交</div>
-          </div>
-        </div> -->
-        
-
         <awesome-picker
           ref="pickerArea"
           :textTitle="pickerArea.textTitle"
@@ -90,8 +69,6 @@
           :anchor="pickerArea.anchor"
           @confirm="handlePickerAreaConfirm">
         </awesome-picker>
-
-
         <awesome-picker
           ref="pickerAge"
           :textTitle="pickerAge.textTitle"
@@ -99,7 +76,6 @@
           :anchor="pickerAge.anchor"
           @confirm="handlePickerAgeConfirm">
         </awesome-picker>
-
     </div>
 </template>
 
@@ -132,10 +108,10 @@ export default {
       age: '',
       courseName: '',
       price: 0,
-      inputFocus: false,
-      showNameInput: false,
-      showPhoneInput: false,
-      showWxInput: false,
+      // inputFocus: false,
+      // showNameInput: false,
+      // showPhoneInput: false,
+      // showWxInput: false,
       windowH: '',
       payConfig: {}
     }
@@ -232,7 +208,6 @@ export default {
     },
 
     getSign() {
-      alert(location.href)
       getSign(encodeURIComponent(location.href)).then(res => {
         if (res.state == 200) {
           this.setConfig(res.data)
@@ -250,7 +225,6 @@ export default {
         jsApiList: ['chooseWXPay'] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
       });
       wx.error(function(res){
-        alert(JSON.stringify(res))
       });
       this.wxPay(params)
     },
@@ -266,11 +240,10 @@ export default {
           paySign: payConfig.pay.sign, // 支付签名
           success: function(res) {
             // 支付成功后的回调函数
-            alert(JSON.stringify(res))
           },
           fail:function(res){
-            alert(JSON.stringify(res))
-          }
+
+}
         })
       })
     },
@@ -297,40 +270,7 @@ export default {
       } else {
         return true
       }
-    },
-    inputName() {
-      this.inputFocusAuto(true, false, false, 'input2', 'input3', 'input1')
-    },
-    inputPhone() {
-      this.inputFocusAuto(false, true, false, 'input1', 'input3', 'input2')
-    },
-    inputWx() {
-      this.inputFocusAuto(false, false, true, 'input1', 'input2', 'input3')
-    },
-    inputBlur() {
-      setTimeout(() => {
-        this.inputFocus = false
-        this.$refs.input1.blur()
-        this.$refs.input2.blur()
-        this.$refs.input3.blur()
-        this.showNameInput = false
-        this.showPhoneInput = false
-        this.showWxInput = false
-      }, 100)
-      
-    },
-    inputFocusAuto(showNameInput, showPhoneInput, showWxInput, inputBlur1, inputBlur2, inputFocus) {
-      this.showNameInput = showNameInput
-      this.showPhoneInput = showPhoneInput
-      this.showWxInput = showWxInput
-      this.$refs.input1.blur()
-      this.$refs.input2.blur()
-      this.$refs.input3.blur()
-      setTimeout(() => {
-        this.$refs[inputFocus].focus()
-      }, 10)
-      this.inputFocus = true
-    },
+    }
   },
   activated() {
     document.title = '课程购买';
