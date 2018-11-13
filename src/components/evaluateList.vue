@@ -22,18 +22,14 @@
             {{item.content}}
           </div>
           <div :class="[showAll ? 'user-reply-all' : '', 'user-reply']">
-            <div><span class="evaluate-user">用户名:</span><span class="evaluate-content">这是评论内容</span>  <span class="look-img-btn">查看图片</span></div>
-            <div>
-              <span class="evaluate-user" @click="toUser()">用户名</span><span class="replay-text"> 回复 </span><span class="evaluate-user" @click="toUser()">用户名:</span>
-              <span class="evaluate-content">这是评论内容</span>  
-              <span class="look-img-btn" @click="preivewImg()">查看图片</span>
+            <div v-for='(commentItem, commentIndex) in item.comments' :key='commentIndex'>
+              <span class="evaluate-user" @click="replay(commentItem.id, commentItem.username)">{{commentItem.username}}</span>
+              <span class="replay-text" v-if='commentItem.parent_username'> 回复 </span>
+              <span class="evaluate-user">{{commentItem.parent_username}}</span>:
+              <span class="evaluate-content" @click="commentItem.is_mine == '1' ? showModal() : ''">{{commentItem.content}} </span>  
+              <span class="look-img-btn" v-if='commentItem.img_path.length > 0' @click.stop="previewImage({currentImg: commentItem.img_path[0], currentImgLists: commentItem.img_path})">查看图片</span></div>
             </div>
-            <div><span class="evaluate-user">用户名</span><span class="replay-text"> 回复 </span><span class="evaluate-user">用户名:</span><span class="evaluate-content">这是评论内容</span>  <span class="look-img-btn">查看图片</span></div>
-            <div><span class="evaluate-user">用户名</span><span class="replay-text"> 回复 </span><span class="evaluate-user">用户名:</span><span class="evaluate-content">这是评论内容</span>  <span class="look-img-btn">查看图片</span></div>
-            <div><span class="evaluate-user">用户名</span><span class="replay-text"> 回复 </span><span class="evaluate-user">用户名:</span><span class="evaluate-content">这是评论内容</span>  <span class="look-img-btn">查看图片</span></div>
-            <div><span class="evaluate-user">用户名</span><span class="replay-text"> 回复 </span><span class="evaluate-user">用户名:</span><span class="evaluate-content">这是评论内容</span>  <span class="look-img-btn">查看图片</span></div>
-            <div><span class="evaluate-user">用户名</span><span class="replay-text"> 回复 </span><span class="evaluate-user">用户名:</span><span class="evaluate-content">这是评论内容</span>  <span class="look-img-btn">查看图片</span></div>
-            <div class="look-more-btn" @click="lookAll">查看全部{{item.evaluate_sum}}条回复</div>
+            <div class="look-more-btn" @click="lookAll" v-if='item.evaluate_sum > 3'>查看全部{{item.evaluate_sum}}条回复</div>
           </div>
         </div>
       </div>

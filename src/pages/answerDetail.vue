@@ -4,7 +4,7 @@
       <img src="../assets/circle_question_icon@3x.png" alt="">
       <div class="trend-problem-question">
         <div class="problem-title">{{problem.content}}</div>
-        <div class="look-more-answer" @click.stop="lookAll">查看全部{{problem.evaluate_sum}}个回答</div>
+        <div class="look-more-answer" @click.stop="lookAll(problem.id)">查看全部{{problem.evaluate_sum}}个回答</div>
       </div>
     </div>
 
@@ -258,8 +258,10 @@ export default {
       this.imgs = []
       this.$refs.commentInput.setAttribute('placeholder', '评论TA的回答')
     },
-    lookAll() {
-
+    lookAll(id) {
+      this.$router.push({
+        name: 'trendDetail', query: {id: id}
+      })
     }
   },
     

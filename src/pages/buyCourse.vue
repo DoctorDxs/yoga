@@ -42,10 +42,8 @@
 
           <div class="input-item">
             <div class="input-title">付款方式</div>
-            <!-- @click="selectPay" -->
             <div class="input-box">
               <div>微信支付</div>
-              <!-- <div><img src="../assets/class_next_icon@3x.png" alt=""></div> -->
             </div>
           </div>
 
@@ -108,10 +106,6 @@ export default {
       age: '',
       courseName: '',
       price: 0,
-      // inputFocus: false,
-      // showNameInput: false,
-      // showPhoneInput: false,
-      // showWxInput: false,
       windowH: '',
       payConfig: {}
     }
@@ -240,10 +234,11 @@ export default {
           paySign: payConfig.pay.sign, // 支付签名
           success: function(res) {
             // 支付成功后的回调函数
+            this.$router.go(-1)
           },
           fail:function(res){
-
-}
+              
+          }
         })
       })
     },
