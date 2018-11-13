@@ -321,6 +321,11 @@ export function reciveSend(params) {
 }
 
 
+export function myTrend(params) { 
+  return fetch(`/api/circle/news?page=1&mine=1`)
+}
+
+
 /**
  * 
  *  支付回调接口

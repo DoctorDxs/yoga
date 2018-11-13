@@ -47,6 +47,7 @@
 <script>
 import navBar from '@/components/navBar'
 import trendList from '@/components/trendList'
+import { myTrend } from '../fetch/api'
 export default {
   name: 'mine',
   data () {
@@ -62,6 +63,7 @@ export default {
       userInfo = JSON.parse(userInfo)
     };
     this.userInfo = userInfo
+    this.getTrend()
   },
   mounted() {
     document.getElementsByClassName('mine-page')[0].style.minHeight = window.innerHeight + 'px'
@@ -81,6 +83,11 @@ export default {
     },
     linkGiftRecord() {
       this.$router.push({name: 'giftRecord'})
+    },
+    getTrend() {
+      getTrend().then(res => {
+        console.log(res)
+      })
     }
   },
   components: {
