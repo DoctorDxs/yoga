@@ -38,15 +38,6 @@ export default {
         }
       })
     },
-    linkDetail(index) {
-      // if (index % 3 == 0 ) {
-      //   this.$router.push({name: 'answerDetail',query: {index: index}})
-      // } else {
-      //  this.$router.push({name: 'trendDetail',query: {index: index}})
-      // }
-
-
-    }
   },
   
   components: {

@@ -2,8 +2,8 @@
   <div class="classroom-page">
     <div class="ads-banner">
       <swiper :options="swiperOption" ref="mySwiper">
-        <swiper-slide v-for='(item, index) in [1,2,3]' :key='index'>
-          <img src="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1539081623475&di=ab801c315bfb46b1aa60d14e2c25e204&imgtype=0&src=http%3A%2F%2Fpic106.nipic.com%2Ffile%2F20160812%2F5212257_215252874000_2.jpg" alt="">
+        <swiper-slide v-for='(item, index) in banner' :key='index'>
+          <img :src="item.image" alt="" @click="bannerLink(item.id, item.type)">
         </swiper-slide>
       </swiper>
       <div class="swiper-pagination">
@@ -32,7 +32,7 @@ import course from '@/components/course'
 import camp from '@/components/camp'
 import underline from '@/components/underline'
 import articleList from '@/components/articleList'
-import { getArticleList, getCourseList } from '../fetch/api'
+import { getArticleList, getCourseList, getBanner } from '../fetch/api'
 import bots1 from '../assets/all_lunbo01@3x.png'
 import bots2 from '../assets/all_lunbo02@3x.png'
 export default {
@@ -61,12 +61,14 @@ export default {
           }
         }
 			},
-      lastClickIndex: 0
+      lastClickIndex: 0,
+      banner: []
     }
   },
   created() {
     document.title = '课堂';
     this.getData(this.tabIndex)
+    this.getBanner()
   },
   mounted() {
     
@@ -92,7 +94,11 @@ export default {
 
     },
     getBanner() {
-
+      getBanner().then(res => {
+        if (res.state == 200) {
+          this.banner = res.data
+        }
+      })
     },
     getData(index) {
       // 当相应的tab存在数据时不刷新数据
@@ -122,6 +128,9 @@ export default {
           this.currentList = this.campList
         }
       })
+    },
+    bannerLink(id, type) {
+
     }
 
   },
