@@ -1,35 +1,43 @@
 <template>
   <div class="evaluate-list">
-    <div class="trend-user">
-      <div class="trend-user-avatar">
-        <div>
-          <img src="http://img2.touxiang.cn/file/20180308/8eefd445e3718259d0044314a4289060.jpg" alt="">
+    <div v-for='(item, index) in comments' :key='index' class="mar-boot">
+      <div class="trend-user" @click="commentAnswer(item.username, item.id)">
+        <div class="trend-user-avatar">
+          <div>
+            <img :src="item.user_avatar" alt="">
+          </div>
+          <div class="trend-pub-time">
+            <div>{{item.username}}</div>
+            <div>{{item.time_desc}}</div>
+          </div>
         </div>
-        <div class="trend-pub-time">
-          <div>用户名</div>
-          <div>一小时之前</div>
-        </div>
-      </div>
-      <div class="support-icon"><span class="suport-num">25</span><img src="../assets/circle_like_nor_icon@3x.png" alt=""></div>
-    </div>
-    <div class="trend-user-content">
-      <div class="user-content-box">
-        <div class="user-content">
-          这是我打卡时输入的文字
-        </div>
-        <div :class="[showAll ? 'user-reply-all' : '', 'user-reply']">
-          <div><span class="evaluate-user">用户名:</span><span class="evaluate-content">这是评论内容</span>  <span class="look-img-btn">查看图片</span></div>
-          <div><span class="evaluate-user">用户名</span><span class="replay-text"> 回复 </span><span class="evaluate-user">用户名:</span><span class="evaluate-content">这是评论内容</span>  <span class="look-img-btn">查看图片</span></div>
-          <div><span class="evaluate-user">用户名</span><span class="replay-text"> 回复 </span><span class="evaluate-user">用户名:</span><span class="evaluate-content">这是评论内容</span>  <span class="look-img-btn">查看图片</span></div>
-          <div><span class="evaluate-user">用户名</span><span class="replay-text"> 回复 </span><span class="evaluate-user">用户名:</span><span class="evaluate-content">这是评论内容</span>  <span class="look-img-btn">查看图片</span></div>
-          <div><span class="evaluate-user">用户名</span><span class="replay-text"> 回复 </span><span class="evaluate-user">用户名:</span><span class="evaluate-content">这是评论内容</span>  <span class="look-img-btn">查看图片</span></div>
-          <div><span class="evaluate-user">用户名</span><span class="replay-text"> 回复 </span><span class="evaluate-user">用户名:</span><span class="evaluate-content">这是评论内容</span>  <span class="look-img-btn">查看图片</span></div>
-          <div><span class="evaluate-user">用户名</span><span class="replay-text"> 回复 </span><span class="evaluate-user">用户名:</span><span class="evaluate-content">这是评论内容</span>  <span class="look-img-btn">查看图片</span></div>
-          <div class="look-more-btn" @click="lookAll">查看全部22条回复</div>
+        <div class="support-icon">
+          <span class="suport-num" :style="item.is_thumb == '1' ? '' : 'color: #D4D9DD;'">{{item.thumbs}}</span>
+          <img :src="item.is_thumb == '1' ? require('../assets/circle_like_pre_icon@3x.png') : require('../assets/circle_like_nor_icon@3x.png')" alt="">
         </div>
       </div>
+      <div class="trend-user-content">
+        <div class="user-content-box">
+          <div class="user-content">
+            {{item.content}}
+          </div>
+          <div :class="[showAll ? 'user-reply-all' : '', 'user-reply']">
+            <div><span class="evaluate-user">用户名:</span><span class="evaluate-content">这是评论内容</span>  <span class="look-img-btn">查看图片</span></div>
+            <div>
+              <span class="evaluate-user" @click="toUser()">用户名</span><span class="replay-text"> 回复 </span><span class="evaluate-user" @click="toUser()">用户名:</span>
+              <span class="evaluate-content">这是评论内容</span>  
+              <span class="look-img-btn" @click="preivewImg()">查看图片</span>
+            </div>
+            <div><span class="evaluate-user">用户名</span><span class="replay-text"> 回复 </span><span class="evaluate-user">用户名:</span><span class="evaluate-content">这是评论内容</span>  <span class="look-img-btn">查看图片</span></div>
+            <div><span class="evaluate-user">用户名</span><span class="replay-text"> 回复 </span><span class="evaluate-user">用户名:</span><span class="evaluate-content">这是评论内容</span>  <span class="look-img-btn">查看图片</span></div>
+            <div><span class="evaluate-user">用户名</span><span class="replay-text"> 回复 </span><span class="evaluate-user">用户名:</span><span class="evaluate-content">这是评论内容</span>  <span class="look-img-btn">查看图片</span></div>
+            <div><span class="evaluate-user">用户名</span><span class="replay-text"> 回复 </span><span class="evaluate-user">用户名:</span><span class="evaluate-content">这是评论内容</span>  <span class="look-img-btn">查看图片</span></div>
+            <div><span class="evaluate-user">用户名</span><span class="replay-text"> 回复 </span><span class="evaluate-user">用户名:</span><span class="evaluate-content">这是评论内容</span>  <span class="look-img-btn">查看图片</span></div>
+            <div class="look-more-btn" @click="lookAll">查看全部{{item.evaluate_sum}}条回复</div>
+          </div>
+        </div>
+      </div>
     </div>
-
   </div>
 </template>
 
@@ -47,6 +55,16 @@ export default {
       this.$router.push({
         name: 'moreEval'
       })
+    },
+    commentAnswer(username) {
+      this.$emit('toanswer', username)
+    }
+  },
+
+  props: {
+    comments: {
+      type: Array,
+      required: true
     }
   }
   
@@ -59,6 +77,10 @@ export default {
   padding: 30px 20px;
   background: #fff;
   border-top: 1px solid rgba(171,181,188,.3)
+}
+
+.mar-boot {
+  margin-bottom: 20px;  
 }
 
 .trend-user {

@@ -124,8 +124,20 @@ export function getSomeoneReply(params) {
  * 获取圈子动态单条详情
  */
 export function getSomeoneTrend(params) { 
-  return fetch(`/api/circle/detail/1`)
+  return fetch(`/api/circle/detail/${params}`)
 }
+
+// 获取自己的动态
+export function myTrend() { 
+  return fetch(`/api/circle/news?page=1&mine=1`)
+}
+
+// 获取圈子单条回答的详情
+export function getSomeOneAnswer(params) { 
+  return fetch(`/api/circle/answer/${params}?page=${1}`)
+}
+
+
 
 /**
  * 

@@ -1,35 +1,51 @@
 <template>
   <div class="answerDetail-page">
-    <div class="trend-problem-title">
+    <div class="trend-problem-title" @click='commentUser'>
       <img src="../assets/circle_question_icon@3x.png" alt="">
       <div class="trend-problem-question">
-        <div class="problem-title">这个体式做完身体酸痛，丰富反倒是 怎么办？</div>
-        <div class="look-more-answer">查看全部25个回答</div>
+        <div class="problem-title">{{problem.content}}</div>
+        <div class="look-more-answer" @click.stop="lookAll">查看全部{{problem.evaluate_sum}}个回答</div>
       </div>
     </div>
 
     <div class="evaluate-list">
-      <div class="trend-user">
+      <div class="trend-user" @click='commentUser'>
         <div class="trend-user-avatar">
           <div>
-            <img src="http://img2.touxiang.cn/file/20180308/8eefd445e3718259d0044314a4289060.jpg" alt="">
+            <img :src="detail.user_avatar" alt="">
           </div>
           <div class="trend-pub-time">
-            <div>用户名 <span class="answer-make">回答了一个问题</span></div>
-            <div>一小时之前</div>
+            <div>{{detail.username}} <span class="answer-make">回答了一个问题</span></div>
+            <div>{{detail.time_desc}}</div>
           </div>
         </div>
-        <div class="support-icon"><span class="suport-num">25</span><img src="../assets/circle_like_nor_icon@3x.png" alt=""></div>
+        <div class="support-icon" @click.stop='suportComment(detail.id, detail.thumbs_sum, index)'>
+          <span class="suport-num" :style="detail.is_thumb == '1' ? '' : 'color: #D4D9DD;'">{{detail.thumbs_sum}}</span>
+          <img src="../assets/circle_like_nor_icon@3x.png" alt="" v-if='detail.is_thumb === "0"'>
+          <img src="../assets/circle_like_pre_icon@3x.png" alt="" v-if='detail.is_thumb === "1"'>
+        </div>
       </div>
       <div class="trend-user-content">
         <div class="user-content-box">
           <div class="user-content">
-            这是我打卡时输入的文字
+            {{detail.content}}
           </div>
-          <div class="answer-img"><img src="http://img2.touxiang.cn/file/20180308/8eefd445e3718259d0044314a4289060.jpg" alt=""></div>
+          <div class="trend-img1" v-if='detail.img_paths.length == 1 || detail.img_paths.length == 2'>
+            <div v-for='(imgTtem, imgIndex) in detail.img_paths' :key='imgIndex'><img :src="imgTtem" alt="" @click.stop="previewImage({currentImg: imgTtem, currentImgLists: detail.img_paths})"></div>
+          </div>
+          <div class="trend-img2" v-if='detail.img_paths.length == 3'>
+            <div v-for='(imgTtem, imgIndex) in detail.img_paths' :key='imgIndex'><img :src="imgTtem" alt="" @click.stop="previewImage({currentImg: imgTtem, currentImgLists: detail.img_paths})"></div>
+          </div>
+          <div class="trend-img3" v-if='detail.img_paths.length == 4'>
+            <div v-for='(imgTtem, imgIndex) in detail.img_paths' :key='imgIndex'><img :src="imgTtem" alt="" @click.stop="previewImage({currentImg: imgTtem, currentImgLists: detail.img_paths})"></div>
+          </div>
           <div class="user-reply">
-            <div><span class="evaluate-user">用户名:</span><span class="evaluate-content">这是评论内容</span>  <span class="look-img-btn">查看图片</span></div>
-            <div><span class="evaluate-user">用户名</span><span class="replay-text"> 回复 </span><span class="evaluate-user">用户名:</span><span class="evaluate-content" @click="showModal">这是评论内容</span>  <span class="look-img-btn">查看图片</span></div>
+            <div v-for='(item, index) in detail.comments' :key='index'>
+              <span class="evaluate-user" @click="replay(item.id, item.username)">{{item.username}}</span>
+              <span class="replay-text" v-if='item.parent_username'> 回复 </span>
+              <span class="evaluate-user">{{item.parent_username}}</span>:
+              <span class="evaluate-content" @click="item.is_mine == '1' ? showModal() : ''">{{item.content}} </span>  
+              <span class="look-img-btn" v-if='item.img_path.length > 0' @click.stop="previewImage({currentImg: item.img_path[0], currentImgLists: item.img_path})">查看图片</span></div>
           </div>
         </div>
       </div>
@@ -40,14 +56,18 @@
         <!-- 请输入你的想法 -->
         <!-- 评论TA的回答 -->
         <!-- 请输入你的回答 -->
-        <input type="text" placeholder="评论TA的回答" v-model="content">
-        <img src="../assets/issue_photo_icon@3x.png" alt="">
-        <div class="submit-btn" :style='issubmit ? "color: #fff;background: #B78FDA;" : ""'>发表</div>
+        <input type="text" placeholder="评论TA的回答" v-model.trim="content" ref='commentInput'>
+        <div class="input-img-box">
+          <img src="../assets/issue_photo_icon@3x.png" alt="">
+          <input type="file" @change="selectImg" class="input-img" name="img1" value="" accept="image/*" ref="inputImg1">
+        </div>
+        
+        <div class="submit-btn" :style='(content != "" || imgs.length > 0) ? "color: #fff;background: #B78FDA;" : ""' @click="commentAnswer">发表</div>
       </div>
-      <div class="reply-img-list">
-        <div>
-          <img src="http://img2.touxiang.cn/file/20180308/8eefd445e3718259d0044314a4289060.jpg" alt="">
-          <img src="../assets/issue_del_icon@3x.png" alt="">
+      <div class="reply-img-list" v-if='imgs.length > 0'>
+        <div v-for='(item, index) in imgs' :key='index'>
+          <img :src="item" alt="">
+          <img src="../assets/issue_del_icon@3x.png" alt="" @click="deleteImg(item, index)">
         </div>
       </div>
     </div>
@@ -62,31 +82,33 @@
 </template>
 
 <script>
-
+import { getSomeOneAnswer, getSign, replayOrCommit, postImg, deleteImg } from '../fetch/api.js'
 export default {
   name: 'answerDetail',
   data () {
     return {
       content: '',
-      issubmit: false,
-      modalShow: false
+      modalShow: false,
+      imgs: [],
+      answerData: [],
+      problem: {},
+      detail: {
+        img_paths: ''
+      },
+      replayInput: false,
+      comment_id: ''
     }
   },
   created() {
     document.title = '回答详情';
-  },
-  watch: {
-    content(newVal,oldVal) {
-      console.log(newVal,oldVal)
-      if (newVal.trim()) {
-        this.issubmit = true
-      } else {
-        this.issubmit = false
-      }
-    }
+    const query = this.$route.query
+    this.type = query.type
+    this.group_type = query.group_type
+    this.id = query.id
+    this.getData()
   },
   mounted() {
-    document.getElementsByClassName('answerDetail-page')[0].style.minHeight = window.innerHeight + 'px'
+    // document.getElementsByClassName('answerDetail-page')[0].style.minHeight = window.innerHeight + 'px'
   },
 
   methods: {
@@ -98,10 +120,149 @@ export default {
     },
     hideModal() {
       this.modalShow = false
-    }
-  }
-  
+    },
+    getData() {
+      getSomeOneAnswer(this.id).then(res => {
+        if (res.state == 200) {
+          let detail = []
+          this.problem = res.data.problem
+          if (res.data.detail.length > 0) {
+            detail = res.data.detail[0]
+            let comments = res.data.detail[0].comments
+            if (detail.img_paths) {
+              detail.img_paths = detail.img_paths.split(',')
+            };
+            if (comments.length > 0) {
+              comments.forEach((item, index) => {
+                if (item.img_path) {
+                  item.img_path = item.img_path.split(',')
+                } else {
+                  item.img_path = []
+                }
+              })
+            };
+            detail.comments = comments
+          }
+          this.detail = detail
+        }
+      })
+    },
+    selectImg(e) {
+      const inputFile = this.$refs.inputImg1
+      if(inputFile.files[0].length !== 0){ 
+        let data = new FormData();
+        data.append('file', inputFile.files[0]);
+        data.append('type', 6)
+        this.showLoading = true
+        postImg(data).then(res => {
+          this.showLoading = false
+          if (res.state == 200) {
+            if (this.imgs.length < 10) {
+              this.imgs.push(res.data[0])
+            }
+            inputFile.value = ''
+          } else {
+            this.$toast.top(res.msg)
+          }
+        })
+      }
+    },
+    deleteImg(url, index) {
+      this.showLoading = true
+      deleteImg({url: url}).then(res => {
+        this.showLoading = false
+        if (res.state == 200) {
+          this.$toast.top(res.msg)
+          this.imgs.splice(index,1);
+        } else {
+          this.$toast.top(res.msg)
+        }
+      })
+    },
+    previewImage(params) {
+      this.previewImages = params
+      this.getSign()
+    },
 
+    getSign() {
+      getSign(encodeURIComponent(location.href)).then(res => {
+        if (res.state == 200) {
+          this.setConfig(res.data)
+        }
+      })
+    },
+
+    setConfig(params) {
+      const that = this
+      wx.config({
+        debug: false, 
+        appId: params.appId, 
+        timestamp: params.timeStamp, 
+        nonceStr: params.nonceStr, 
+        signature: params.signature,
+        jsApiList: ['checkJsApi', 'previewImage']
+      });
+      const previewImages = this.previewImages
+      wx.ready(function() {
+        wx.checkJsApi({
+          jsApiList: [
+            'previewImage'
+          ]
+        });
+        // 图片预览
+        wx.previewImage({
+          current: previewImages.currentImg, // 当前显示图片的http链接
+          urls: previewImages.currentImgLists, // 需要预览的图片http链接列表
+        });
+      })
+    },
+    commentAnswer() {
+      if (this.content || this.imgs.length > 0) {
+        let params;
+        if (!this.replayInput) {
+          params = {
+            content: this.content,
+            img_path: this.imgs.length > 0 ? this.imgs.join(',') : '',
+            news_id: this.id
+          }
+        } else {
+          params = {
+            content: this.content,
+            img_path: this.imgs.length > 0 ? this.imgs.join(',') : '',
+            comment_id: this.comment_id
+          }
+        }
+        
+        replayOrCommit(params).then(res => {
+          if (res.state == 200) {
+            this.getData()
+            this.content = ''
+            this.imgs = []
+          }
+        })
+      } else {
+        this.$toast.top('请填写内容或选择图片！')
+      }
+    },
+
+    replay(id, username) {
+      this.replayInput = true
+      this.comment_id = id
+      this.content = ''
+      this.imgs = []
+      this.$refs.commentInput.setAttribute('placeholder', `回复  ${username}`)
+    },
+    commentUser() {
+      this.replayInput = false
+      this.content = ''
+      this.imgs = []
+      this.$refs.commentInput.setAttribute('placeholder', '评论TA的回答')
+    },
+    lookAll() {
+
+    }
+  },
+    
 }
 </script>
 
@@ -245,6 +406,7 @@ export default {
   padding: 10px;
   background: #F7F9FB;
   font-size: 28px;
+  margin-top: 20px;
 }
 
 .user-reply > div {
@@ -288,7 +450,7 @@ export default {
   height: 96px;
 }
 
-.replay-input input {
+.replay-input > input:nth-child(1) {
   height: 66px;
   width: 506px;
   border: 0;
@@ -305,7 +467,7 @@ export default {
   height: 44px;
 }
 
-.replay-input input::placeholder {
+.replay-input input:nth-child(1)::placeholder {
   color: #ABB3BA;
 }
 
@@ -318,7 +480,10 @@ export default {
   font-size: 28px;
   border-radius: 33px;
   background: #F0F2F7;
+  position: relative;
+  z-index: 7777;
 }
+
 
 .reply-img-list {
   padding: 30px 20px 20px;
@@ -372,6 +537,106 @@ export default {
 .modal-box > div:nth-child(1) {
   margin-bottom: 20px;
 }
+
+.input-img-box {
+  position: relative;
+  width: 44px;
+  height: 44px;
+}
+
+.input-img-box .input-img {
+  width: 44px;
+  height: 44px;
+  opacity: 0;
+  position: absolute;
+  left: 0;
+  top: 0;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.modal-bg {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background: rgba(0, 0, 0, .5);
+}
+
+.modal-box {
+  background: #F0F2F7;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+}
+
+.modal-box > div {
+  height: 88px;
+  text-align: center;
+  line-height: 88px;
+  color: #444C52;
+  font-size: 32px;
+  background: #fff;
+}
+
+.modal-box > div:nth-child(1) {
+  margin-bottom: 20px;
+}
+
+  .trend-img1,.trend-img2 {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .trend-img1 > div {
+    width: 304px;
+    height: 304px;
+    background: #F4F6F9;
+  }
+
+  .trend-img1 > div img {
+    width: 304px;
+    height: 304px;
+  }
+
+  .trend-img2 > div {
+    background: #F4F6F9;
+    width: 200px;
+    height: 200px;
+  }
+
+  .trend-img2 > div img {
+    width: 200px;
+    height: 200px;
+  }
+
+  .trend-img3 {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    width: 406px;
+  }
+
+  .trend-img3> div {
+    background: #F4F6F9;
+    width: 200px;
+    height: 200px;
+    margin-top: 6px;
+  }
+
+  .trend-img3 > div img {
+    width: 200px;
+    height: 200px;
+  }
+
+
+
+
+
 
 
 

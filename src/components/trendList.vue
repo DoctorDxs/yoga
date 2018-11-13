@@ -40,10 +40,10 @@
         </div>
         <div class="trend-meat">
           <div class="trend-meat-left">
-            <div @click.stop='suportTrend(item.id, index)'>
+            <div @click.stop='suportTrend(item.id, item.thumbs_sum, index)'>
               <img src="../assets/circle_like_nor_icon@3x.png" alt="" v-if='item.is_thumb === "0"'>
               <img src="../assets/circle_like_pre_icon@3x.png" alt="" v-if='item.is_thumb === "1"'>
-              <div class="num">{{item.thumbs_sum}}</div>
+              <div class="num" :style="item.is_thumb == '1' ? '' : 'color: #D4D9DD;'">{{item.thumbs_sum}}</div>
             </div>
             <div>
               <img src="../assets/circle_comment_nor_icon@3x.png" alt="">
@@ -76,12 +76,13 @@ export default {
   
   methods: {
     // 点赞
-    suportTrend(id, index) {
+    suportTrend(id, thumbs_sum, index) {
+      thumbs_sum === '1' ? thumbs_sum = '0' : thumbs_sum == '1'
       addSuport({news_id: id}).then(res => {
         if (res.state == 200) {
           let evaluteList = this.evaluteList
-          evaluteList[index].is_thumb = '1' 
-          evaluteList[index].thumbs_sum =  evaluteList[index].thumbs_sum - 0 + 1 + ''
+          evaluteList[index].is_thumb === '1' ? evaluteList[index].is_thumb = '0' : evaluteList[index].is_thumb = '1'
+          evaluteList[index].is_thumb === '1' ? evaluteList[index].thumbs_sum =  evaluteList[index].thumbs_sum - 1 + '' : evaluteList[index].thumbs_sum =  evaluteList[index].thumbs_sum - 0 + 1 + ''
           this.evaluteList = evaluteList
         } else if (res.state == 400) {
           this.$toast.top(res.msg)
@@ -164,15 +165,15 @@ export default {
       // 1动态 2提问 3回答
       if (type === '1') {
         this.$router.push({
-          name: 'trendDetail', query: {id: id, group_type: group_type}
+          name: 'trendDetail', query: {id: id, group_type: group_type, type: type, from: 1}
         })  
       } else if (type === '2') {
         this.$router.push({
-          name: 'answerDetail', query: {id: id, group_type: group_type}
+          name: 'trendDetail', query: {id: id, group_type: group_type, type: type, from: 2}
         })  
       } else if (type === '3') {
         this.$router.push({
-          name: 'answerDetail', query: {id: id, group_type: group_type}
+          name: 'answerDetail', query: {id: id, group_type: group_type, type: type, from: 3}
         }) 
       }
     },
