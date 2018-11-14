@@ -13,6 +13,10 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.js
+<<<<<<< HEAD
+=======
+*.txt
+>>>>>>> f12b20486d8177c52eda6fc5dbe06ca52d4a6201
 
 
 /*.js

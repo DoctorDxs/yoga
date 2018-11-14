@@ -39,7 +39,7 @@
       <div class="item-detail"><img src="../assets/class_next_icon@3x.png" alt=""></div>
     </div>
 
-    <div class="layout">退出</div>
+    <!-- <div class="layout">退出</div> -->
 
     <awesome-picker
       ref="pickerArea"
