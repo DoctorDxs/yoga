@@ -3,11 +3,16 @@
     <div class="trend-list" @click="commentUser">
       <div class="trend-avatar"><img :src="trendDetails.user_avatar" alt=""></div>
       <div class="trend-info">
-        <div class='trend-username'>{{trendDetails.username}}</div>
+        <div @click.stop="shareTips" class="share-btn"><img src="../assets/circle_share_nor_icon@3x.png" alt=""></div>
+        <div class='trend-username'>{{trendDetails.username}} <span class="answers-tips">提了一个问题</span> </div>
         <div class="trend-time">{{trendDetails.time_desc}}</div>
         <div class="trend-content">
           {{trendDetails.content}}
         </div>
+        <div class="trend-desc">
+          {{trendDetails.desc}}
+        </div>
+        
         <div class="trend-img1" v-if='trendDetails.img_path.length == 1 || trendDetails.img_path.length == 2'>
           <div v-for='(imgTtem, imgIndex) in trendDetails.img_path' :key='imgIndex'><img :src="imgTtem" alt="" @click.stop="previewImage({currentImg: imgTtem, currentImgLists: trendDetails.img_path})"></div>
         </div>
@@ -18,42 +23,19 @@
           <div v-for='(imgTtem, imgIndex) in trendDetails.img_path' :key='imgIndex'><img :src="imgTtem" alt="" @click.stop="previewImage({currentImg: imgTtem, currentImgLists: trendDetails.img_path})"></div>
         </div>
         <div class="video-box" v-if='trendDetails.video_path'><video :src="trendDetails.video_path" controls></video></div>
-        <div class="trend-problem-title" v-if='trendDetails.type == 2'>
-          <img src="../assets/circle_question_icon@3x.png" alt="">
-          <div class="trend-problem-question">{{trendDetails.content}}</div>
-        </div>
-
-         <div class="trend-problem-title" @click.stop="linkCourse(trendDetails.group_id, trendDetails.group_type)">
+        <div class="trend-problem-title" @click.stop="linkCourse(trendDetails.group_id, trendDetails.group_type)">
           <img :src="trendDetails.group_cover" alt="">
           <div class="course-desc">
             <div>{{trendDetails.group_name}}</div>
-            <div>{{trendDetails.group_subscribe}} 人练习</div>
+            <div>{{trendDetails.group_subscribe_num}} 人练习</div>
           </div>
-        </div>
-        <div class="trend-meat">
-          <div class="trend-meat-left">
-            <div @click.stop='suportComment(trendDetails.id, 1)'>
-              <img src="../assets/circle_like_nor_icon@3x.png" alt="" v-if='trendDetails.is_thumb === "0"'>
-              <img src="../assets/circle_like_pre_icon@3x.png" alt="" v-if='trendDetails.is_thumb === "1"'>
-              <div class="num" :style="trendDetails.is_thumb == '1' ? '' : 'color: #D4D9DD;'">{{trendDetails.thumbs}}</div>
-            </div>
-            <div>
-              <img src="../assets/circle_comment_nor_icon@3x.png" alt="">
-              <div class="num">{{trendDetails.evaluate_sum}}</div>
-            </div>
-            <div @click.stop="shareTips">
-              <img src="../assets/circle_share_nor_icon@3x.png" alt="">
-              <div class="num">分享</div>
-            </div>
-          </div>
-          <div class="trend-more" v-if='trendDetails.is_mine == "1"'><img src="../assets/circle_more_del_icon@3x.png" alt=""></div>
         </div>
       </div>
     </div>
 
     <div class="evaluate-title">
       <div class="line-left-border"></div>
-      <div>评论列表</div>
+      <div>{{trendDetails.evaluate_sum ? trendDetails.evaluate_sum + '个回答' : '暂无回答'}}</div>
     </div>
 
     <div class="evaluate-list">
@@ -106,7 +88,7 @@
         <!-- 请输入你的想法 -->
         <!-- 评论TA的回答 -->
         <!-- 请输入你的回答 -->
-        <input type="text" placeholder="请输入你的想法" v-model="content" ref='commentInput'>
+        <input type="text" placeholder="请输入你的回答" v-model="content" ref='commentInput'>
         <div class="input-img-box">
           <img src="../assets/issue_photo_icon@3x.png" alt="">
           <input type="file" @change="selectImg" class="input-img" name="img1" value="" accept="image/*" ref="inputImg1">
@@ -134,7 +116,7 @@
 <script>
 import { getSomeoneTrend, replayOrCommit, postImg, deleteImg, getSign, addSuport} from '../fetch/api.js'
 export default {
-  name: 'trendDetail',
+  name: 'questionDetail',
   data () {
     return {
       group_type: '',
@@ -168,7 +150,7 @@ export default {
           } else {
             trendDetails.img_path = []
           }
-          comments = res.data.comments.data
+          comments = res.data.answers.data
           if (comments.length > 0) {
             comments.forEach((item, index) => {
               if (item.img_path) {
@@ -371,7 +353,7 @@ export default {
       this.replayInput = 1
       this.content = ''
       this.imgs = []
-      this.$refs.commentInput.setAttribute('placeholder', '请输入你的想法')
+      this.$refs.commentInput.setAttribute('placeholder', '请输入你的回答')
       
     },
     lookAll(id) {
@@ -424,6 +406,25 @@ export default {
   bottom: 0;
   left: 0;
   background: #fff;
+}
+
+.share-btn {
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  right: 20px;
+  top: 30px;
+}
+
+.answers-tips {
+  color: #ABB4BB;
+  font-size: 30px;
+}
+
+
+.share-btn img {
+  width: 44px;
+  height: 44px;
 }
 
 .replay-input {
@@ -578,14 +579,23 @@ export default {
 
   .trend-time {
     font-size: 22px;
-    color: #ABB3BA;
+    color: #ABB4BB;
   }
 
   .trend-content {
-    color: #2F343C;
+    color: #444C52;
     font-size: 32px;
-    margin: 40px 0 20px;
+    margin: 40px 0 10px;
+    font-weight: 600;
   }
+
+  .trend-desc {
+    color: #818C92;
+    font-size: 32px;
+    margin-bottom: 20px;
+  }
+
+
 
   .trend-img1,.trend-img2 {
     display: flex;

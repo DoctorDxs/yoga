@@ -53,7 +53,6 @@
 
 <script>
 import navBar from '@/components/navBar'
-import loginVue from './login.vue';
 import { getUser, getCourse } from '../fetch/api'
 import defaultAvatar from '../assets/normal_photo@3x.png'
 import GetRequest from '../utils/geturl'

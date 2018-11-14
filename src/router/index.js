@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import login from '@/pages/login'
 import bindTel from '@/pages/bindTel'
 import inputCode from '@/pages/inputCode'
 import index from '@/pages/index'
@@ -15,6 +14,7 @@ import buyCourse from '@/pages/buyCourse'
 import selectType from '@/pages/selectType'
 import community from '@/pages/community'
 import trendDetail from '@/pages/trendDetail'
+import questionDetail from '@/pages/questionDetail'
 import moreEval from '@/pages/moreEval'
 import answerDetail from '@/pages/answerDetail'
 import submitTrend from '@/pages/submitTrend'
@@ -108,6 +108,11 @@ export default new Router({
       path: '/trendDetail',
       name: 'trendDetail',
       component: trendDetail
+    },
+    {
+      path: '/questionDetail',
+      name: 'questionDetail',
+      component: questionDetail
     },
     {
       path: '/moreEval',

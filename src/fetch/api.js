@@ -150,13 +150,17 @@ export function replayOrCommit(params) {
   })
 }
 
+//  获取动态内层主的互动
+export function getComments(params) { 
+  return fetch(`/api/circle/replies/${params}`)
+}
 /**
  * 
  * 删除动态或者评论
  */
 export function delEval(params) { 
   return fetch(`/api/circle/delete`, {
-    method: 'DELETE',
+    method: 'post',
     data: params
   })
 }

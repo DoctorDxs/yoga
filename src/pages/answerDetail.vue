@@ -19,8 +19,8 @@
             <div>{{detail.time_desc}}</div>
           </div>
         </div>
-        <div class="support-icon" @click.stop='suportComment(detail.id, detail.thumbs_sum, index)'>
-          <span class="suport-num" :style="detail.is_thumb == '1' ? '' : 'color: #D4D9DD;'">{{detail.thumbs_sum}}</span>
+        <div class="support-icon" @click.stop='suportComment(detail.id)'>
+          <span class="suport-num" :style="detail.is_thumb == '1' ? '' : 'color: #D4D9DD;'">{{detail.thumbs}}</span>
           <img src="../assets/circle_like_nor_icon@3x.png" alt="" v-if='detail.is_thumb === "0"'>
           <img src="../assets/circle_like_pre_icon@3x.png" alt="" v-if='detail.is_thumb === "1"'>
         </div>
@@ -39,13 +39,15 @@
           <div class="trend-img3" v-if='detail.img_paths.length == 4'>
             <div v-for='(imgTtem, imgIndex) in detail.img_paths' :key='imgIndex'><img :src="imgTtem" alt="" @click.stop="previewImage({currentImg: imgTtem, currentImgLists: detail.img_paths})"></div>
           </div>
-          <div class="user-reply">
+          <div class="user-reply" v-if='detail.comments && detail.comments.length > 0'>
             <div v-for='(item, index) in detail.comments' :key='index'>
               <span class="evaluate-user" @click="replay(item.id, item.username)">{{item.username}}</span>
               <span class="replay-text" v-if='item.parent_username'> 回复 </span>
               <span class="evaluate-user">{{item.parent_username}}</span>:
-              <span class="evaluate-content" @click="item.is_mine == '1' ? showModal() : ''">{{item.content}} </span>  
-              <span class="look-img-btn" v-if='item.img_path.length > 0' @click.stop="previewImage({currentImg: item.img_path[0], currentImgLists: item.img_path})">查看图片</span></div>
+              <span class="evaluate-content" @click="item.is_mine == '1' ? showModal(item.id) : ''">{{item.content}} </span>  
+              <span class="look-img-btn" v-if='item.img_path.length > 0' @click.stop="previewImage({currentImg: item.img_path[0], currentImgLists: item.img_path})">查看图片</span>
+            </div>
+            <div class="look-more-btn" @click="lookAllcomment(detail.id)" v-if='detail.evaluate_sum > 3'>查看全部{{detail.evaluate_sum}}条回复</div>
           </div>
         </div>
       </div>
@@ -82,7 +84,7 @@
 </template>
 
 <script>
-import { getSomeOneAnswer, getSign, replayOrCommit, postImg, deleteImg } from '../fetch/api.js'
+import { getSomeOneAnswer, getSign, replayOrCommit, postImg, deleteImg, addSuport, delEval } from '../fetch/api.js'
 export default {
   name: 'answerDetail',
   data () {
@@ -96,7 +98,8 @@ export default {
         img_paths: ''
       },
       replayInput: false,
-      comment_id: ''
+      comment_id: '',
+      deleteId: ''
     }
   },
   created() {
@@ -112,11 +115,20 @@ export default {
   },
 
   methods: {
-    showModal() {
+    showModal(id) {
       this.modalShow = true
+      this.deleteId = id
     },
     deleteEval() {
       this.modalShow = false
+      if (this.deleteId) {
+        delEval({comment_id: this.deleteId}).then(res => {
+          if (res.state == 200) {
+            this.$toast.top(res.msg)
+            this.getData()
+          }
+        })
+      }
     },
     hideModal() {
       this.modalShow = false
@@ -131,7 +143,9 @@ export default {
             let comments = res.data.detail[0].comments
             if (detail.img_paths) {
               detail.img_paths = detail.img_paths.split(',')
-            };
+            } else {
+              detail.img_paths = []
+            }
             if (comments.length > 0) {
               comments.forEach((item, index) => {
                 if (item.img_path) {
@@ -216,6 +230,7 @@ export default {
         });
       })
     },
+    
     commentAnswer() {
       if (this.content || this.imgs.length > 0) {
         let params;
@@ -260,7 +275,41 @@ export default {
     },
     lookAll(id) {
       this.$router.push({
-        name: 'trendDetail', query: {id: id}
+        name: 'questionDetail', query: {id: id}
+      })
+    },
+    // 点赞
+    suportComment(id) {
+      const detail = this.detail
+      let params;
+      if (detail.is_thumb == '1') {
+        params = {
+          news_id: id,
+          is_thumb: 0,
+        }
+      } else {
+        params = {
+          news_id: id,
+          is_thumb: 1,
+        }
+      }
+      addSuport(params).then(res => {
+        if (res.state == 200) {
+          if (detail.is_thumb == '1') {
+            detail.thumbs =  detail.thumbs - 1 + ''
+            detail.is_thumb =  '0'
+          } else {
+            detail.thumbs =  detail.thumbs - 0 + 1 + ''
+            detail.is_thumb =  '1'
+          }
+          this.detail = detail
+        }
+      })
+    },
+    
+    lookAllcomment(id) {
+      this.$router.push({
+        name: 'moreEval', query: {id: id, type: 'answer'}
       })
     }
   },
@@ -285,6 +334,12 @@ export default {
   .trend-problem-title img {
     width: 100px;
     height: 100px;
+  }
+
+  .look-more-btn {
+    color: #5D7992;
+    font-size: 28px;
+    margin-top: 10px;
   }
 
   .problem-title {

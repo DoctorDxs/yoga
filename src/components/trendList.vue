@@ -35,15 +35,15 @@
           <img :src="item.group_cover" alt="">
           <div class="course-desc">
             <div>{{item.group_name}}</div>
-            <div>{{item.group_subscribe}} 人练习</div>
+            <div>{{item.group_subscribe_num}} 人练习</div>
           </div>
         </div>
         <div class="trend-meat">
           <div class="trend-meat-left">
-            <div @click.stop='suportTrend(item.id, item.thumbs_sum, index)'>
+            <div @click.stop='suportTrend(item.id, item.is_thumb, index)'>
               <img src="../assets/circle_like_nor_icon@3x.png" alt="" v-if='item.is_thumb === "0"'>
               <img src="../assets/circle_like_pre_icon@3x.png" alt="" v-if='item.is_thumb === "1"'>
-              <div class="num" :style="item.is_thumb == '1' ? '' : 'color: #D4D9DD;'">{{item.thumbs_sum}}</div>
+              <div class="num" :style="item.is_thumb == '1' ? '' : 'color: #D4D9DD;'">{{item.thumbs}}</div>
             </div>
             <div>
               <img src="../assets/circle_comment_nor_icon@3x.png" alt="">
@@ -54,7 +54,7 @@
               <div class="num">分享</div>
             </div>
           </div>
-          <div class="trend-more" v-if='item.is_mine == "1"'><img src="../assets/circle_more_del_icon@3x.png" alt=""></div>
+          <div class="trend-more" v-if='item.is_mine == "1"' @click.stop="deleteTrend(item.id, index)"><img src="../assets/circle_more_del_icon@3x.png" alt=""></div>
         </div>
       </div>
     </div>
@@ -62,7 +62,7 @@
 </template>
 
 <script>
-import { getSign, addSuport } from '../fetch/api'
+import { getSign, addSuport, delEval } from '../fetch/api'
 export default {
   name: 'trendList',
   data () {
@@ -76,13 +76,13 @@ export default {
   
   methods: {
     // 点赞
-    suportTrend(id, thumbs_sum, index) {
-      thumbs_sum === '1' ? thumbs_sum = '0' : thumbs_sum == '1'
-      addSuport({news_id: id}).then(res => {
+    suportTrend(id, is_thumb, index) {
+      is_thumb == '1' ? is_thumb = '0' : is_thumb = '1'
+      addSuport({news_id: id, is_thumb: is_thumb}).then(res => {
         if (res.state == 200) {
           let evaluteList = this.evaluteList
-          evaluteList[index].is_thumb === '1' ? evaluteList[index].is_thumb = '0' : evaluteList[index].is_thumb = '1'
-          evaluteList[index].is_thumb === '1' ? evaluteList[index].thumbs_sum =  evaluteList[index].thumbs_sum - 1 + '' : evaluteList[index].thumbs_sum =  evaluteList[index].thumbs_sum - 0 + 1 + ''
+          evaluteList[index].is_thumb == '1' ? evaluteList[index].is_thumb = '0' : evaluteList[index].is_thumb = '1'
+          evaluteList[index].is_thumb == '1' ? evaluteList[index].thumbs =  evaluteList[index].thumbs - 1 + '' : evaluteList[index].thumbs =  evaluteList[index].thumbs - 0 + 1 + ''
           this.evaluteList = evaluteList
         } else if (res.state == 400) {
           this.$toast.top(res.msg)
@@ -165,15 +165,15 @@ export default {
       // 1动态 2提问 3回答
       if (type === '1') {
         this.$router.push({
-          name: 'trendDetail', query: {id: id, group_type: group_type, type: type, from: 1}
+          name: 'trendDetail', query: {id: id, type: type}
         })  
       } else if (type === '2') {
         this.$router.push({
-          name: 'trendDetail', query: {id: id, group_type: group_type, type: type, from: 2}
+          name: 'questionDetail', query: {id: id, type: type}
         })  
       } else if (type === '3') {
         this.$router.push({
-          name: 'answerDetail', query: {id: id, group_type: group_type, type: type, from: 3}
+          name: 'answerDetail', query: {id: id, type: type}
         }) 
       }
     },
@@ -187,6 +187,16 @@ export default {
           name: 'courseDetail', query: {id: id}
         })
       }
+    },
+    deleteTrend(id, index) {
+      delEval({news_id: id}).then(res => {
+        if (res.state == 200) {
+          this.evaluteList.splice(index,1);
+          this.$toast.top('已删除！')
+        } else {
+           this.$toast.top(res.msg)
+        }
+      })
     }
   },
   

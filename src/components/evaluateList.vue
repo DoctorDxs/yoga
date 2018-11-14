@@ -21,7 +21,7 @@
           <div class="user-content">
             {{item.content}}
           </div>
-          <div :class="[showAll ? 'user-reply-all' : '', 'user-reply']">
+          <div class="user-reply" v-if='item.comments.length > 0'>
             <div v-for='(commentItem, commentIndex) in item.comments' :key='commentIndex'>
               <span class="evaluate-user" @click="replay(commentItem.id, commentItem.username)">{{commentItem.username}}</span>
               <span class="replay-text" v-if='commentItem.parent_username'> 回复 </span>
@@ -142,13 +142,6 @@ export default {
 
 .user-content-box {
   width: 620px;
-}
-
-.user-reply-all {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 1;
-  overflow: hidden;
 }
 
 .user-reply {
