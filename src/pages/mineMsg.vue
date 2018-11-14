@@ -173,9 +173,9 @@ export default {
 
 .msg-num span {
   background: #FF7D8D;
-  padding: 0 10px;
+  padding: 0 8px;
   height: 32px;
-  border-radius: 50%;
+  border-radius: 32px;
   text-align: center;
   line-height: 32px;
 }

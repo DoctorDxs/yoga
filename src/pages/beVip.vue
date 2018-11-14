@@ -55,12 +55,12 @@
       <div class="svip-bottom">
         <div class="select-drop" @click="showSvpiSelectModal">
           <div class="select-type">
-            <div class="new-price">￥550</div>
-            <div class="old-price">￥650</div>
+            <div class="new-price">￥{{selectPrice ? selectPrice : svipInfo.price_year_discount}}</div>
+            <div class="old-price" v-if='selectPrice && selectOldPrice'>￥{{selectOldPrice ? selectOldPrice : svipInfo.price_year}}</div>
           </div>
           <div class="drap-icon"><img src="../assets/vip_select@3x.png" alt=""></div>
         </div>
-        <div class="confirm-btn">开通私教尊贵会员</div>
+        <div class="confirm-btn" @click="beSvip">开通私教尊贵会员</div>
       </div>
     </div>
     
@@ -82,29 +82,32 @@
       <div class="svip-bottom">
         <div class="select-drop" @click="showVpiSelectModal">
           <div class="select-type">
-            <div class="new-price">￥550</div>
+            <div class="new-price">￥{{selectPrice ? selectPrice : vipInfo.price_year_discount}}</div>
+            <div class="old-price" v-if='selectPrice && selectOldPrice'>￥{{selectOldPrice ? selectOldPrice : vipInfo.price_year}}</div>
           </div>
           <div class="drap-icon"><img src="../assets/vip_select@3x.png" alt=""></div>
         </div>
-        <div class="confirm-btn">开通会员</div>
+        <div class="confirm-btn" @click="beCommonVip">开通会员</div>
       </div>
     </div>
+
+
     <div class="modal-bg" v-if='showSvpiSelect && svip' @click="hideSvpiSelectModal">
       <div class="select-item-box" @click.stop="stopFather">
-        <div class="select-items" @click="selectThis">
+        <div class="select-items" @click="selectThis(2,1, svipInfo.price_month, '', false)">
           <div>月付</div>
-          <div class="new-price">￥30</div>
+          <div class="new-price">￥{{svipInfo.price_month}}</div>
         </div>
-        <div class="select-items" @click="selectThis">
+        <div class="select-items" @click="selectThis(2,2, svipInfo.price_half_year, '', false)">
           <div>半年付</div>
-          <div class="new-price">￥180</div>
+          <div class="new-price">￥{{svipInfo.price_half_year}}</div>
         </div>
-        <div class="select-items" @click="selectThis">
+        <div class="select-items" @click="selectThis(2,3, svipInfo.price_year_discount, svipInfo.price_year, false)">
           <div class="year-icon">
             <div>年付</div> 
             <div class="limit-time-cout"><span>限时折扣</span></div> 
           </div>
-          <div><span class="old-price">￥360</span> <span class="new-price">￥330</span></div>
+          <div><span class="old-price">￥{{svipInfo.price_year}}</span> <span class="new-price">￥{{svipInfo.price_year_discount}}</span></div>
         </div>
       </div>
     </div>
@@ -113,27 +116,28 @@
 
     <div class="modal-bg" v-if='showVpiSelect && !svip' @click="hideVpiSelectModal">
       <div class="select-item-box" @click.stop="stopFather">
-        <div class="select-items" @click="selectThis">
+        <!-- true 是否升级为私教 -->
+        <!-- <div class="select-items" @click="selectThis(1,'', price, '', true)">
           <div>
             <div>升为私教尊贵会员</div>  
             <div>你已是轻伽瑜伽会员,补全会员剩余天数差价,即可升级为私教会员,还需0.7元*20天=14元</div>
           </div>
           <div class="new-price">￥30</div>
-        </div>
-        <div class="select-items" @click="selectThis">
+        </div> -->
+        <div class="select-items" @click="selectThis(1,1,vipInfo.price_month, '', false)">
           <div>月付</div>
-          <div class="new-price">￥30</div>
+          <div class="new-price">￥{{vipInfo.price_month}}</div>
         </div>
-        <div class="select-items" @click="selectThis">
+        <div class="select-items" @click="selectThis(1,2,vipInfo.price_half_year, '', false)">
           <div>半年付</div>
-          <div class="new-price">￥180</div>
+          <div class="new-price">￥{{vipInfo.price_half_year}}</div>
         </div>
-        <div class="select-items" @click="selectThis">
+        <div class="select-items" @click="selectThis(1,3, vipInfo.price_year_discount, vipInfo.price_year, false)">
           <div class="year-icon">
             <div>年付</div> 
             <div class="limit-time-cout"><span>限时折扣</span></div> 
           </div>
-          <div><span class="old-price">￥360</span> <span class="new-price">￥330</span></div>
+          <div><span class="old-price">￥{{vipInfo.price_year}}</span> <span class="new-price">￥{{vipInfo.price_year_discount}}</span></div>
         </div>
       </div>
     </div>
@@ -142,18 +146,29 @@
 </template>
 
 <script>
-
+import { getVip, buyVip, getSign} from '../fetch/api'
 export default {
   name: 'beVip',
   data () {
     return {
       svip: true,
       showSvpiSelect: false,
-      showVpiSelect: false
+      showVpiSelect: false,
+      vipInfo: {},
+      svipInfo: {},
+      selectPrice: '',
+      selectOldPrice: '',
+      selectsPrice: '',
+      selectOldsPrice: '',
+      svipType: 3,
+      vipType: 3,
+      toSvip: false
     }
   },
   created() {
     document.title = '会员';
+    this.getVip(2)
+ 
   },
   mounted() {
     document.getElementsByClassName('beVip-page')[0].style.minHeight = window.innerHeight + 'px'
@@ -162,8 +177,10 @@ export default {
     selectType(type) {
       if (type ==1 ) {
         this.svip = true
+        this.getVip(1)
       } else if (type == 2) {
         this.svip = false
+        this.getVip(2)
       }
     },
     showSvpiSelectModal() {
@@ -178,15 +195,106 @@ export default {
     hideVpiSelectModal() {
       this.showVpiSelect  = false
     },
-    selectThis() {
+    selectThis(type,priceType, price, oldPrice, toSvip) {
       this.showSvpiSelect  = false
       this.showVpiSelect  = false
+      this.toSvip = toSvip
+      if (type == 1) {
+        this.selectPrice = price
+        this.selectOldPrice = oldPrice
+        this.vipType = priceType
+      } else {
+        this.selectsPrice = price
+        this.selectOldsPrice = oldPrice
+        this.svipType = priceType
+      }
     },
     stopFather() {
       return false
+    },
+    getVip(type) {
+      getVip(type).then(res => {
+        if (res.state == 200) {
+          if (type == 1) {
+            this.vipInfo = res.data
+            this.selectPrice = res.data.price_year_discount
+            this.selectOldPrice = res.data.price_year
+          } else {
+            this.svipInfo = res.data
+            this.selectsPrice = res.data.price_year_discount
+            this.selectOldsPrice = res.data.price_year_discount
+          }
+        }
+      })
     }
   },
-  
+  beSvip() {
+    const params = {
+      vip_type: 2,
+      type: this.svipType
+    }
+    this.getSign()
+  },
+
+  beCommonVip() {
+    let params;
+    if (this.toSvip) {
+      params = {
+        vip_type: 2,
+        type: this.svipType
+      }
+    } else {
+      params = {
+        vip_type: 3,
+      }
+    }
+    
+    this.getSign()
+  },
+
+
+
+  getSign() {
+      getSign(encodeURIComponent(location.href)).then(res => {
+        if (res.state == 200) {
+          this.setConfig(res.data)
+        }
+      })
+    },
+
+    setConfig(params) {
+      wx.config({
+        debug: true, // 开启调试模式,
+        appId: params.appId, // 必填，企业号的唯一标识，此处填写企业号corpid
+        timestamp: params.timeStamp, // 必填，生成签名的时间戳
+        nonceStr: params.nonceStr, // 必填，生成签名的随机串
+        signature: params.signature,// 必填，签名，见附录1
+        jsApiList: ['chooseWXPay'] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
+      });
+      wx.error(function(res){
+      });
+      this.wxPay(params)
+    },
+
+    wxPay(params) {
+      const payConfig = this.payConfig
+      wx.ready(function(){
+        wx.chooseWXPay({
+          timestamp: payConfig.pay.timeStamp, // 支付签名时间戳，注意微信jssdk中的所有使用timestamp字段均为小写。但最新版的支付后台生成签名使用的timeStamp字段名需大写其中的S字符
+          nonceStr: payConfig.pay.nonceStr, // 支付签名随机串，不长于 32 位
+          package: payConfig.pay.package, // 统一支付接口返回的prepay_id参数值，提交格式如：prepay_id=***）
+          signType: payConfig.pay.signType, // 签名方式，默认为'SHA1'，使用新版支付需传入'MD5'
+          paySign: payConfig.pay.sign, // 支付签名
+          success: function(res) {
+            // 支付成功后的回调函数
+            this.$router.go(-1)
+          },
+          fail:function(res){
+              
+          }
+        })
+      })
+    },
 
 }
 </script>
@@ -236,7 +344,6 @@ export default {
 .recommend-box span {
   display: block;
   height: 28px;
-  -webkit-transform: scale(0.8);
   font-size: 12px;
   line-height: 32px;
 }
@@ -414,8 +521,8 @@ export default {
 .limit-time-cout span {
   display: block;
   height: 28px;
-  -webkit-transform: scale(0.8);
-  font-size: 12px;
+  /* -webkit-transform: scale(0.8); */
+  font-size: 10px;
   line-height: 32px;
 }
 

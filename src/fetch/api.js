@@ -277,7 +277,7 @@ export function getOrder(params) {
  * 获取会员的信息
  */
 export function getVip(params) { 
-  return fetch(`/api/order/vip_info?type=1`)
+  return fetch(`/api/order/vip_info?type=${params}`)
 }
 
 
@@ -382,7 +382,7 @@ export function msgList(params) {
  *  消息通-已读
  */
 export function msgRead(params) { 
-  return fetch(`/api/notification/read?id=22`, {
+  return fetch(`/api/notification/read`, {
     method: 'post',
     data: params
   })

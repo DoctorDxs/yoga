@@ -6,7 +6,7 @@
           <div class="msg-type-icon">
             <img :src="item.user_avatar" alt="">
           </div>
-          <div :style='item.is_read == "1" ? "color: #D9DEEC" : ""'>
+          <div :style='item.is_read == "1" ? "color: #D9DEEC" : ""' @click.stop="linkDetail(item.id, item.link_type)">
             <div class="msg-type-title" :style='item.is_read == "0" ? "color: #D9DEEC" : ""'>{{item.username}}</div>
             <div class="msg-tips" v-if='type == 1' :style='item.is_read == "0" ? "color: #D9DEEC" : ""'>评论了你 | 回复了你</div>
             <div class="msg-tips" v-if='type == 2' :style='item.is_read == "0" ? "color: #D9DEEC" : ""'>回答了你</div>
@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import { msgList } from	'../fetch/api.js'
+import { msgList, msgRead } from	'../fetch/api.js'
 export default {
   name: 'msgDetail',
   data () {
@@ -55,7 +55,34 @@ export default {
           this.msgList = res.data.data
         }
       })
+    },
+    // 跳转到详情
+    linkDetail(id, type, index) {
+      if(type == 'news') {
+        this.$router.push({
+          name: 'trendDetail', query: {id: id}
+        })
+      } else if (type == 'answer') {
+        this.$router.push({
+          name: 'answerDetail', query: {id: id}
+        })
+      } else if (type == 'problem') {
+        this.$router.push({
+          name: 'questionDetail', query: {id: id}
+        })
+      }
+      this.readMSG(id, index) 
+    },
+    readMSG(id, index) {
+      msgRead({id: id}).then(res => {
+        if (res.state == 200) {
+          let msgList = this.msgList
+          msgList.is_read = '1'
+          this.msgList = msgList
+        }
+      })
     }
+
   },
   components: {
     
