@@ -189,8 +189,6 @@ export default {
           is_web: 1
         }
         buyCourse(params).then(res => {
-          const payData = res.data
-          alert(JSON.stringify(res))
           if (res.state == 200) {
             this.payConfig = res.data
             this.getSign()

@@ -3,14 +3,26 @@ const appid = 'wx607cf098ef356470'
 // https://yoga.17link.cc/api/my/web_auth
 // https://yoga.17link.cc/dist/index.html
 
-
+// jsdk 签名
 export function getSign(params) { 
   return fetch('/api/my/signature?url=' + params)
+}
+
+// 分享信息
+
+export function getShareInfo(params) { 
+  return fetch(`/api/my/share?id=${params.id}&type=${params.type}`)
 }
 
 // 获取用户信息
 export function getUser() { 
   return fetch('/api/my/info')
+}
+
+// 获取微信号
+
+export function getWx() { 
+  return fetch('/api/lesson/get_service_wechat')
 }
 
 // 我的课程
@@ -86,7 +98,7 @@ export function cancleCollect(id) {
  * 获取视频详情  @params group_id, goods_id
  */
 
-export function videoDetail(group_id, goods_id) { 
+export function getVideoDetail(group_id, goods_id) { 
   return fetch(`/api/lesson/video?group_id=${group_id}&goods_id=${goods_id}`)
 }
 

@@ -27,14 +27,18 @@ export default {
     return {
       iconType: [
         {icon: require('../assets/class_view01_nor@3x.png'), selectIcon: require('../assets/class_view01_press@3x.png'), text: '吃力'},
-        {icon: require('../assets/class_view02_nor@3x.png'), selectIcon: require('../assets/class_view02_press@3x.png'), text: '吃力'},
-        {icon: require('../assets/class_view03_nor@3x.png'), selectIcon: require('../assets/class_view03_press@3x.png'), text: '吃力'},
+        {icon: require('../assets/class_view02_nor@3x.png'), selectIcon: require('../assets/class_view02_press@3x.png'), text: '刚刚好'},
+        {icon: require('../assets/class_view03_nor@3x.png'), selectIcon: require('../assets/class_view03_press@3x.png'), text: '轻松'},
       ],
       selectIndex: 0
     }
   },
   created() {
-    
+    const query = this.$route.query
+    this.group_id = query.group_id,
+    this.learn_id = query.learn_id,
+    this.good_name = query.good_name
+    this.type = query.type
   },
   mounted() {
     document.title = '完成情况';
@@ -49,7 +53,7 @@ export default {
     },
     linkNext() {
       this.$router.push({
-        name: 'complated2'
+        name: 'complated2', query: {group_id: this.group_id, learn_id: this.learn_id, feel: this.selectIndex + 1, good_name: this.good_name, type: this.type}
       })
     }
   },

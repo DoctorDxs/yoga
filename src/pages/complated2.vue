@@ -4,25 +4,35 @@
       <div class="content-box">
         <div class="complate-title">此刻的心情？</div>
         <div class="feel-content"><textarea placeholder="输入你的心情" v-model.trim="content"></textarea></div>
-        <div class="icon-img"><img src="../assets/class_takephoto@3x.png" alt=""></div>
+        <div class="icon-img">
+          <img :src="imgs ? imgs : require('../assets/class_takephoto@3x.png')" alt="">
+          <input type="file" @change="selectImg" class="input-img" name="img1" accept="image/*" ref="inputImg1">
+        </div>
       </div>
-      <div class="nex-stupe" @click="linkNext">完成</div>
+      <div class="nex-stupe" @click="submitTrends">完成</div>
     </div>
   </div>
      
 </template>
 
 <script>
-
+import { postImg, addTrend } from '../fetch/api'
 export default {
   name: 'complated2',
   data () {
     return {
-      content: ''
+      content: '',
+
+      imgs: ''
     }
   },
   created() {
-    
+    const query = this.$route.query
+    this.group_id = query.group_id,
+    this.learn_id = query.learn_id,
+    this.good_name = query.good_name
+    this.type = query.type
+    this.feel = query.feel
   },
   mounted() {
     document.title = '完成情况';
@@ -32,12 +42,49 @@ export default {
  
 
   methods: {
+    selectImg(e) {
+      const inputFile = this.$refs.inputImg1
+      if(inputFile.files[0].length !== 0){ 
+        let data = new FormData();
+        data.append('file', inputFile.files[0]);
+        data.append('type', 6)
+        postImg(data).then(res => {
+          if (res.state == 200) {
+            this.imgs = res.data[0]
+            inputFile.value = ''
+          } else {
+            this.$toast.top(res.msg)
+          }
+        })
+      }
+    },
+
+    submitTrends() {
+      if (this.content || this.imgs) {
+        const params = {
+          group_id: this.group_id,
+          learn_id: this.learn_id,
+          content: this.content,
+          image_paths: this.imgs,
+          type: 1,
+          feel: this.feel
+        }
+        addTrend(params).then(res => {
+          if (res.state == 200) {
+            this.$toast.top(res.msg)
+            this.$router.push({
+              name: 'complated3', query: {good_name: this.good_name,group_id: this.group_id, type: this.type}
+            })
+          } else {
+            this.$toast.top(res.msg)
+          }
+        })
+      } else {
+        this.$toast.top('请填写心情或选择图片！')
+      }
+    },
+
     
-    linkNext() {
-      this.$router.push({
-        name: 'complated3'
-      })
-    }
   },
   components: {
     
@@ -95,6 +142,7 @@ export default {
   outline: medium;
   font-size: 28px;
   height: 160px;
+  resize: none;
 }
 
 .feel-content textarea::placeholder {
@@ -102,12 +150,22 @@ export default {
 }
 
 .icon-img {
-  padding: 0 60px 0;
+  margin-left: 60px;
+  position: relative;
 }
 
 .icon-img img {
   width: 144px;
   height: 144px;
+}
+
+.input-img {
+  position: absolute;
+  width: 144px;
+  height: 144px;
+  top: 0;
+  left: 0;
+  opacity: 0;
 }
 
 

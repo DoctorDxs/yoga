@@ -39,7 +39,7 @@
               <div>{{item.time}}</div>
             </div>
           </div>
-          <div @click="linkVideo(item.group_id, item.id)">
+          <div @click="linkVideo(item.group_id, item.id, item.is_can_see, item.is_try_free)">
             <div v-if='item.is_try_free == 1 && item.is_can_see != 1 && detail.in_circle != 1' class="free-try-see">免费试看</div>
             <div v-if='item.is_can_see != 1 && item.is_try_free != 1' class="course-locked"><img src="../assets/class_lock@3x.png" alt=""></div>
             <div v-if='item.is_can_see == 1 ||  (detail.in_circle == 1 && item.is_try_free == 1)' class="course-play"><img src="../assets/class_play@3x.png" alt=""></div>
@@ -106,7 +106,7 @@
 <script>
 import trendList from '@/components/trendList'
 import courseTop from '@/components/courseTop'
-import { getDetail, getCurrentCourseEval } from '../fetch/api'
+import { getDetail, getCurrentCourseEval, getWx } from '../fetch/api'
 
 export default {
   name: 'courseDetail',
@@ -118,7 +118,7 @@ export default {
       id: '',
       showShareModal: false,
       showConsultModal: false,
-      wxCode: 'MEIRIYUJIAXXXX',
+      wxCode: '',
       evaluteList: []
     }
   },
@@ -141,10 +141,12 @@ export default {
     linkAddTrend(type) {
       this.$router.push({name: 'submitTrend', query: {type: type, group_id: this.id}})
     },
-    linkVideo(group_id, goods_id) {
-      this.$router.push({
-        name: 'videoDetail', query: {group_id: group_id, goods_id: goods_id}
-      })
+    linkVideo(group_id, learn_id, can_see, try_see) {
+      if (can_see == '1' || try_see == '1') {
+        this.$router.push({
+          name: 'videoDetail', query: {group_id: group_id, learn_id: learn_id, type: this.detail.type}
+        })
+      }
     },
     showShare() {
       this.showShareModal = true
@@ -153,7 +155,14 @@ export default {
       this.showShareModal = false
     },
     showConsult() {
-      this.showConsultModal = true
+      getWx().then(res => {
+        if (res.state == 200) {
+          this.wxCode = res.data.wechat
+          this.showConsultModal = true
+        } else {
+          this.$toast.top(res.msg)
+        }
+      })
     },
     hideConsult() {
       this.showConsultModal = false

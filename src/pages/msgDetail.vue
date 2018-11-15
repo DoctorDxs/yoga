@@ -6,11 +6,11 @@
           <div class="msg-type-icon">
             <img :src="item.user_avatar" alt="">
           </div>
-          <div :style='item.is_read == "1" ? "color: #D9DEEC" : ""' @click.stop="linkDetail(item.id, item.link_type)">
-            <div class="msg-type-title" :style='item.is_read == "0" ? "color: #D9DEEC" : ""'>{{item.username}}</div>
-            <div class="msg-tips" v-if='type == 1' :style='item.is_read == "0" ? "color: #D9DEEC" : ""'>评论了你 | 回复了你</div>
-            <div class="msg-tips" v-if='type == 2' :style='item.is_read == "0" ? "color: #D9DEEC" : ""'>回答了你</div>
-            <div class="msg-tips" v-if='type == 3' :style='item.is_read == "0" ? "color: #D9DEEC" : ""'>赞了你</div>
+          <div @click.stop="linkDetail(item.id, item.link_type)">
+            <div class="msg-type-title" :style='item.is_read == "1" ? "color: #D9DEEC" : ""'>{{item.username}}</div>
+            <div class="msg-tips" v-if='type == 1' :style='item.is_read == "1" ? "color: #D9DEEC" : ""'>评论了你 | 回复了你</div>
+            <div class="msg-tips" v-if='type == 2' :style='item.is_read == "1" ? "color: #D9DEEC" : ""'>回答了你</div>
+            <div class="msg-tips" v-if='type == 3' :style='item.is_read == "1" ? "color: #D9DEEC" : ""'>赞了你</div>
           </div>
         </div>
         <div>

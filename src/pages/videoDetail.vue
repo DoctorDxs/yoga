@@ -48,45 +48,39 @@
 <script>
 import trendList from '@/components/trendList'
 
-import { videoDetail } from '../fetch/api'
+import { getVideoDetail } from '../fetch/api'
 
 export default {
   name: 'videoDetail',
   data () {
     return {
-      
+      videoInfo: {}
     }
   },
   created() {
     const query = this.$route.query
     this.group_id = query.group_id
-    this.goods_id = query.goods_id
-    console.log(query)
-    // setTimeout(() => {
-    //   this.$router.push({
-    //     name: 'complated1'
-    //   })
-    // },2000)
+    this.learn_id = query.learn_id
+    this.type = query.type
     this.getVideo()
   },
-  mounted() {
-    document.title = '坐式瑜伽';
-  },
-
- 
 
   methods: {
     linkAddTrend(type) {
       this.$router.push({name: 'submitTrend', query: {type: type}})
     },
     getVideo() {
-      videoDetail(this.group_id, this.goods_id).then(res => {
-        console.log(res)
+      getVideoDetail(this.group_id, this.learn_id).then(res => {
+        if (res.state == 200) {
+          this.videoInfo = res.data
+          document.title = res.data.good_name
+        }
       })
     },
     endVideo() {
-      this.$router.push({name: 'complated1', query: {type: 1}})
-    }
+      this.$router.push({name: 'complated1', query: {group_id: this.group_id, learn_id: this.learn_id, good_name: this.videoInfo.good_name, type: this.type}})
+    },
+    
   },
   components: {
     trendList

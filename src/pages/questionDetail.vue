@@ -136,7 +136,7 @@ export default {
     this.type = query.type
     this.group_type = query.group_type
     this.id = query.id
-    document.title = '动态详情'
+    document.title = '问题详情'
     this.getData()
   },
   methods: {

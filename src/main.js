@@ -10,12 +10,14 @@ import Croppa from 'vue-croppa'
 
 import Toast from './plugins/toast/index';
 import loading from './plugins/loading/index';
+import Modal from './plugins/modal/index';
 
 import './plugins/toast/index.css';
 import 'swiper/dist/css/swiper.css'
 import 'vue-croppa/dist/vue-croppa.css'
 
 Vue.use(loading)
+Vue.use(Modal)
 Vue.use(VueAwesomeSwiper)
 Vue.use(AwesomePicker);
 Vue.use(VueClipboard)

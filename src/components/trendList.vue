@@ -126,41 +126,6 @@ export default {
         });
       })
     },
-    // ShareAppMessage() {
-    //   const shareImg = this.shareImg
-    //   console.log(shareImg)
-    //   wx.onMenuShareAppMessage({
-    //     title: 'title.title',
-    //     desc: 'shareInfo.desc',
-    //     link: 'encodeURIComponent(location.href)',
-    //     imgUrl: shareImg,
-    //     success: function(res) {
-    //       console.log(res)
-    //       alert(JSON.stringify(res)) 
-    //     },
-    //     cancel: function(cancel) {
-    //       alert(JSON.stringify(cancel)) 
-
-    //     },
-    //     fail: function (err) {
-    //         alert(JSON.stringify(err));
-    //     }
-    //   })
-    // },
-    // ShareTimeline() {
-    //   wx.onMenuShareTimeline({
-    //     title: 'shareInfo.title',
-    //     desc: 'encodeURIComponent(location.href)',
-    //     link: 'encodeURIComponent(location.href)',
-    //     imgUrl: 'shareInfo.imgUrl',
-    //     success: function() {
-
-    //     },
-    //     cancel: function() {
-
-    //     }
-    //   });
-    // },
     linkDetail(type, id, group_type) {
       // 1动态 2提问 3回答
       if (type === '1') {

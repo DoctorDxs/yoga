@@ -349,7 +349,6 @@ export default {
             }
             this.comments = comments
           }
-          
         }
       })
     },
@@ -358,6 +357,18 @@ export default {
       this.content = ''
       this.imgs = []
       this.replayInput = 1
+    },
+
+    linkCourse(id, type) {
+      if (type == 1) {
+        this.$router.push({
+          name: 'campDetail', query: {id: id}
+        })
+      } else {
+        this.$router.push({
+          name: 'courseDetail', query: {id: id}
+        })
+      }
     },
 
     replay(id, username) {

@@ -2,9 +2,9 @@
   <div class="beVip-page">
     <div class="vip-tabbar" >
       <div>&nbsp;&nbsp;&nbsp;&nbsp;</div>
-      <div @click="selectType(1)" :class="svip? 'avtive-tab' : ''"><div>私教尊贵会员</div><div class="recommend-box"><span>推荐</span></div></div>
+      <div @click="selectType(2)" :class="svip? 'avtive-tab' : ''"><div>私教尊贵会员</div><div class="recommend-box"><span>推荐</span></div></div>
       <div></div>
-      <div @click="selectType(2)" :class="svip? '' : 'avtive-tab'">会员</div>
+      <div @click="selectType(1)" :class="svip? '' : 'avtive-tab'">会员</div>
       <div>&nbsp;&nbsp;&nbsp;&nbsp;</div>
     </div>
 
@@ -55,8 +55,8 @@
       <div class="svip-bottom">
         <div class="select-drop" @click="showSvpiSelectModal">
           <div class="select-type">
-            <div class="new-price">￥{{selectPrice ? selectPrice : svipInfo.price_year_discount}}</div>
-            <div class="old-price" v-if='selectPrice && selectOldPrice'>￥{{selectOldPrice ? selectOldPrice : svipInfo.price_year}}</div>
+            <div class="new-price">￥{{selectsPrice ? selectsPrice : svipInfo.price_year_discount}}</div>
+            <div class="old-price" v-if='selectsPrice && selectOldsPrice'>￥{{selectOldsPrice ? selectOldsPrice : svipInfo.price_year}}</div>
           </div>
           <div class="drap-icon"><img src="../assets/vip_select@3x.png" alt=""></div>
         </div>
@@ -94,15 +94,15 @@
 
     <div class="modal-bg" v-if='showSvpiSelect && svip' @click="hideSvpiSelectModal">
       <div class="select-item-box" @click.stop="stopFather">
-        <div class="select-items" @click="selectThis(2,1, svipInfo.price_month, '', false)">
+        <div class="select-items" @click.stop="selectThis(2,1, svipInfo.price_month, '', false)">
           <div>月付</div>
           <div class="new-price">￥{{svipInfo.price_month}}</div>
         </div>
-        <div class="select-items" @click="selectThis(2,2, svipInfo.price_half_year, '', false)">
+        <div class="select-items" @click.stop="selectThis(2,2, svipInfo.price_half_year, '', false)">
           <div>半年付</div>
           <div class="new-price">￥{{svipInfo.price_half_year}}</div>
         </div>
-        <div class="select-items" @click="selectThis(2,3, svipInfo.price_year_discount, svipInfo.price_year, false)">
+        <div class="select-items" @click.stop="selectThis(2,3, svipInfo.price_year_discount, svipInfo.price_year, false)">
           <div class="year-icon">
             <div>年付</div> 
             <div class="limit-time-cout"><span>限时折扣</span></div> 
@@ -162,7 +162,8 @@ export default {
       selectOldsPrice: '',
       svipType: 3,
       vipType: 3,
-      toSvip: false
+      toSvip: false,
+      payConfig: {}
     }
   },
   created() {
@@ -176,10 +177,10 @@ export default {
   methods: {
     selectType(type) {
       if (type ==1 ) {
-        this.svip = true
+        this.svip = false
         this.getVip(1)
       } else if (type == 2) {
-        this.svip = false
+        this.svip = true
         this.getVip(2)
       }
     },
@@ -199,6 +200,7 @@ export default {
       this.showSvpiSelect  = false
       this.showVpiSelect  = false
       this.toSvip = toSvip
+      console.log(type,priceType, price, oldPrice, toSvip)
       if (type == 1) {
         this.selectPrice = price
         this.selectOldPrice = oldPrice
@@ -219,6 +221,8 @@ export default {
             this.vipInfo = res.data
             this.selectPrice = res.data.price_year_discount
             this.selectOldPrice = res.data.price_year
+            console.log(this.selectPrice, this.selectOldPrice)
+
           } else {
             this.svipInfo = res.data
             this.selectsPrice = res.data.price_year_discount
@@ -226,42 +230,55 @@ export default {
           }
         }
       })
-    }
-  },
-  beSvip() {
-    const params = {
-      vip_type: 2,
-      type: this.svipType
-    }
-    this.getSign()
-  },
-
-  beCommonVip() {
-    let params;
-    if (this.toSvip) {
-      params = {
+    },
+    beSvip() {
+      // 购买私教
+      const params = {
         vip_type: 2,
-        type: this.svipType
+        type: this.svipType,
+        is_web: 1
       }
-    } else {
-      params = {
-        vip_type: 3,
+      buyVip(params).then(res => {
+        if (res.state == 200) {
+          this.payConfig = res.data
+          this.getSign()
+        } else {
+          this.$toast.top(res.msg)
+        }
+      })
+    },
+    beCommonVip() {
+      let params;
+      // 升级到私教
+      if (this.toSvip) {
+        params = {
+          vip_type: 3,
+          is_web: 1
+        }
+      } else {
+        // 普通会员
+        params = {
+          vip_type: 1,
+          type: this.svipType,
+          is_web: 1
+        }
       }
-    }
-    
-    this.getSign()
-  },
-
-
-
-  getSign() {
+      buyVip(params).then(res => {
+        if (res.state == 200) {
+          this.payConfig = res.data
+          this.getSign()
+        } else {
+          this.$toast.top(res.msg)
+        }
+      })
+    },
+    getSign() {
       getSign(encodeURIComponent(location.href)).then(res => {
         if (res.state == 200) {
           this.setConfig(res.data)
         }
       })
     },
-
     setConfig(params) {
       wx.config({
         debug: true, // 开启调试模式,
@@ -275,8 +292,7 @@ export default {
       });
       this.wxPay(params)
     },
-
-    wxPay(params) {
+     wxPay(params) {
       const payConfig = this.payConfig
       wx.ready(function(){
         wx.chooseWXPay({
@@ -287,6 +303,7 @@ export default {
           paySign: payConfig.pay.sign, // 支付签名
           success: function(res) {
             // 支付成功后的回调函数
+            this.$toast.top('已开通')
             this.$router.go(-1)
           },
           fail:function(res){
@@ -295,6 +312,17 @@ export default {
         })
       })
     },
+  },
+  
+
+  
+
+
+
+  
+    
+
+   
 
 }
 </script>
