@@ -1,6 +1,6 @@
 <template>
-  <div class="modal-backdrop" v-if='show'>
-     <div class="modal" :style="mainStyles">
+  <div class="modal-backdrop">
+     <div class="modal">
         <div class="modal-header">
           {{title}}
         </div>
@@ -8,14 +8,56 @@
             {{content}}
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn-close" @click="close">关闭</button>
-            <button type="button" class="btn-confirm" @click="confirm">确认</button>
+            <button type="button" class="btn-close" @click="close" v-if="showCancle">{{cancleText}}</button>
+            <button type="button" class="btn-confirm" @click="confirm">{{confirmText}}</button>
         </div>
     </div>
 
   </div>
 </template>
-
+<script>
+export default {
+  name: 'modal',
+  props: {
+    title:{
+      type: String,
+      default: '提示'
+    },
+    content: {
+      type: String,
+      default: ''
+    },
+    show: {
+      type: Boolean,
+      default: true
+    },
+    showCancle: {
+        type: Boolean,
+        default: true
+    },
+    confirmText: {
+        type: String,
+        default: '确认'
+    },
+    cancleText: {
+        type: String,
+        default: '取消'
+    }
+  },
+  data() {
+    return {       
+    }
+  },
+  methods: {
+    closeSelf() {
+        this.$emit('on-cancel');
+    },
+    confirm() {
+        this.$emit('on-confirm');
+    }
+  }
+}
+</script>
 <style>
 .modal-backdrop { 
     position: fixed; 
@@ -75,34 +117,3 @@
 
 </style>
 
-<script>
-export default {
-  name: 'Modal',
-  props: {
-    title:{
-      type: String,
-      default: '提示'
-    },
-    content: {
-      type: String,
-      default: ''
-    },
-    show: {
-      type: Boolean,
-      default: true
-    }
-  },
-  data() {
-    return {       
-    }
-  },
-  methods: {
-    closeSelf() {
-        this.$emit('on-cancel');
-    },
-    confirm() {
-        this.$emit('on-confirm');
-    }
-  }
-}
-</script>

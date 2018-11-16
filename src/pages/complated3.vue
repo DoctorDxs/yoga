@@ -46,13 +46,16 @@
         </div>
       </div>
     </div>
-    <Modal 
-      :title="提示" 
-      :content='请点击窗口右上角来分享至微信好友或朋友圈'  
+    <modal 
+      title="提示" 
+      content='请点击窗口右上角来分享至微信好友或朋友圈',
+      :showCancle='showCancle' 
+      confirmText=''
+      cancleText=''
       @on-cancel="cancel" 
       @on-confirm='confirm'
-      v-show='show'>
-    </Modal>
+      v-show='showModal'>
+    </modal>
   </div>
      
 </template>
@@ -69,10 +72,11 @@ export default {
       userInfo: {},
       sendTime: '',
       goods_name: '',
-      show: true,
+      showModal: true,
       shareInfo: {},
       imgUrl: '',
-      showImg: true
+      showImg: true,
+      showCancle: false
     }
   },
   created() {
@@ -121,7 +125,7 @@ export default {
     },
     setConfig(params) {
       wx.config({
-        debug: true, // 开启调试模式,
+        debug: false, // 开启调试模式,
         appId: params.appId, // 必填，企业号的唯一标识，此处填写企业号corpid
         timestamp: params.timeStamp, // 必填，生成签名的时间戳
         nonceStr: params.nonceStr, // 必填，生成签名的随机串
