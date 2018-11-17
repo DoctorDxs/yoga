@@ -56,7 +56,7 @@ export default {
     },
     receiveNow() {
       this.$router.push({
-        name: 'receive'
+        name: 'receive',query: {}
       })
     }
   },
