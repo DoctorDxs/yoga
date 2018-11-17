@@ -15,7 +15,7 @@
           <div class="course-info">
             <img src="http://tx.haiqq.com/uploads/allimg/150402/16094151D-13.jpg" alt="">
             <div class='course-desc'>
-              <div>21天瑜伽瘦身课</div>
+              <div>{{detail.name}}</div>
               <div>课程</div>
             </div>
           </div>
@@ -25,13 +25,13 @@
           <div class="send-studep"><span>3</span><span>在我的赠送中，查看领取情况</span></div>
         </div>
         <div class="send-buy-btn">
-            <div>实付 <span>￥399</span></div>
+            <div>实付 <span>￥{{detail.price}}</span></div>
             <div @click="buyNow">立即支付</div>
           </div>
       </div>
     </div>
 
-    <div class="send-page" v-if='showShareSendModal' @click="hideShareSendModal">
+    <div class="send-page" v-if='showShareSendModal'>
       <div class="gift-send-box">
         <img src="../assets/class_gift_bg01@3x.png" alt="" class="bg-middle">
         <img src="../assets/class_gift_bg02@3x.png" alt="" class="bg-bottom">
@@ -39,56 +39,72 @@
           <div class="sender-info"><div><img src="../assets/class_gift_zhifu_icon@3x.png" alt=""></div></div>
           <div class='pay-success'>支付成功</div>
           <div class="gift-detail">
-            <img src="http://tx.haiqq.com/uploads/allimg/150402/16094151D-13.jpg" alt="">
+            <img :src="detail.goods_cover" alt="">
             <div class="course-desc">
-              <div>21天瑜伽瘦身课</div>
+              <div>{{detail.name}}</div>
               <div>课程</div>
             </div>
           </div>
-          <div class="course-price"><span>价值</span><span>￥399</span></div>
+          <div class="course-price"><span>价值</span><span>￥{{detail.price}}</span></div>
 
           <div class="get-course-btn" @click.stop="sendFriends">赠送好友</div>
           
         </div>
       </div>
     </div>
+    <modal 
+      title="提示" 
+      :content='modalContent'
+      :showCancle='showCancle' 
+      @on-confirm='confirm'
+      v-show='showModal'>
+    </modal>
   </div> 
 </template>
 
 <script>
-import { collectCourse, cancleCollect  } from '../fetch/api'
+import { collectCourse, cancleCollect, getSign, sendCourse, getShareInfo } from '../fetch/api'
+import trendListVue from './trendList.vue';
 export default {
   name: 'courseTop',
   data () {
     return {
       showSendModal: false,
-      showShareSendModal: false
+      showShareSendModal: false,
+      shareInfo: {},
+      showCancle: false,
+      modalContent: '请点击窗口右上角发送到好友或朋友圈来赠送给好友',
+      showModal: false  
     }
   },
   created() {
-    
-    
-  },
-  mounted() {
-    
   },
 
   methods: {
+    getShareInfo(params) {
+      this.showShareSendModal = true
+      setTimeout(() => {
+        getShareInfo(params).then(res => {
+          alert(JSON.stringify(res))
+          if (res.state == 200) {
+            alert(JSON.stringify(res))
+            this.shareInfo = res.data
+            this.setConfig()
+          }
+       }) 
+      }, 1500)
+      
+    },
+
+    // 普通分享
+    commonShare(detail) {
+      this.detail = detail
+    },
     snedBtn() {
       this.showSendModal = true
     },
     hideSendModal() {
       this.showSendModal = false
-    },
-    buyNow() {
-      this.showSendModal = false
-      this.showShareSendModal = true
-    },
-    sendFriends() {
-      this.showShareSendModal = false
-    },
-    hideShareSendModal() {
-      this.showShareSendModal = false
     },
     collect(id) {
       let userInfo = localStorage.getItem("userInfo")
@@ -125,7 +141,85 @@ export default {
       } else {
         this.$router.push({name: 'bindTel'})
       }
+    },
+    buyNow() {
+      let params;
+      if (this.detail.type == '2') {
+        params = {
+          group_id: this.detail.id,
+          is_web: 1
+        }
+      } else {
+        params = {
+          phase_id: this.detail.phase_id,
+          group_id: this.detail.id,
+          is_web: 1
+        }
+      }
+      sendCourse(params).then(res => {
+         if (res.state == 200) {
+            this.payConfig = res.data
+            this.wxPay()
+          } else {
+            this.$toast.top(res.msg)
+          }
+      })
+    },
+
+
+    setConfig(params) {
+      let shareInfo = this.shareInfo
+      
+      // 分享到盆友圈
+        wx.onMenuShareTimeline({
+          title: shareInfo.title,
+          link: shareInfo.url,
+          imgUrl: shareInfo.cover,
+          success: function(res) {
+            this.$toast.top('分享成功！')
+          },
+        })
+      //分享给朋友
+        wx.onMenuShareAppMessage({
+          title: shareInfo.title,
+          desc: shareInfo.desc,
+          link: shareInfo.url,
+          imgUrl: shareInfo.cover,
+          success: function() {
+            this.$toast.top('分享成功！')
+          }
+        })
+    },
+
+    wxPay() {
+      const that = this
+      const payConfig = this.payConfig
+      wx.ready(function(){
+        wx.chooseWXPay({
+          timestamp: payConfig.pay.timeStamp, // 支付签名时间戳，注意微信jssdk中的所有使用timestamp字段均为小写。但最新版的支付后台生成签名使用的timeStamp字段名需大写其中的S字符
+          nonceStr: payConfig.pay.nonceStr, // 支付签名随机串，不长于 32 位
+          package: payConfig.pay.package, // 统一支付接口返回的prepay_id参数值，提交格式如：prepay_id=***）
+          signType: payConfig.pay.signType, // 签名方式，默认为'SHA1'，使用新版支付需传入'MD5'
+          paySign: payConfig.pay.sign, // 支付签名
+          success: function(res) {
+            that.getShareInfo({id: payConfig.giving_id, type: 3})
+          },
+          fail:function(res){
+          }
+        })
+      })
+    },
+
+
+    sendFriends() {
+      this.showModal = true
+    },
+    confirm() {
+      this.showModal = false
+      this.showShareSendModal = false
     }
+    
+    
   },
   props: {
     detail: {
@@ -280,7 +374,7 @@ export default {
 
 
 .send-page {
-   position: fixed;
+  position: fixed;
   height: 100%;
   width: 100%;
   background: rgba(0, 0, 0, .5);
@@ -292,7 +386,11 @@ export default {
   position: absolute;
   width: 100%;
   height: 1050px;
-  top: 180px;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  margin: auto;
 }
 
 .bg-middle {

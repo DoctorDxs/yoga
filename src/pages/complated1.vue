@@ -38,6 +38,7 @@ export default {
     this.group_id = query.group_id,
     this.learn_id = query.learn_id,
     this.good_name = query.good_name
+    this.videoTime = query.videoTime
     this.type = query.type
   },
   mounted() {
@@ -53,7 +54,7 @@ export default {
     },
     linkNext() {
       this.$router.push({
-        name: 'complated2', query: {group_id: this.group_id, learn_id: this.learn_id, feel: this.selectIndex + 1, good_name: this.good_name, type: this.type}
+        name: 'complated2', query: {group_id: this.group_id, learn_id: this.learn_id, feel: this.selectIndex + 1, good_name: this.good_name, type: this.type,videoTime: this.videoTime}
       })
     }
   },

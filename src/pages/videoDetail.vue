@@ -3,11 +3,17 @@
     <div class="video-box">
       <video controls 
              @ended="endVideo()"
-             src="http://wxsnsdy.tc.qq.com/105/20210/snsdyvideodownload?filekey=30280201010421301f0201690402534804102ca905ce620b1241b726bc41dcff44e00204012882540400&bizid=1023&hy=SH&fileparam=302c020101042530230204136ffd93020457e3c4ff02024ef202031e8d7f02030f42400204045a320a0201000400">
+             x5-video-player-type="h5"
+            playsinline
+            webkit-playsinlin
+             :src="videoInfo.url"
+             ref='videoTime' v-show="!showPost">
       </video>
+      <img :src="videoInfo.good_cover" alt="" class="video-cover" v-show="showPost">
+      <img src="../assets/class_play_icon@3x.png" alt="" class="video-icon" @click="playVideo" v-show="showPost">
     </div>
 
-    <div class="tab-item-detail">
+    <div class="tab-item-detail" v-if='videoInfo.learns_avatar.length > 0'>
       <!-- 详情 -->
       <div>
         <div class="students-study">
@@ -20,15 +26,13 @@
             <img src="http://tx.haiqq.com/uploads/allimg/150402/16094151D-13.jpg" alt="">
           </div>
           <div class="course-detail-info">
-            <div>DAY1</div>
-            <div>***次练习</div>
+            <div>DAY{{videoInfo.learn_id - 0 + 1}}</div>
+            <div>{{videoInfo.learn_count - 0 + 1}}次练习</div>
           </div>
         </div>
       </div>
-      <!-- 圈子 -->
-      <div class="trend-list-box"><trend-list></trend-list></div>
     </div>
-
+    <div class="trend-list-box"><trend-list :evaluteList='evaluteList'></trend-list></div>
     <div class="course-is-buy">
       <div class="write-trend" @click="linkAddTrend(1)">
         <div><img src="../assets/class_issue@3x.png" alt=""></div>
@@ -47,14 +51,15 @@
 
 <script>
 import trendList from '@/components/trendList'
-
-import { getVideoDetail } from '../fetch/api'
+import { getVideoDetail, getCurrentCourseEval } from '../fetch/api'
 
 export default {
   name: 'videoDetail',
   data () {
     return {
-      videoInfo: {}
+      videoInfo: {learns_avatar: []},
+      evaluteList: [],
+      showPost: true
     }
   },
   created() {
@@ -63,11 +68,12 @@ export default {
     this.learn_id = query.learn_id
     this.type = query.type
     this.getVideo()
+    this.getTrend()
   },
 
   methods: {
     linkAddTrend(type) {
-      this.$router.push({name: 'submitTrend', query: {type: type}})
+      this.$router.push({name: 'submitTrend', query: {type: type, group_id: this.group_id}})
     },
     getVideo() {
       getVideoDetail(this.group_id, this.learn_id).then(res => {
@@ -78,8 +84,21 @@ export default {
       })
     },
     endVideo() {
-      this.$router.push({name: 'complated1', query: {group_id: this.group_id, learn_id: this.learn_id, good_name: this.videoInfo.good_name, type: this.type}})
+      this.$router.push({name: 'complated1', query: {group_id: this.group_id, learn_id: this.learn_id, good_name: this.videoInfo.good_name, type: this.type, videoTime: this.$refs.videoTime.duration}})
     },
+
+
+    getTrend() {
+      getCurrentCourseEval(this.group_id).then(res => {
+        if (res.state == 200) {
+          this.evaluteList = res.data.data
+        }
+      })
+    },
+    playVideo() {
+      this.showPost = false
+      this.$refs.videoTime.play()
+    }
     
   },
   components: {
@@ -101,6 +120,26 @@ export default {
 .video-box {
   width: 100%;
   height: 422px;
+  position: relative;
+}
+
+.video-cover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.video-icon {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+  width: 120px;
+  height: 120px;
 }
 
 .video-box video {

@@ -31,6 +31,7 @@ export default {
     this.group_id = query.group_id,
     this.learn_id = query.learn_id,
     this.good_name = query.good_name
+    this.videoTime = query.videoTime
     this.type = query.type
     this.feel = query.feel
   },
@@ -73,7 +74,7 @@ export default {
           if (res.state == 200) {
             this.$toast.top(res.msg)
             this.$router.push({
-              name: 'complated3', query: {good_name: this.good_name,group_id: this.group_id, type: this.type}
+              name: 'complated3', query: {good_name: this.good_name,group_id: this.group_id, type: this.type,videoTime:this.videoTime}
             })
           } else {
             this.$toast.top(res.msg)

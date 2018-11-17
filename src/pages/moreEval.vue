@@ -68,7 +68,7 @@
             <div v-for='(imgTtem, imgIndex) in item.img_path' :key='imgIndex'><img :src="imgTtem" alt="" @click.stop="previewImage({currentImg: imgTtem, currentImgLists: item.img_path})"></div>
           </div>
           <div class="user-content">
-            {{item.content}}
+            {{item.username}} <span class="replay-text" v-if='item.parent_username'> 回复 </span> {{item.content}}
           </div>
         </div>
       </div>
@@ -378,6 +378,10 @@ export default {
   width: 620px;
 }
 
+.replay-text {
+  color: #444C52;
+}
+
 .evaluate-title {
   padding: 0 30px;
   height: 100px;
@@ -477,11 +481,6 @@ export default {
   text-indent: 17px;
 }
 
-.replay-input img {
-  width: 44px;
-  height: 44px;
-}
-
 .replay-input input:nth-child(1)::placeholder {
   color: #ABB3BA;
 }
@@ -502,12 +501,17 @@ export default {
 
 .reply-img-list {
   padding: 30px 20px 20px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 .reply-img-list > div {
   position: relative;
   width: 116px;
   height: 116px;
+  margin-right: 20px;
+  margin-bottom: 20px;
 }
 
 .reply-img-list > div img:nth-child(1) {
@@ -538,6 +542,14 @@ export default {
   top: 0;
   overflow: hidden;
   z-index: 1;
+}
+
+.input-img-box img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 44px;
+  height: 44px;
 }
 
 </style>

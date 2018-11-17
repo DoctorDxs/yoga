@@ -289,6 +289,7 @@ export default {
   background: #fff;
   word-break: break-all;
   padding: 20px;
+  font-size: 28px;
 }
 
 .course-table-item {

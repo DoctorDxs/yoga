@@ -24,21 +24,36 @@
 </template>
 
 <script>
-
+import { getSendInfo } from '../fetch/api.js'
+import GetRequest from '../utils/geturl'
 export default {
   name: 'sendPage',
   data () {
     return {
-      
+      sendDetail: {}
     }
   },
   created() {
     document.title = '赠送';
+    let url = location.href
+    let Id = url.split('id')[1].split('=')[1]
+    this.id = Id
+    alert(Id)
   },
   mounted() {
     document.getElementsByClassName('send-page')[0].style.minHeight = window.innerHeight + 'px'
   },
   methods: {
+    getData() {
+      getSendInfo(this.id).then(res => {
+        alert(JSON.stringify(res))
+        if (res.state == 200) {
+          this.sendDetail = res.data
+        } else {
+          this.$toast.top(res.msg)
+        }
+      })
+    },
     receiveNow() {
       this.$router.push({
         name: 'receive'

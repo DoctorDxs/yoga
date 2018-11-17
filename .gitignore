@@ -12,13 +12,5 @@ yarn-error.log*
 *.ntvs*
 *.njsproj
 *.sln
-*.js
-<<<<<<< HEAD
-=======
+shell.js
 *.txt
->>>>>>> f12b20486d8177c52eda6fc5dbe06ca52d4a6201
-
-
-/*.js
-/*.txt
-/*.js

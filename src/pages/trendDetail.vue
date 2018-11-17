@@ -482,12 +482,17 @@ export default {
 
 .reply-img-list {
   padding: 30px 20px 20px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
 }
 
 .reply-img-list > div {
   position: relative;
   width: 116px;
   height: 116px;
+  margin-right: 20px;
+  margin-bottom: 20px;
 }
 
 .reply-img-list > div img:nth-child(1) {

@@ -44,7 +44,7 @@
               <span class="evaluate-user" @click="replay(item.id, item.username)">{{item.username}}</span>
               <span class="replay-text" v-if='item.parent_username'> 回复 </span>
               <span class="evaluate-user">{{item.parent_username}}</span>:
-              <span class="evaluate-content" @click="item.is_mine == '1' ? showModal(item.id) : ''">{{item.content}} </span>  
+              <span class="evaluate-content" @click="item.is_mine == '1' ? showModal(item.id, index) : ''">{{item.content}} </span>  
               <span class="look-img-btn" v-if='item.img_path.length > 0' @click.stop="previewImage({currentImg: item.img_path[0], currentImgLists: item.img_path})">查看图片</span>
             </div>
             <div class="look-more-btn" @click="lookAllcomment(detail.id)" v-if='detail.evaluate_sum > 3'>查看全部{{detail.evaluate_sum}}条回复</div>
@@ -79,6 +79,15 @@
         <div class="cancle" @click="hideModal">取消</div>
       </div>
     </div>
+    <modal 
+      title="提示" 
+      content='是否删除?'
+      :showCancle='showCancle' 
+      confirmText='删除'
+      @on-cancel="cancel" 
+      @on-confirm='confirm'
+      v-show='showModal1'>
+    </modal>
   </div>
      
 </template>
@@ -99,7 +108,8 @@ export default {
       },
       replayInput: false,
       comment_id: '',
-      deleteId: ''
+      deleteId: '',
+      showModal1: false
     }
   },
   created() {
@@ -115,21 +125,32 @@ export default {
   },
 
   methods: {
-    showModal(id) {
+    showModal(id, index) {
       this.modalShow = true
-      this.deleteId = id
+      this.deleteId = id,
+      this.delIndex = index
     },
     deleteEval() {
       this.modalShow = false
-      if (this.deleteId) {
-        delEval({comment_id: this.deleteId}).then(res => {
-          if (res.state == 200) {
-            this.$toast.top(res.msg)
-            this.getData()
-          }
-        })
-      }
+      this.showModal1 = true
     },
+    confirm() {
+      this.showModal1 = false
+      delEval({comment_id: this.deleteId}).then(res => {
+        if (res.state == 200) {
+          this.$toast.top('已删除！')
+          this.delId = ''
+          this.delIndex = ''
+          this.getData()
+        } else {
+           this.$toast.top(res.msg)
+        }
+      })
+    },
+    cancel() {
+      this.showModal1 = false
+    },
+
     hideModal() {
       this.modalShow = false
     },
@@ -519,9 +540,12 @@ export default {
   text-indent: 17px;
 }
 
-.replay-input img {
+.input-img-box img {
   width: 44px;
   height: 44px;
+  position: absolute;
+  top: 0;
+  left: 0;;
 }
 
 .replay-input input:nth-child(1)::placeholder {
@@ -544,12 +568,17 @@ export default {
 
 .reply-img-list {
   padding: 30px 20px 20px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
 }
 
 .reply-img-list > div {
   position: relative;
   width: 116px;
   height: 116px;
+  margin-right: 20px;
+  margin-bottom: 20px;
 }
 
 .reply-img-list > div img:nth-child(1) {
@@ -600,6 +629,7 @@ export default {
   width: 44px;
   height: 44px;
 }
+
 
 .input-img-box .input-img {
   width: 44px;

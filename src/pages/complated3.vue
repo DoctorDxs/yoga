@@ -1,7 +1,5 @@
 <template>
   <div class="complated3-page">
-    <a id='grow-img' hidden></a>
-
     <div class="complated-box">
       <div class="content-box">
         <div class="complate-title">发布成功</div>
@@ -21,7 +19,7 @@
           <div class="this-port">
             <div>本次运动</div>
             <div>
-              <span class="study-time">32:12</span>
+              <span class="study-time">{{videoTime}}</span>
               <span class="time-unit">min</span>
             </div>
           </div>
@@ -48,7 +46,7 @@
     </div>
     <modal 
       title="提示" 
-      content='请点击窗口右上角来分享至微信好友或朋友圈',
+      :content='modalContent'
       :showCancle='showCancle' 
       confirmText=''
       cancleText=''
@@ -72,11 +70,12 @@ export default {
       userInfo: {},
       sendTime: '',
       goods_name: '',
-      showModal: true,
+      showModal: false,
       shareInfo: {},
       imgUrl: '',
       showImg: true,
-      showCancle: false
+      showCancle: false,
+      modalContent: '请点击窗口右上角来分享至微信好友或朋友圈',
     }
   },
   created() {
@@ -84,6 +83,7 @@ export default {
     this.good_name = query.good_name
     this.type = query.type
     this.group_id = query.group_id
+    this.videoTime = videoTime
     let userInfo = localStorage.getItem("userInfo")
     if (userInfo) {
       userInfo = JSON.parse(userInfo)
@@ -136,8 +136,7 @@ export default {
     },
 
     onShare() {
-      const that = this
-      let link;
+
       let shareInfo = this.shareInfo
       wx.ready(function(){
         wx.checkJsApi({
@@ -197,17 +196,14 @@ export default {
         canvas.style.width = width+"px";
         canvas.style.height = height+"px";
         const imgUrl = canvas.toDataURL("image/png")
-        const aEl = document.getElementById('grow-img')
         that.imgUrl = imgUrl
         that.showImg = false
-        aEl.setAttribute('href', imgUrl)
-        aEl.setAttribute('download', that.good_name + ("0000000" +100000000 * Math.random()).match(/(\d{8})(\.|$)/)[1])
       });
     },
 
     saveImg() {
-      const aEl = document.getElementById('grow-img')
-      aEl.click()
+      this.modalContent = '请长按上图保存至相册'
+      this.showModal = true
     },
      
     getData() {
@@ -223,13 +219,14 @@ export default {
       })
     },
     shareTips() {
-      this.show = true
+      this.showModal = true
+      this.modalContent = '请点击窗口右上角来分享至微信好友或朋友圈'
     },
     cancel() {
-      this.show = false
+      this.showModal = false
     },
     confirm() {
-      this.show = false
+      this.showModal = false
     }
   },
   components: {

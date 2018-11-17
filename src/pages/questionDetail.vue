@@ -74,7 +74,7 @@
                 <span class="evaluate-user" @click.stop="replay(commentItem.id, commentItem.username)">{{commentItem.username}}</span>
                 <span class="replay-text" v-if='commentItem.parent_username'> 回复 </span>
                 <span class="evaluate-user">{{commentItem.parent_username}}</span>:
-                <span class="evaluate-content" @click="commentItem.is_mine == '1' ? showModal() : ''">{{commentItem.content}} </span>  
+                <span class="evaluate-content" @click="commentItem.is_mine == '1' ? showModal(commentItem.id,commentIndex) : ''">{{commentItem.content}} </span>  
                 <span class="look-img-btn" v-if='commentItem.img_path.length > 0' @click.stop="previewImage({currentImg: commentItem.img_path[0], currentImgLists: commentItem.img_path})">查看图片</span>
               </div>
               <div class="look-more-btn" @click="lookAll(item.id)" v-if='item.evaluate_sum > 3'>查看全部{{item.evaluate_sum}}条回复</div>
@@ -109,12 +109,22 @@
         <div class="cancle" @click="hideModal">取消</div>
       </div>
     </div>
+    <modal 
+      title="提示" 
+      :content='modalContent'
+      :showCancle='showCancle' 
+      :confirmText='confirmText'
+      @on-cancel="cancel" 
+      @on-confirm='confirm'
+      v-show='showModal1'>
+    </modal>
+
   </div>
      
 </template>
 
 <script>
-import { getSomeoneTrend, replayOrCommit, postImg, deleteImg, getSign, addSuport} from '../fetch/api.js'
+import { getSomeoneTrend, replayOrCommit, postImg, deleteImg, getSign, addSuport, delEval, addTrend,getShareInfo} from '../fetch/api.js'
 export default {
   name: 'questionDetail',
   data () {
@@ -128,7 +138,14 @@ export default {
       comments: [],
       content: '',
       imgs: [],
-      replayInput: 1
+      replayInput: 1,
+      modalShow: false,
+      showModal1: false,
+      modalContent: '是否删除?',
+      is_share: false ,
+      showCancle: false,
+      confirmText: '删除',
+      shareInfo: ''
     }
   },
   created() {
@@ -171,19 +188,46 @@ export default {
           };
           this.trendDetails = trendDetails
           this.comments = comments
+          this.getShareInfo()
         }
       })
+    },
+    getShareInfo() {
+      const params = {
+        id: this.trendDetails.id,
+        type: 2
+      }
+      getShareInfo(params).then(res => {
+        if (res.state == 200) {
+          this.shareInfo = res.data
+          this.getSign()
+        }
+      })
+    },
+    linkCourse(id, type) {
+      if (type === '1') {
+        this.$router.push({
+          name: 'campDetail', query: {id: id}
+        })
+      } else if (type === '2') {
+        this.$router.push({
+          name: 'courseDetail', query: {id: id}
+        })
+      }
     },
     submitIdea() {
       if (this.content || this.imgs.length > 0) {
         let params;
         if (this.replayInput == 1) {
-          // 对动态进行评论
+          // 对问题进行回答
           params = {
             content: this.content,
-            news_id: this.id,
-            img_path: this.imgs.length > 0 ? this.imgs.join(',') : ''
+            type: 3,
+            reply_id: this.trendDetails.id,
+            image_paths: this.imgs.length > 0 ? this.imgs.join(',') : '',
+            video_path: ''
           }
+          this.postTrend(params)
         } else if (this.replayInput == 2) {
           // 对评论进行回复
           params = {
@@ -191,13 +235,27 @@ export default {
             img_path: this.imgs.length > 0 ? this.imgs.join(',') : '',
             comment_id: this.comment_id
           }
+          this.comment(params)
         }
-        this.comment(params)
         
       } else {
         this.$toast.top('请输入内容或选择图片!')
       }
     },
+
+    postTrend(params) {
+      addTrend(params).then(res => {
+        if (res.state == 200) {
+          this.$toast.top(res.msg)
+          this.getData()
+          this.content = ''
+          this.imgs = []
+        } else {
+          this.$toast.top(res.msg)
+        }
+      })
+    },
+
     // 评论
     comment(params) {
       replayOrCommit(params).then(res => {
@@ -243,8 +301,11 @@ export default {
       })
     },
     previewImage(params) {
-      this.previewImages = params
-      this.getSign()
+      // 图片预览
+      wx.previewImage({
+        current: params.currentImg, // 当前显示图片的http链接
+        urls: params.currentImgLists, // 需要预览的图片http链接列表
+      });
     },
 
     getSign() {
@@ -256,27 +317,45 @@ export default {
     },
 
     setConfig(params) {
-      const that = this
+      let shareInfo = this.shareInfo
+      
       wx.config({
         debug: false, 
         appId: params.appId, 
         timestamp: params.timeStamp, 
         nonceStr: params.nonceStr, 
         signature: params.signature,
-        jsApiList: ['checkJsApi', 'previewImage']
+        jsApiList: ['checkJsApi', 'previewImage','onMenuShareAppMessage', 'onMenuShareTimeline']
       });
-      const previewImages = this.previewImages
       wx.ready(function() {
         wx.checkJsApi({
           jsApiList: [
-            'previewImage'
+            'previewImage',
+            'onMenuShareAppMessage',
+            'onMenuShareTimeline'
           ]
         });
-        // 图片预览
-        wx.previewImage({
-          current: previewImages.currentImg, // 当前显示图片的http链接
-          urls: previewImages.currentImgLists, // 需要预览的图片http链接列表
-        });
+
+        // 分享到盆友圈
+        wx.onMenuShareTimeline({
+          title: shareInfo.title,
+          link: shareInfo.url,
+          imgUrl: shareInfo.cover,
+          success: function(res) {
+            this.$toast.top('分享成功！')
+          },
+        })
+      //分享给朋友
+        wx.onMenuShareAppMessage({
+          title: shareInfo.title,
+          desc: shareInfo.desc,
+          link: shareInfo.url,
+          imgUrl: shareInfo.cover,
+          success: function() {
+            this.$toast.top('分享成功！')
+          }
+        })
+        
       })
     },
     // 点赞
@@ -349,7 +428,7 @@ export default {
       this.imgs = []
       this.$refs.commentInput.setAttribute('placeholder', `回复  ${username}`)
     },
-    commentUser() {
+    commentUser(id) {
       this.replayInput = 1
       this.content = ''
       this.imgs = []
@@ -358,13 +437,60 @@ export default {
     },
     lookAll(id) {
       this.$router.push({
-        name: 'moreEval', query: {id: id}
+        name: 'moreEval', query: {id: id, type: 'answer'}
       })
     },
     // 分享提示
     shareTips() {
-      alert('请点击右上角分享至好友或朋友圈')
-    }
+      this.modalContent = '请点击窗口右上角来分享至微信好友或朋友圈'
+      this.confirmText = '确认'
+      this.showModal1 = true,
+      this.showCancle = false
+      this.is_share = true
+    },
+
+
+    showModal(id, index) {
+      this.modalShow = true
+      this.deleteId = id,
+      this.delIndex = index
+    },
+    deleteEval() {
+      this.modalContent = '是否删除？'
+      this.confirmText = '删除'
+      this.showCancle = true
+      this.modalShow = false
+      this.showModal1 = true
+    },
+    confirm() {
+      this.showModal1 = false
+      if (this.is_share) {
+        this.is_share = false
+      } else {
+        delEval({comment_id: this.deleteId}).then(res => {
+          if (res.state == 200) {
+            this.$toast.top('已删除！')
+            this.deleteId = ''
+            this.delIndex = ''
+            this.getData()
+          } else {
+            this.$toast.top(res.msg)
+          }
+        })
+        this.is_share = false
+      }
+      
+    },
+    cancel() {
+      console.log(2323)
+      this.showModal1 = false
+    },
+    hideModal() {
+      this.modalShow = false
+    },
+
+
+
   },
 
 }
@@ -447,10 +573,6 @@ export default {
   text-indent: 17px;
 }
 
-.replay-input img {
-  width: 44px;
-  height: 44px;
-}
 
 .replay-input input:nth-child(1)::placeholder {
   color: #ABB3BA;
@@ -538,6 +660,14 @@ export default {
   top: 0;
   overflow: hidden;
   z-index: 1;
+}
+
+.input-img-box img {
+  width: 44px;
+  height: 44px;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
 

@@ -58,6 +58,15 @@
         </div>
       </div>
     </div>
+    <modal 
+      title="提示" 
+      content='是否删除?'
+      :showCancle='showCancle' 
+      confirmText='删除'
+      @on-cancel="cancel" 
+      @on-confirm='confirm'
+      v-show='showModal'>
+    </modal>
   </div> 
 </template>
 
@@ -67,7 +76,8 @@ export default {
   name: 'trendList',
   data () {
     return {
-      previewImages: {}
+      previewImages: {},
+      showModal: false
     }
   },
   created() {
@@ -154,14 +164,25 @@ export default {
       }
     },
     deleteTrend(id, index) {
-      delEval({news_id: id}).then(res => {
+      this.showModal = true
+      this.delId = id
+      this.delIndex = index
+    },
+    confirm() {
+      this.showModal = false
+      delEval({news_id: this.delId}).then(res => {
         if (res.state == 200) {
-          this.evaluteList.splice(index,1);
+          this.evaluteList.splice(this.delIndex,1);
           this.$toast.top('已删除！')
+          this.delId = ''
+          this.delIndex = ''
         } else {
            this.$toast.top(res.msg)
         }
       })
+    },
+    cancel() {
+      this.showModal = false
     }
   },
   

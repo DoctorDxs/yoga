@@ -1,6 +1,6 @@
 <template>
   <div class="course-detail-page">
-    <course-top :detail='detail'></course-top>
+    <course-top :detail='detail' ref='courseTop'></course-top>
     <div class="course-tab">
 
       <div class="course-tab-box">
@@ -73,7 +73,7 @@
         <div>提问题</div>
       </div>
     </div>
-    <div class="share-modal-bg" v-if='showShareModal' @click="hideShare">
+    <!-- <div class="share-modal-bg" v-if='showShareModal' @click="hideShare">
       <div class="share-modal-box">
         <div class="share-modal">
           <div>
@@ -86,7 +86,16 @@
           </div>
         </div>
       </div>
-    </div>
+    </div> -->
+    <modal 
+      title="提示" 
+      :content='modalContent'
+      :showCancle='showCancle' 
+      confirmText=''
+      cancleText=''
+      @on-confirm='confirm'
+      v-show='showModal'>
+    </modal>
 
     <div class="consult-modal-bg" v-if="showConsultModal" @click="hideConsult">
       <div class="consult-modal">
@@ -106,7 +115,7 @@
 <script>
 import trendList from '@/components/trendList'
 import courseTop from '@/components/courseTop'
-import { getDetail, getCurrentCourseEval, getWx } from '../fetch/api'
+import { getDetail, getCurrentCourseEval, getWx, getSign, getShareInfo } from '../fetch/api'
 
 export default {
   name: 'courseDetail',
@@ -119,7 +128,10 @@ export default {
       showShareModal: false,
       showConsultModal: false,
       wxCode: '',
-      evaluteList: []
+      evaluteList: [],
+      showCancle: false,
+      modalContent: '请点击窗口右上角分享给',
+      showModal: false  
     }
   },
   created() {
@@ -149,7 +161,10 @@ export default {
       }
     },
     showShare() {
-      this.showShareModal = true
+      this.showModal = true
+    },
+    confirm() {
+      this.showModal = false
     },
     hideShare() {
       this.showShareModal = false
@@ -177,9 +192,60 @@ export default {
       getDetail(id).then(res => {
         if (res.state == 200) {
           this.detail = res.data
+          this.$refs.courseTop.commonShare(res.data); 
+          this.getShareInfo({id: res.data.id, type: 1})
         }
       })
     },
+    getShareInfo(params) {
+      getShareInfo(params).then(res => {
+        if (res.state == 200) {
+          this.shareInfo = res.data
+          this.getSign()
+        }
+      }) 
+    },
+
+    getSign() {
+      getSign(encodeURIComponent(location.href)).then(res => {
+        if (res.state == 200) {
+          this.setConfig(res.data)
+        }
+      })
+    },
+
+    setConfig(params) {
+      let shareInfo = this.shareInfo
+      wx.config({
+        debug: false, // 开启调试模式,
+        appId: params.appId, // 必填，企业号的唯一标识，此处填写企业号corpid
+        timestamp: params.timeStamp, // 必填，生成签名的时间戳
+        nonceStr: params.nonceStr, // 必填，生成签名的随机串
+        signature: params.signature,// 必填，签名，见附录1
+        jsApiList: ['onMenuShareAppMessage', 'onMenuShareTimeline','chooseWXPay'] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
+      });
+      
+      // 分享到盆友圈
+        wx.onMenuShareTimeline({
+          title: shareInfo.title,
+          link: shareInfo.url,
+          imgUrl: shareInfo.cover,
+          success: function(res) {
+            this.$toast.top('分享成功！')
+          },
+        })
+      //分享给朋友
+        wx.onMenuShareAppMessage({
+          title: shareInfo.title,
+          desc: shareInfo.desc,
+          link: shareInfo.url,
+          imgUrl: shareInfo.cover,
+          success: function() {
+            this.$toast.top('分享成功！')
+          }
+        })
+    },
+
     getCurrentCourseEval(id) {
       getCurrentCourseEval(id).then(res => {
         this.evaluteList = res.data.data
@@ -273,6 +339,7 @@ export default {
   background: #fff;
   word-break: break-all;
   padding: 20px;
+  font-size: 28px;
 }
 
 .course-table-item {

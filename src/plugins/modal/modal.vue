@@ -8,8 +8,8 @@
             {{content}}
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn-close" @click="close" v-if="showCancle">{{cancleText}}</button>
-            <button type="button" class="btn-confirm" @click="confirm">{{confirmText}}</button>
+            <button type="button" class="btn-close" @click="close" v-if="showCancle">{{cancleText?cancleText : '取消'}}</button>
+            <button type="button" class="btn-confirm" @click="confirm">{{confirmText ? confirmText : '确定'}}</button>
         </div>
     </div>
 
@@ -49,7 +49,7 @@ export default {
     }
   },
   methods: {
-    closeSelf() {
+    close() {
         this.$emit('on-cancel');
     },
     confirm() {
@@ -71,6 +71,7 @@ export default {
     display: flex; 
     justify-content: center; 
     align-items: center; 
+    z-index: 99999999;
 }
 .modal { 
     background-color: #fff; 
@@ -79,39 +80,43 @@ export default {
     display: flex; 
     flex-direction: column;
     border-radius: 16px;
+    width: 500px;
 } 
 .modal-header { 
     border-bottom: 1px solid #eee; 
     color: #313131; 
-    justify-content: space-between;
+    justify-content: space-around;
     padding: 15px; 
-    display: flex; 
+    display: flex;
+    font-size: 30px; 
 } 
 .modal-footer { 
     border-top: 1px solid #eee; 
-    justify-content: flex-end;
     padding: 15px; 
     display: flex; 
+    justify-content: space-around;
+    align-items: center;
 } 
 .modal-body { 
     position: relative; 
-    padding: 20px 10px; 
+    padding: 20px; 
+    font-size: 28px;
 }
 .btn-close, .btn-confirm {    
     border-radius: 8px;
-    margin-left:16px;
-    width:56px;
-    height: 36px;
     border:none;
     cursor: pointer;
+    font-size: 28px;
+    padding: 5px 15px;
 }
 .btn-close {
     color: #313131;
-    background-color:transparent;
+    background-color: transparent;
 }
 .btn-confirm {
-    color: #fff; 
-    background-color: #2d8cf0;
+    color: #000; 
+    /* background-color: #2d8cf0; */
+    background-color: transparent;
 }
 
 

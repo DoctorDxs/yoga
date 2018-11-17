@@ -316,6 +316,10 @@ export function sendCourse(params) {
   })
 }
 
+export function getSendInfo(params) { 
+  return fetch(`/api/order/giving_detail?id=${params}`)
+}
+
 
 /**
  * 
