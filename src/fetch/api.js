@@ -51,6 +51,10 @@ export function getArticleList() {
   return fetch('/api/information/index')
 }
 
+export function getArticleUrl(params) { 
+  return fetch(`/api/information/detail/${params}`)
+}
+
 /**
  * @params  课程 type = 2 训练营 type = 1
  */
@@ -337,7 +341,7 @@ export function sendText(params) {
  *  赠送记录 或 收到的赠送记录
  */
 export function sendRecord(params) { 
-  return fetch(`/api/order/givings&type=1`)
+  return fetch(`/api/order/givings?type=${params.type}&page=${params.page}`)
 }
 
 
@@ -429,5 +433,5 @@ export function feedBack(params) {
 
 
 export function collectList(params) { 
-  return fetch(`/api/my/fav?type=${params}`)
+  return fetch(`/api/my/fav?type=${params.type}&page=${params.page}`)
 }

@@ -7,7 +7,7 @@ import AwesomePicker from 'vue-awesome-picker';
 import VueAwesomeSwiper from 'vue-awesome-swiper'
 import VueClipboard from 'vue-clipboard2'
 import Croppa from 'vue-croppa'
-
+import InfiniteLoading from 'vue-infinite-loading';
 import Toast from './plugins/toast/index';
 import loading from './plugins/loading/index';
 import modal from './plugins/modal/index';
@@ -16,6 +16,7 @@ import './plugins/toast/index.css';
 import 'swiper/dist/css/swiper.css'
 import 'vue-croppa/dist/vue-croppa.css'
 
+Vue.use(InfiniteLoading)
 Vue.use(loading)
 Vue.use(modal)
 Vue.use(VueAwesomeSwiper)

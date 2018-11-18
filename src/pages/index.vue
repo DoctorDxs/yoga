@@ -5,8 +5,9 @@
       <div class="user-login">
         <div class="user-login-name">
           <span>{{userInfo.username ? userInfo.username : '未登录'}}</span>
-          <img src="../assets/vip_no_icon@3x.png" alt="">
-          <img src="../assets/vip_supper_icon@3x.png" alt="" hidden>
+          <img src="../assets/vip_no_icon@3x.png" alt="" v-if='userInfo.status === "0"'>
+          <img src="../assets/vip_nor_icon@3x.png" alt="" v-if='userInfo.status === "1"'>
+          <img src="../assets/vip_supper_icon@3x.png" alt="" v-if='userInfo.status === "2"'>
         </div>
         <div class="user-sign">{{userInfo.desc ? userInfo.desc : '什么也没有'}}</div>
       </div>
@@ -45,7 +46,7 @@
     <div class="add-class">
       <div @click="addClass"><img src="../assets/practice_add_icon@3x.png" alt=""><span>添加课程</span></div>
     </div>
-
+    <infinite-loading @infinite="infiniteHandler"></infinite-loading>
     <nav-bar></nav-bar>
   </div>
      
@@ -105,7 +106,6 @@ export default {
           }
         }
       })
-      
     },
     getMyCourse() {
       getCourse().then(res => {
@@ -199,6 +199,9 @@ export default {
       this.$router.push({
         name: 'classroom'
       })
+    },
+    infiniteHandler($state) {
+      
     }
   },
   components: {

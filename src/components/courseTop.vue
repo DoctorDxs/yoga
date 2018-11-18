@@ -85,7 +85,6 @@ export default {
       this.showShareSendModal = true
       setTimeout(() => {
         getShareInfo(params).then(res => {
-          alert(JSON.stringify(res))
           if (res.state == 200) {
             alert(JSON.stringify(res))
             this.shareInfo = res.data

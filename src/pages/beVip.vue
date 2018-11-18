@@ -51,7 +51,7 @@
           <div class="svip-subdesc">点亮私教尊贵会员标识</div>
         </div>
       </div>
-
+      <div class="vip-limit-time" v-if='userInfo.vip_ended_at'>{{userInfo.vip_ended_at}}</div>
       <div class="svip-bottom">
         <div class="select-drop" @click="showSvpiSelectModal">
           <div class="select-type">
@@ -60,6 +60,7 @@
           </div>
           <div class="drap-icon"><img src="../assets/vip_select@3x.png" alt=""></div>
         </div>
+        
         <div class="confirm-btn" @click="beSvip">开通私教尊贵会员</div>
       </div>
     </div>
@@ -79,6 +80,7 @@
           <div class="svip-subdesc">点亮会员标识</div>
         </div>
       </div>
+      <div class="vip-limit-time" v-if='userInfo.vip_ended_at'>你的会员{{userInfo.vip_ended_at}}到期</div>
       <div class="svip-bottom">
         <div class="select-drop" @click="showVpiSelectModal">
           <div class="select-type">
@@ -94,6 +96,13 @@
 
     <div class="modal-bg" v-if='showSvpiSelect && svip' @click="hideSvpiSelectModal">
       <div class="select-item-box" @click.stop="stopFather">
+        <div class="select-items" @click="selectThis(1,'', svipInfo.upgrade_p_vip_price, '', true)" v-if='svipInfo.upgrade_p_vip_desc'>
+          <div>
+            <div class="title-sec">升为私教尊贵会员</div>  
+            <div class="upgrade-desc">{{svipInfo.upgrade_p_vip_desc}}</div>
+          </div>
+          <div class="new-price">￥{{svipInfo.upgrade_p_vip_price}}</div>
+        </div>
         <div class="select-items" @click.stop="selectThis(2,1, svipInfo.price_month, '', false)">
           <div>月付</div>
           <div class="new-price">￥{{svipInfo.price_month}}</div>
@@ -117,12 +126,12 @@
     <div class="modal-bg" v-if='showVpiSelect && !svip' @click="hideVpiSelectModal">
       <div class="select-item-box" @click.stop="stopFather">
         <!-- true 是否升级为私教 -->
-        <!-- <div class="select-items" @click="selectThis(1,'', price, '', true)">
+        <!-- <div class="select-items" @click="selectThis(1,'', vipInfo.upgrade_p_vip_price, '', true)" v-if='vipInfo.upgrade_p_vip_desc'>
           <div>
-            <div>升为私教尊贵会员</div>  
-            <div>你已是轻伽瑜伽会员,补全会员剩余天数差价,即可升级为私教会员,还需0.7元*20天=14元</div>
+            <div class="title-sec">升为私教尊贵会员</div>  
+            <div class="upgrade-desc">{{vipInfo.upgrade_p_vip_desc}}</div>
           </div>
-          <div class="new-price">￥30</div>
+          <div class="new-price">￥{{vipInfo.upgrade_p_vip_price}}</div>
         </div> -->
         <div class="select-items" @click="selectThis(1,1,vipInfo.price_month, '', false)">
           <div>月付</div>
@@ -146,7 +155,7 @@
 </template>
 
 <script>
-import { getVip, buyVip, getSign} from '../fetch/api'
+import { getVip, buyVip, getSign, getUser} from '../fetch/api'
 export default {
   name: 'beVip',
   data () {
@@ -169,7 +178,11 @@ export default {
   created() {
     document.title = '会员';
     this.getVip(2)
- 
+    let userInfo = localStorage.getItem("userInfo")
+    if (userInfo) {
+      userInfo = JSON.parse(userInfo)
+    };
+    this.userInfo = userInfo
   },
   mounted() {
     document.getElementsByClassName('beVip-page')[0].style.minHeight = window.innerHeight + 'px'
@@ -200,7 +213,6 @@ export default {
       this.showSvpiSelect  = false
       this.showVpiSelect  = false
       this.toSvip = toSvip
-      console.log(type,priceType, price, oldPrice, toSvip)
       if (type == 1) {
         this.selectPrice = price
         this.selectOldPrice = oldPrice
@@ -221,7 +233,6 @@ export default {
             this.vipInfo = res.data
             this.selectPrice = res.data.price_year_discount
             this.selectOldPrice = res.data.price_year
-            console.log(this.selectPrice, this.selectOldPrice)
 
           } else {
             this.svipInfo = res.data
@@ -281,7 +292,7 @@ export default {
     },
     setConfig(params) {
       wx.config({
-        debug: true, // 开启调试模式,
+        debug: false, // 开启调试模式,
         appId: params.appId, // 必填，企业号的唯一标识，此处填写企业号corpid
         timestamp: params.timeStamp, // 必填，生成签名的时间戳
         nonceStr: params.nonceStr, // 必填，生成签名的随机串
@@ -303,8 +314,7 @@ export default {
           paySign: payConfig.pay.sign, // 支付签名
           success: function(res) {
             // 支付成功后的回调函数
-            this.$toast.top('已开通')
-            this.$router.go(-1)
+            this.getUserInfo()
           },
           fail:function(res){
               
@@ -312,18 +322,20 @@ export default {
         })
       })
     },
-  },
-  
-
-  
-
-
-
-  
     
-
-   
-
+    getUserInfo() {
+      getUser().then(res => {
+        this.$toast.top('已开通')
+        if (res.state == 200) {
+          this.userInfo = res.data
+          let userInfo = JSON.stringify(res.data)
+          localStorage.setItem('userInfo', userInfo)
+          this.$router.go(-1)
+        }
+      })
+      
+    },
+  },
 }
 </script>
 
@@ -333,6 +345,7 @@ export default {
 .beVip-page {
   background: #F4F6F9;
   position: relative;
+  padding-bottom: 120px;
 }
 
 .vip-tabbar {
@@ -436,6 +449,18 @@ export default {
 .martop20 {
   margin-top: 20px;
 }
+.vip-limit-time {
+  height: 60px;
+  background: rgb(207, 145, 145);
+  font-size: 24px;
+  color: #fff;
+  position: fixed;
+  bottom: 133px;
+  left: 0; 
+  width: 100%;
+  text-align: center;
+  line-height: 60px;
+}
 
 .svip-bottom {
   height: 130px;
@@ -448,6 +473,8 @@ export default {
   align-items: center;
   justify-content: space-around;
 }
+
+
 
 .select-drop, .confirm-btn {
   width: 336px;
@@ -522,6 +549,11 @@ export default {
 
 }
 
+.upgrade-desc {
+  color: #B6BEC4;
+  font-size: 18px;
+}
+
 .modal-bg {
   position: fixed;
   width: 100%;
@@ -549,9 +581,9 @@ export default {
 .limit-time-cout span {
   display: block;
   height: 28px;
-  /* -webkit-transform: scale(0.8); */
-  font-size: 10px;
+  font-size: 12px;
   line-height: 32px;
+  text-align: center;
 }
 
 

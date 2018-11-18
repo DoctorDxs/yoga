@@ -1,22 +1,29 @@
 <template>
   <div class="accountSet-page">
     <div class="account-avatar">
-      <div>头像</div>
-      <div><img src="http://img2.touxiang.cn/file/20180308/8eefd445e3718259d0044314a4289060.jpg" alt=""></div>
+      
+      <div class="gift-detail">
+        <img :src="group_cover" alt="">
+        <div class="course-desc">
+          <div>{{group_name}}</div>
+          <div>{{group_type}}</div>
+        </div>
+      </div>
+      
     </div>
-    <div class="account-info-item" @click="inputName">
+    <div class="account-info-item">
       <div>姓名</div>
-      <div class="item-detail">{{name ? name : "请输入您的姓名"}}</div>
+      <div class="item-detail"><input type="text" placeholder="请输入您的姓名" v-model.trim="name" @focus="hideBottomBtn" @blur="showBottomBtn"></div>
     </div>
 
-    <div class="account-info-item" @click="inputPhone">
+    <div class="account-info-item">
       <div>电话号码</div>
-      <div class="item-detail">{{phone ? phone : "请输入您的电话号码"}}</div>
+      <div class="item-detail"><input type="number" maxlength="11" placeholder="请输入您的电话号码" v-model.trim="phone" @focus="hideBottomBtn" @blur="showBottomBtn"></div>
     </div>
 
-    <div class="account-info-item" @click="inputWx">
+    <div class="account-info-item">
       <div>微信号</div>
-      <div class="item-detail">{{wx ? wx : "请输入您的微信号"}}</div>
+      <div class="item-detail"><input type="text" placeholder="请输入你的微信号" v-model.trim="wx" @focus="hideBottomBtn" @blur="showBottomBtn"></div>
     </div>
 
     <div class="account-info-item" @click="showPickerAge">
@@ -28,25 +35,7 @@
       <div>地址</div>
       <div class="item-detail"><span>{{add ? add : "请选择地址"}}</span><img src="../assets/class_next_icon@3x.png" alt=""></div>
     </div>
-    <div class="input-box" :style='showNameInput ? "display: block;" : ""'>
-      <div>
-        <input type="text" @blur='inputBlur' ref="input1" v-model.trim="name" placeholder="请输入您的姓名">
-        <div class="confirm-btn" :style="name ? 'background: #B78FDA;color:#fff;' : ''">提交</div>
-      </div>
-    </div>
-    <div class="input-box" :style='showPhoneInput ? "display: block;" : ""'>
-      <div>
-        <input type="text" @blur='inputBlur' ref="input2" v-model.trim="phone" placeholder="请输入您的电话号码">
-        <div class="confirm-btn" :style="phone ? 'background: #B78FDA;color:#fff;' : ''">提交</div>
-      </div>
-    </div>
-    <div class="input-box" :style='showWxInput ? "display: block;" : ""'>
-      <div>
-        <input type="text" @blur='inputBlur' ref="input3" v-model.trim="wx" placeholder="请输入您的微信号">
-        <div class="confirm-btn" :style="wx ? 'background: #B78FDA;color:#fff;' : ''">提交</div>
-      </div>
-    </div>
-    <div class="layout" v-if='!inputFocus'>立即领取</div>
+    <div class="layout" v-if='!inputFocus' @click="submitGetInfo">立即领取</div>
     <awesome-picker
       ref="pickerArea"
       :textTitle="pickerArea.textTitle"
@@ -69,6 +58,7 @@
 
 <script>
 import areaData from '../utils/area.js'
+import { reciveSend } from '../fetch/api'
 const ageData = []
 for (let i = 0;i < 100; i++) {
   ageData.push(i)
@@ -100,12 +90,44 @@ export default {
   },
   created() {
     document.title = '登记信息';
+    const query = this.$route.query
+    this.id = query.id
+    this.group_name = query.group_name
+    this.group_type = query.group_type
+    this.group_cover = query.group_cover
   },
   mounted() {
     document.getElementsByClassName('accountSet-page')[0].style.minHeight = window.innerHeight + 'px'
-    const clientHeight = document.documentElement.clientHeight || document.body.clientHeight;
+    this.windowH = document.documentElement.clientHeight || document.body.clientHeight
+    this.addResize()
   },
   methods: {
+    watchKeyUp() {
+      const nowClientHeight = document.documentElement.clientHeight || document.body.clientHeight
+      if (this.windowH > nowClientHeight) {
+        this.inputFocus = true
+        alert.log(232)
+      } else {
+        this.inputFocus = false
+        alert.log(567)
+      } 
+    },
+
+    // 添加事件
+    addResize() {
+      window.addEventListener('resize', this.watchKeyUp, false)
+    },
+    removerResize() {
+      window.removeEventListener('resize', this.watchKeyUp, false)
+    },
+
+    hideBottomBtn() {
+      this.addResize()
+    },
+    showBottomBtn(){
+      this.removerResize()
+    },
+
     linkBind() {
       this.$router.push({name: 'bindAccount'})
     },
@@ -123,34 +145,55 @@ export default {
       this.pickerArea.anchor = v
       this.add = v[0].value + ' ' + v[1].value + ' ' + v[2].value
     },
-    inputName() {
-      this.inputFocusAuto(true, false, false, 'input2', 'input3', 'input1')
+
+    submitGetInfo() {
+      if (this.checkInfo()) {
+        const params = {
+          true_name: this.name,
+          telephone: this.phone,
+          wechat_num: this.wx,
+          address: this.add,
+          age: this.age,
+          giving_id: this.id
+        }
+        reciveSend(params).then( res => {
+          if (res.state == 200) {
+            this.$toast.top('已领取')
+            this.$router.push({
+              name: 'giftRecord'
+            })
+          } else {
+            this.$toast.top(res.msg)
+          }
+        })
+      }
     },
-    inputPhone() {
-      this.inputFocusAuto(false, true, false, 'input1', 'input3', 'input2')
-    },
-    inputWx() {
-      this.inputFocusAuto(false, false, true, 'input1', 'input2', 'input3')
-    },
-    inputBlur() {
-      this.$refs.input1.blur()
-      this.$refs.input2.blur()
-      this.$refs.input3.blur()
-      this.inputFocus = false
-      this.showNameInput = false
-      this.showPhoneInput = false
-      this.showWxInput = false
-    },
-    inputFocusAuto(showNameInput, showPhoneInput, showWxInput, inputBlur1, inputBlur2, inputFocus) {
-      this.showNameInput = showNameInput
-      this.showPhoneInput = showPhoneInput
-      this.showWxInput = showWxInput
-      this.$refs[inputBlur1].blur()
-      this.$refs[inputBlur2].blur()
-      setTimeout(() => {
-        this.$refs[inputFocus].focus()
-      }, 100)
-      this.inputFocus = true
+    
+    checkInfo() {
+      if (!this.name) {
+        this.$toast.top('请输入您的姓名！')
+        return false
+      } else if (!this.phone) {
+        this.$toast.top('请输入您的电话号码！')
+        return false
+      } else if(!this.phone.match(/^(13[0-9]|14[579]|15[0-3,5-9]|16[6]|17[0135678]|18[0-9]|19[89])\d{8}$/)) {
+        this.$toast.top('请输正确的电话号码！')
+        return false
+      }  else if(!this.wx) {
+        this.$toast.top('请输入您的微信号！')
+        return false
+      } else if (this.age === '') {
+        this.$toast.top('请选择您的年龄')
+        return false
+      } else if (this.age == '0') {
+        this.$toast.top('年龄不能为零岁')
+        return false
+      } else if(this.add === '') {
+        this.$toast.top('请选择您的地址！')
+        return false
+      } else {
+        return true
+      }
     }
   },
   components: {
@@ -168,20 +211,12 @@ export default {
 }
 
 .account-avatar {
-  height: 150px;
+  height: 200px;
   padding: 0 30px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
   background: #fff;
-  font-size: 30px;
   color: #444C52;
-}
-
-.account-avatar img {
-  width: 110px;
-  height: 110px;
-  border-radius: 50%;
 }
 
 .account-info-item {
@@ -200,6 +235,20 @@ export default {
   color: #ABB4BB;
   display: flex;
   align-items: center;
+}
+
+.item-detail input {
+  text-align: right;
+  border: 0;
+  outline: medium;
+  font-size: 30px;
+  height: 100%;
+  width: 480px;
+  color: rgb(68,77,82)
+}
+
+.item-detail input::-webkit-input-placeholder{
+  color: #ABB4BB;
 }
 
 .item-detail span {
@@ -268,6 +317,32 @@ export default {
 
 .input-box > div input::placeholder {
   color: #ABB3BA;
+}
+
+.gift-detail {
+  width: 670px;
+  height: 140px;
+  padding: 0 20px;
+  display: flex;
+  background: #F4F6F9;
+  align-items: center;
+}
+
+.gift-detail img {
+  height: 104px;
+  width: 104px;
+  margin-right: 20px;
+}
+
+.course-desc > div:nth-child(1) {
+  font-size: 28px;
+  color: #444C52;
+}
+
+.course-desc > div:nth-child(2) {
+  font-size: 20px;
+  color: #808C92;
+  margin-top: 10px;
 }
 
 

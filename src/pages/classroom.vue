@@ -2,8 +2,8 @@
   <div class="classroom-page">
     <div class="ads-banner">
       <swiper :options="swiperOption" ref="mySwiper">
-        <swiper-slide v-for='(item, index) in banner' :key='index'>
-          <img :src="item.image" alt="" @click="bannerLink(item.id, item.type)">
+        <swiper-slide v-for='(item, index) in banner' :key='index' @click="bannerLink(item.type,item.url)">
+          <img :src="item.image" alt="">
         </swiper-slide>
       </swiper>
       <div class="swiper-pagination">
@@ -32,7 +32,7 @@ import course from '@/components/course'
 import camp from '@/components/camp'
 import underline from '@/components/underline'
 import articleList from '@/components/articleList'
-import { getArticleList, getCourseList, getBanner } from '../fetch/api'
+import { getArticleList, getCourseList, getBanner, getArticleUrl } from '../fetch/api'
 import bots1 from '../assets/all_lunbo01@3x.png'
 import bots2 from '../assets/all_lunbo02@3x.png'
 export default {
@@ -129,8 +129,30 @@ export default {
         }
       })
     },
-    bannerLink(id, type) {
+    bannerLink(type, url) {
+      if (type == '1' ) {
+        this.$router.push({
+          name: 'campDetail', query: {id: url}
+        })
+      } else if (type == '2') {
+        this.$router.push({
+          name: 'courseDetail', query: {id: url}
+        })
+      } else if (type == "3") {
+        return false
+      } else if (type == "4") {
+        this.linkDetail(url)
+      } else if (type == '5') {
+        window.location.href = res.data.information.url
+      }
+    },
 
+    linkDetail(id) {
+      getArticleUrl(id).then(res => {
+        if (res.state == 200) {
+          window.location.href = res.data.information.url
+        }
+      })
     }
 
   },

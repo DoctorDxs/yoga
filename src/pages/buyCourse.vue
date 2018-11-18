@@ -14,7 +14,7 @@
 
           <div class="input-item">
             <div class="input-title">电话号码</div>
-            <!--  @click="inputPhone" {{phone ? phone : "请输入你的电话号码"}}-->
+            <!--  @click="inputPhone" {{phone ? phone : "请输入您的电话号码"}}-->
             <div class="input-box"><input type="number" maxlength="11" placeholder="请输入你的电话号码" v-model="phone" @focus="hideBottomBtn" @blur="showBottomBtn"></div>
           </div>
 
@@ -256,6 +256,9 @@ export default {
         return false
       } else if(this.age === '') {
         this.$toast.top('请选择您的年龄')
+        return false
+      } else if (this.age == '0') {
+        this.$toast.top('年龄不能为零岁')
         return false
       } else if(this.add === '') {
         this.$toast.top('请选择您的地址！')

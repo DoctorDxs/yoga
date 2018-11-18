@@ -1,6 +1,6 @@
 <template>
   <div class="course-detail-page">
-    <course-top :detail='detail'></course-top>
+    <course-top :detail='detail' ref='courseTop'></course-top>
     <div class="course-tab">
 
       <div class="course-tab-box">
@@ -20,17 +20,16 @@
             <img :src="item" alt="" v-for='(item, index) in detail.circle' :key='index'>
           </div>
           <div class="course-detail-info">
-            <div>2018-08-17 10:00开课</div>
-            <div>累计xxx人报名</div>
+            <div>{{detail.now_phase.started_at}}开课</div>
+            <div>累计{{detail.now_phase.subscribe_num}}人报名</div>
           </div>
         </div>
-        <div class="good-students">
+        <div class="good-students" v-if='detail.excellences.length > 0'>
           <div class="good-student-title"><span class="v-line-border"></span><span>昨日优秀学员</span></div>
           <div class="swiper-box">
             <swiper :options="swiperOption" ref="mySwiper">
-              <!-- slides -->
 
-              <swiper-slide v-for='item in [1,2,3,4,5,6,7,8,9,10]' :key='item' class="goods-students-avatar">
+              <swiper-slide v-for='item in detail.excellences' :key='item' class="goods-students-avatar">
                 <img src="http://tx.haiqq.com/uploads/allimg/150402/16094151D-13.jpg" alt="">
                 <div class="student-name">用户名</div>
               </swiper-slide>
@@ -53,10 +52,10 @@
               <div>{{item.time}}</div>
             </div>
           </div>
-          <div @click="linkVideo(item.group_id, item.id)">
+          <div @click="linkVideo(item.group_id, item.id, item.is_can_see, item.is_try_free)">
             <div v-if='item.is_try_free == 1 && item.is_can_see != 1 && detail.in_circle != 1' class="free-try-see">免费试看</div>
             <div v-if='item.is_can_see != 1 && item.is_try_free != 1' class="course-locked"><img src="../assets/class_lock@3x.png" alt=""></div>
-            <div v-if='item.is_can_see == 1' class="course-play"><img src="../assets/class_play@3x.png" alt=""></div>
+            <div v-if='item.is_can_see == 1 ||  (detail.in_circle == 1 && item.is_try_free == 1)' class="course-play"><img src="../assets/class_play@3x.png" alt=""></div>
           </div>
         </div>
       </div>
@@ -64,7 +63,7 @@
       <div v-if='tabIndex == 2'><trend-list :evaluteList='evaluteList'></trend-list></div>
     </div>
 
-    <div class="course-no-buy" v-if='!isBuy'>
+    <div class="course-no-buy" v-if='detail.in_circle != 1'>
       <div class="consult-course" @click="showConsult">
         <div><img src="../assets/class_consult@3x.png" alt=""></div>
         <div>咨询</div>
@@ -73,10 +72,13 @@
         <div><img src="../assets/class_share@3x.png" alt=""></div>
         <div>分享</div>
       </div>
-      <div class="add-to-practice"  @click="buyCourse">立刻报名</div>
+      <!-- 报名结束 #C7CCD1 -->
+      <!-- 已报名，等待开课 -->
+      <!-- 成为私教会员 -->
+      <div class="add-to-practice" @click="buyCourse">立刻报名</div>
     </div>
 
-    <div class="course-is-buy" v-if='isBuy'>
+    <div class="course-is-buy" v-if='detail.in_circle == 1'>
       <div class="write-trend" @click="linkAddTrend(1)">
         <div><img src="../assets/class_issue@3x.png" alt=""></div>
         <div>写动态</div>
@@ -87,14 +89,16 @@
         <div>提问题</div>
       </div>
     </div>
+
+    <!-- 未完成 -->
     <div class="add-time">
       <div>
-        <div>距报名截止 还剩5天13时9分50秒</div>
+        <div>距报名截止 还剩{{leftTime}}</div>
         <div>已有xx人报名</div>
       </div>
     </div>
 
-    <div class="share-modal-bg" v-if='showShareModal' @click="hideShare">
+    <!-- <div class="share-modal-bg" v-if='showShareModal' @click="hideShare">
       <div class="share-modal-box">
         <div class="share-modal">
           <div>
@@ -107,7 +111,16 @@
           </div>
         </div>
       </div>
-    </div>
+    </div> -->
+    <modal 
+      title="提示" 
+      :content='modalContent'
+      :showCancle='showCancle' 
+      confirmText=''
+      cancleText=''
+      @on-confirm='confirm'
+      v-show='showModal'>
+    </modal>
 
     <div class="consult-modal-bg" v-if="showConsultModal" @click="hideConsult">
       <div class="consult-modal">
@@ -128,35 +141,38 @@
 import trendList from '@/components/trendList'
 import courseTop from '@/components/courseTop'
 import { swiper, swiperSlide } from 'vue-awesome-swiper'
-import { getDetail } from '../fetch/api'
+import { getDetail, getCurrentCourseEval, getWx, getSign, getShareInfo } from '../fetch/api'
 export default {
   name: 'campDetail',
   data () {
     return {
-      tabItems: ['详情','课表','圈子'],
-      detail: {},
-      tabIndex: 0,
-      isBuy: false,
-      wxCode: 'MEIRIYUJIAXXXX',
-      courseTable: [
-        {cover: 'http://pic.qqtn.com/up/2018-7/15308567411160505.jpg',name: '舒展圣体', time: '4分钟', trySee: true},
-        {cover: 'http://pic.qqtn.com/up/2018-7/15308567411160505.jpg',name: '热身训练', time: '4分钟', trySee: false},
-        {cover: 'http://pic.qqtn.com/up/2018-7/15308567411160505.jpg',name: '开始训练', time: '4分钟', trySee: false},
-        {cover: 'http://pic.qqtn.com/up/2018-7/15308567411160505.jpg',name: '训练结束', time: '4分钟', trySee: false},
-      ],
       swiperOption: {
         slidesPerView: 5,
         spaceBetween: 0,
       },
+      detail: {
+        now_phase: {},
+        excellences: []
+      },
+      tabItems: ['详情','课表','圈子'],
+      tabIndex: 0,
+      id: '',
       showShareModal: false,
       showConsultModal: false,
-      id: ''
+      wxCode: '',
+      evaluteList: [],
+      showCancle: false,
+      modalContent: '请点击窗口右上角分享给',
+      showModal: false,
+      timeEnd: false,
+      leftTime: '0天0时0分0秒'
     }
   },
   created() {
     const id = this.$route.query.id
     this.id = id 
     this.getDetail(id)
+    this.getCurrentCourseEval(id)
   },
   mounted() {
     document.title = '坐式瑜伽';
@@ -171,32 +187,131 @@ export default {
     buyCourse() {
       this.$router.push({name: 'buyCourse'})
     },
+    buyCourse() {
+      this.$router.push({name: 'buyCourse', query: {id: this.id, price: this.detail.price,name: this.detail.name}})
+    },
     linkAddTrend(type) {
-      this.$router.push({name: 'submitTrend', query: {type: type} })
+      this.$router.push({name: 'submitTrend', query: {type: type, group_id: this.id}})
+    },
+    linkVideo(group_id, learn_id, can_see, try_see) {
+      if (can_see == '1' || try_see == '1') {
+        this.$router.push({
+          name: 'videoDetail', query: {group_id: group_id, learn_id: learn_id, type: this.detail.type}
+        })
+      }
     },
     showShare() {
-      this.showShareModal = true
+      this.showModal = true
+    },
+    confirm() {
+      this.showModal = false
     },
     hideShare() {
       this.showShareModal = false
     },
     showConsult() {
-      this.showConsultModal = true
+      getWx().then(res => {
+        if (res.state == 200) {
+          this.wxCode = res.data.wechat
+          this.showConsultModal = true
+        } else {
+          this.$toast.top(res.msg)
+        }
+      })
     },
     hideConsult() {
       this.showConsultModal = false
     },
     onCopy: function (e) {
-      alert('You just copied: ' + e.text)
+      this.$toast.top('复制成功！')
     },
     onError: function (e) {
-      alert('Failed to copy texts')
+      this.$toast.top('复制失败！')
     },
     getDetail(id) {
       getDetail(id).then(res => {
         if (res.state == 200) {
           this.detail = res.data
+          // let start = res.data.now_phase.sign_started_at
+          let end = res.data.now_phase.sign_ended_at
+          
+          this.setIntervalTime(end)
+          this.$refs.courseTop.commonShare(res.data); 
+          this.getShareInfo({id: res.data.id, type: 1})
         }
+      })
+    },
+    setIntervalTime(end) {
+      let time =  setInterval(() => {
+        let differTiem =parseInt((new Date(end).getTime() - new Date().getTime())/1000) 
+        if(differTiem <= 0) {
+  　      this.timeEnd = true
+  　      clearInterval(time)
+    　  } else {
+            let day = parseInt(differTiem/60/60/24)  
+            let hour = parseInt(differTiem/60/60%24)
+            let minute = parseInt(differTiem/60%60)
+            let second = parseInt(differTiem%60)
+            let leftTime = day+"天"+hour+"时"+minute+"分"+second+"秒"
+            this.leftTime = leftTime
+            this.setIntervalTime(differTiem)
+          }
+      }, 1000)     
+
+    },
+    getShareInfo(params) {
+      getShareInfo(params).then(res => {
+        if (res.state == 200) {
+          this.shareInfo = res.data
+          this.getSign()
+        }
+      }) 
+    },
+
+    getSign() {
+      getSign(encodeURIComponent(location.href)).then(res => {
+        if (res.state == 200) {
+          this.setConfig(res.data)
+        }
+      })
+    },
+
+
+    setConfig(params) {
+      let shareInfo = this.shareInfo
+      wx.config({
+        debug: false, // 开启调试模式,
+        appId: params.appId, // 必填，企业号的唯一标识，此处填写企业号corpid
+        timestamp: params.timeStamp, // 必填，生成签名的时间戳
+        nonceStr: params.nonceStr, // 必填，生成签名的随机串
+        signature: params.signature,// 必填，签名，见附录1
+        jsApiList: ['onMenuShareAppMessage', 'onMenuShareTimeline','chooseWXPay'] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
+      });
+      
+      // 分享到盆友圈
+        wx.onMenuShareTimeline({
+          title: shareInfo.title,
+          link: shareInfo.url,
+          imgUrl: shareInfo.cover,
+          success: function(res) {
+            this.$toast.top('分享成功！')
+          },
+        })
+      //分享给朋友
+        wx.onMenuShareAppMessage({
+          title: shareInfo.title,
+          desc: shareInfo.desc,
+          link: shareInfo.url,
+          imgUrl: shareInfo.cover,
+          success: function() {
+            this.$toast.top('分享成功！')
+          }
+        })
+    },
+
+    getCurrentCourseEval(id) {
+      getCurrentCourseEval(id).then(res => {
+        this.evaluteList = res.data.data
       })
     }
   },

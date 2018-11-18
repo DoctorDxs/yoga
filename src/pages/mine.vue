@@ -5,7 +5,11 @@
         <div class="mine-header-user">
           <div class="user-avatar"><img :src="userInfo.avatar" alt=""></div>
           <div>
-            <div class="mine-user-name"><span>{{userInfo.username}}</span><img src="../assets/vip_no_icon@3x.png" alt=""></div>
+            <div class="mine-user-name"><span>{{userInfo.username}}</span>
+              <img src="../assets/vip_no_icon@3x.png" alt="" v-if='userInfo.status === "0"'>
+              <img src="../assets/vip_nor_icon@3x.png" alt="" v-if='userInfo.status === "1"'>
+              <img src="../assets/vip_supper_icon@3x.png" alt="" v-if='userInfo.status === "2"'>
+            </div>
             <div class="mine-user-sign">{{userInfo.desc}}</div>
           </div>
         </div>
@@ -17,7 +21,7 @@
       <div class="mine-setting-item" @click="linkMsg">
         <div class="my-msg-set">
           <img src="../assets/me_message@3x.png" alt="">
-          <div class="mine-msg-dots"></div>
+          <div class="mine-msg-dots" v-if='userInfo.has_notify'></div>
         </div>
         <div>我的消息</div>
       </div>

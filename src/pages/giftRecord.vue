@@ -15,21 +15,21 @@
 
 
     <div class="gift-sent" v-if='showSent'>
-      <div v-for='(item, index) in [1,2,3]' :key='index' class="gift-item">
-        <div class='sender-avatar'><img src="http://tx.haiqq.com/uploads/allimg/150402/16094151D-13.jpg" alt=""></div>
+      <div v-for='(item, index) in sentData' :key='index' class="gift-item">
+        <div class='sender-avatar'><img :src="item.user.avatar" alt=""></div>
         <div class="sender-detail">
           <div class="sender-info">
             <div class="send-time">
-              <div>魏璎珞</div>
-              <div>1小时前·赠送</div>
+              <div>{{item.user.avatar.username}}</div>
+              <div>{{item.time_desc}}·赠送</div>
             </div>
-            <div class="send-btn">未送出继续送</div>
+            <div class="send-btn" @click='sendAgain(item.id)'>未送出继续送</div>
           </div>
-          <div class="course-info">
-            <img src="http://tx.haiqq.com/uploads/allimg/150402/16094151D-13.jpg" alt="">
+          <div class="course-info" @click="linkCourse(item.order.group.id, item.order.group.type)">
+            <img :src="item.order.group.goods_cover" alt="">
             <div class='course-desc'>
-              <div>21天瑜伽瘦身课</div>
-              <div>课程</div>
+              <div>{{item.order.group.name}}</div>
+              <div>{{item.order.group.type == 2 ? '课程' : '训练营'}}</div>
             </div>
             
           </div>
@@ -37,21 +37,20 @@
       </div>
     </div>
     <div class="gift-received" v-if='!showSent'>
-      <div v-for='(item, index) in [1,2,3]' :key='index' class="gift-item">
-        <div class='sender-avatar'><img src="http://tx.haiqq.com/uploads/allimg/150402/16094151D-13.jpg" alt=""></div>
+      <div v-for='(item, index) in reciveData' :key='index' class="gift-item">
+        <div class='sender-avatar'><img :src="item.user.avatar" alt=""></div>
         <div class="sender-detail">
           <div class="sender-info">
             <div class="send-time">
-              <div>魏璎珞</div>
-              <div>1小时前·赠送</div>
+              <div>{{item.user.username}}</div>
+              <div>{{item.time_desc}}·赠送</div>
             </div>
-            <!-- <div class="send-btn">未送出继续送</div> -->
           </div>
-          <div class="course-info">
-            <img src="http://tx.haiqq.com/uploads/allimg/150402/16094151D-13.jpg" alt="">
+          <div class="course-info" @click="linkCourse(item.order.group.id, item.order.group.type)">
+            <img :src="item.order.group.goods_cover" alt="">
             <div class='course-desc'>
-              <div>21天瑜伽瘦身课</div>
-              <div>课程</div>
+              <div>{{item.order.group.name}}</div>
+              <div>{{item.order.group.type == 2 ? '课程' : '训练营'}}</div>
             </div>
             
           </div>
@@ -63,26 +62,71 @@
 </template>
 
 <script>
-
+import { sendRecord } from '../fetch/api'
 export default {
   name: 'giftRecord',
   data () {
     return {
-      showSent: true
+      showSent: true,
+      type: 1,
+      pagesend: 1,
+      pagerecive: 1, 
+      sentData: [],
+      reciveData: []
     }
   },
   created() {
     document.title = '赠送记录';
+    this.getData()
   },
   mounted() {
     document.getElementsByClassName('giftRecord-page')[0].style.minHeight = window.innerHeight + 'px'
   },
   methods: {
+    getData() {
+      let page;
+      if (this.type == 1) {
+        page = this.pagesend
+      } else {
+        page = this.pagerecive
+      }
+      sendRecord({type: this.type, page: page}).then(res => {
+        if (res.state == 200) {
+          if (this.type == 1 ) {
+            this.sentData = res.data.data
+          } else {
+            this.reciveData = res.data.data
+          }
+        }
+      })
+    },
+    sendAgain(id) {
+      
+    },
     Sent() {
-      this.showSent = true
+      this.showSent = true,
+      this.type = 1
+      if (this.sentData.length == 0) {
+        this.getData()
+      }
     },
     Received() {
       this.showSent = false
+      this.type = 2
+      if (this.reciveData.length == 0) {
+        this.getData()
+      }
+    },
+    linkCourse(id, type) {
+      if (type == 1) {
+        this.$router.push({
+          name: 'campDetail', query: {id: id}
+        })
+      } else {
+        this.$router.push({
+          name: 'courseDetail', query: {id: id}
+        })
+      }
     }
   },
   components: {

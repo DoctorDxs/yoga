@@ -6,7 +6,7 @@
         <div :class="index == tabIndex ? 'active-line-show' : 'active-line-hide'"></div>
       </div>
     </div>
-    <component :is="currentView"></component>
+    <component :is="currentView" :currentList='currentList'></component>
   </div>
      
 </template>
@@ -24,21 +24,66 @@ export default {
     return {
       tabbar: ['课程','训练营','线下','文章'],
       tabIndex: 0,
-      currentView: 'components0'
+      currentView: 'components0',
+      articleList: [],
+      courseList: [],
+      campList: [],
+      currentList: [],
+      lastClickIndex: 0,
+      page1: 1,
+      page2: 1,
+      page3: 1,
+      page4: 1
     }
   },
   created() {
     document.title = '我的收藏';
-    this.getData() 
+    this.getData(this.tabIndex) 
   },
   methods: {
     switchTabbar(index) {
       this.tabIndex = index
       this.currentView = 'components' + index
+      // 如果有数据，点击相应的tab，切换到相应的数据
+      if(index == 0) {
+       this.currentList = this.courseList
+      } else if (index == 1) {
+        this.currentList = this.campList
+      } else if (index == 2) {
+        return false
+      } else if (index == 3) {
+        this.currentList = this.articleList
+      }
+      // 再次点击同一tab 不刷新数据
+      if (this.lastClickIndex == index) return false;
+      this.getData(index)
+      this.lastClickIndex = index
     },
-    getData() {
-      collectList(1).then(res => {
-        console.log(res)
+    
+    getData(index) {
+      // 当相应的tab存在数据时不刷新数据
+      if (index == 0 && this.courseList.length == 0) {
+        this.getCollect({type: 2, page: 1})
+      } else if (index == 1 && this.campList.length == 0) {
+        this.getCollect({type: 1, page: 1})
+      } else if (index == 2) {
+        return false
+      } else if(index == 3 && this.articleList.length == 0 ) {
+        return false
+      }
+    },
+
+    getCollect(params) {
+      collectList(params).then(res => {
+        if (res.state == 200) {
+          if(params.type == 1) {
+            this.campList = res.data.data
+            this.currentList = this.campList
+          } else {
+            this.courseList = res.data.data
+            this.currentList = this.courseList
+          }
+        }
       })
     }
   },

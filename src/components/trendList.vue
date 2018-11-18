@@ -5,7 +5,11 @@
       <div v-if='evaluteList.length == 0'><img src="../assets/all_none@3x.png" alt=""></div>
       <div class="trend-avatar"><img :src="item.user_avatar" alt=""></div>
       <div class="trend-info">
-        <div class='trend-username'>{{item.username}}</div>
+        <div class='trend-username'>{{item.username}}
+              <img src="../assets/vip_no_icon@3x.png" alt="" v-if='userInfo.status === "0"'>
+              <img src="../assets/vip_nor_icon@3x.png" alt="" v-if='userInfo.status === "1"'>
+              <img src="../assets/vip_supper_icon@3x.png" alt="" v-if='userInfo.status === "2"'>
+        </div>
         <div class="trend-time">{{item.time_desc}}{{item.type == 2 ? '·提了一个问题' : ''}}</div>
         <div class="trend-content" v-if='item.type == 1'>
           {{item.content}}
@@ -81,7 +85,11 @@ export default {
     }
   },
   created() {
-    
+    let userInfo = localStorage.getItem("userInfo")
+    if (userInfo) {
+      userInfo = JSON.parse(userInfo)
+    };
+    this.userInfo = userInfo
   },
   
   methods: {
@@ -231,6 +239,12 @@ export default {
     font-size: 30px;
     color: #444C52;
     margin: 10px 0 0 0;
+  }
+
+  .trend-username img {
+    width: 72px;
+    height: 32px;
+    margin-left: 16px; 
   }
 
   .trend-time {

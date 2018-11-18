@@ -1,27 +1,38 @@
 <template>
   <div class="article-list">
     
-    <div class="article-list-item" v-for='(item, index) in currentList' :key='item.id'>
-      <div class="article-cover"><img :src="item.article_image" alt=""></div>
-      <div class="article-desc">
-        <div class="article-title">{{item.title}}</div>
-        <div class="article-info">
-          <div>{{item.scan_count}}人订阅</div>
-          <div>{{item.publish_at}}</div>
+    <div class="article-list-item" v-for='(item, index) in currentList' :key='index'>
+      <div @click="linkDetail(item.id)">
+        <div class="article-cover"><img :src="item.article_image" alt=""></div>
+        <div class="article-desc">
+          <div class="article-title">{{item.title}}</div>
+          <div class="article-info">
+            <div>{{item.scan_count}}人订阅</div>
+            <div>{{item.publish_at}}</div>
+          </div>
         </div>
       </div>
     </div>
-
   </div>
 </template>
 
 <script>
-
+import { getArticleUrl } from '../fetch/api'
 export default {
   name: 'articleList',
   data () {
     return {
       
+    }
+  },
+
+  methods: {
+    linkDetail(id) {
+      getArticleUrl(id).then(res => {
+        if (res.state == 200) {
+          window.location.href = res.data.information.url
+        }
+      })
     }
   },
 
@@ -41,7 +52,7 @@ export default {
   padding: 30px;
 }
 
-.article-list-item {
+.article-list-item > div {
   display: flex;
   align-items: center;
   margin-bottom: 20px;

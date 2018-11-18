@@ -4,33 +4,43 @@
       <img src="../assets/class_gift_bg01@3x.png" alt="" class="bg-middle">
       <img src="../assets/class_gift_bg02@3x.png" alt="" class="bg-bottom">
       <div class="content-box">
-        <div class="sender-info"><div><img src="http://tx.haiqq.com/uploads/allimg/150402/16094151D-13.jpg" alt=""><span class='sender-name'>用户名</span><span class="sender-text">赠送给你</span></div></div>
+        <div class="sender-info"><div><img :src="sendDetail.user_avatar" alt="">
+          <span class='sender-name'>{{sendDetail.username}}</span><span class="sender-text">赠送给你</span></div></div>
         <div class="gift-detail">
-          <img src="http://tx.haiqq.com/uploads/allimg/150402/16094151D-13.jpg" alt="">
+          <img :src="sendDetail.group_cover" alt="">
           <div class="course-desc">
-            <div>21天瑜伽瘦身课</div>
-            <div>课程</div>
+            <div>{{sendDetail.group_name}}</div>
+            <div>{{sendDetail.group_type}}</div>
           </div>
         </div>
-        <div class="course-price"><span>价值</span><span>￥399</span></div>
-        <!-- 已领取，查看详情 -->
+        <div class="course-price"><span>价值</span><span>￥{{sendDetail.price}}</span></div>
 
-        <div class="get-course-btn" @click="receiveNow">立即领取</div>
-        <div class="get-limit">请在2018-10-12 12:22 前领取</div>
+        <div class="get-course-btn" @click="receiveNow" v-if='sendDetail.is_received == "0"'>立即领取</div>
+        <div class="get-course-btn" @click="lookDetail" v-if='sendDetail.is_received == "1"'>已领取，查看详情</div>
+        <div class="get-limit" v-if='sendDetail.limit_time'>请在{{sendDetail.limit_time}} 前领取</div>
       </div>
     </div>
+    <modal 
+      title="提示" 
+      content='自己不能领取自己的赠品，快让您的好友领取吧！'
+      :showCancle='showCancle' 
+      @on-confirm='confirm'
+      v-show='showModal'>
+    </modal>
   </div>
      
 </template>
 
 <script>
 import { getSendInfo } from '../fetch/api.js'
-import GetRequest from '../utils/geturl'
 export default {
   name: 'sendPage',
   data () {
     return {
-      sendDetail: {}
+      sendDetail: {},
+      showModal: false,
+      showCancle: false,
+      id: ''
     }
   },
   created() {
@@ -38,7 +48,7 @@ export default {
     let url = location.href
     let Id = url.split('id')[1].split('=')[1]
     this.id = Id
-    alert(Id)
+    this.getData()
   },
   mounted() {
     document.getElementsByClassName('send-page')[0].style.minHeight = window.innerHeight + 'px'
@@ -46,7 +56,6 @@ export default {
   methods: {
     getData() {
       getSendInfo(this.id).then(res => {
-        alert(JSON.stringify(res))
         if (res.state == 200) {
           this.sendDetail = res.data
         } else {
@@ -55,9 +64,23 @@ export default {
       })
     },
     receiveNow() {
+      if (this.sendDetail.is_mine == '1') {
+        this.showModal = true
+      } else {
+        this.$router.push({
+          name: 'receive',query: {id: this.id, group_name: this.sendDetail.group_name, group_type: this.sendDetail.group_type, goods_cover: this.sendDetail.goods_cover}
+        })
+      }
+      
+    },
+
+    lookDetail() {
       this.$router.push({
-        name: 'receive',query: {}
+        name: 'giftRecord'
       })
+    },
+    confirm() {
+      this.showModal = false
     }
   },
   components: {
