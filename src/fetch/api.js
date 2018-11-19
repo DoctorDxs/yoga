@@ -398,7 +398,7 @@ export function msgType(params) {
  *  消息通知列表（分类型） 
  */
 export function msgList(params) { 
-  return fetch(`/api/notification/lst?type=${params}`)
+  return fetch(`/api/notification/lst?type=${params.type}&page=${params.page}`)
 }
 
 

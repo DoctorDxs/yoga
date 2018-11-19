@@ -18,6 +18,9 @@
         </div>
       </div>
     </div>
+    <infinite-loading @infinite="infiniteHandler" @infinite="infiniteHandler">
+      <div slot="no-more" class="no-more-data">没有更多了...</div>
+    </infinite-loading>
   </div>
 </template>
 
@@ -28,31 +31,29 @@ export default {
   data () {
     return {
       type: null,
-      msgList: []
+      msgList: [],
+      updateData: true,
+      page: 1
     }
   },
-  created() {
-    const type = this.$route.query.type
-    this.type = type
-    if (type == 1) {
-      document.title = '评论回复通知'
-      this.getData(1)
-    } else if (type == 2){
-      document.title = '回答通知'
-      this.getData(2)
-    } else if (type == 3) {
-      document.title = '点赞通知'
-      this.getData(3)
-    } 
-  },
+
   mounted() {
     document.getElementsByClassName('msgDetail-page')[0].style.minHeight = window.innerHeight + 'px'
   },
   methods: {
-    getData(type) {
-      msgList(type).then(res => {
+    getData($state) {
+      msgList({type: this.type, page: this.page}).then(res => {
         if (res.state == 200) {
-          this.msgList = res.data.data
+          const lists = res.data.data
+            if (lists.length) {
+              this.page += 1;
+              this.msgList.push(...lists)
+              $state.loaded();
+            } else {
+              $state.complete()
+            }
+        } else {
+          this.$toast.top(res.msg)
         }
       })
     },
@@ -70,7 +71,8 @@ export default {
         this.$router.push({
           name: 'questionDetail', query: {id: id}
         })
-      }
+      };
+      this.updateData = false
       this.readMSG(id, index) 
     },
     readMSG(id, index) {
@@ -81,8 +83,21 @@ export default {
           this.msgList = msgList
         }
       })
-    }
-
+    },
+    infiniteHandler($state) {
+      this.getData($state)
+    },
+    activated() {
+      const type = this.$route.query.type
+      this.type = type
+      if (type == 1) {
+        document.title = '评论回复通知'
+      } else if (type == 2){
+        document.title = '回答通知'
+      } else if (type == 3) {
+        document.title = '点赞通知'
+      } 
+    },
   },
   components: {
     

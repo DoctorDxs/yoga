@@ -1,6 +1,6 @@
 <template>
   <div id="app" v-cloak>
-    <keep-alive include="buyCourse, accountSet, community,mineMsg, mine">
+    <keep-alive include="buyCourse, accountSet, community, mineMsg, mine, trendList">
       <router-view/>
     </keep-alive>
   </div>

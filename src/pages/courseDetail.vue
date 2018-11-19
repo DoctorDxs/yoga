@@ -5,7 +5,7 @@
 
       <div class="course-tab-box">
         <div :class="index == tabIndex ? 'active-color' : '' " v-for='(item, index) in tabItems' :key='index' @click='switchTabbar(index)'>
-          <div>{{item}} {{index == 1 && detail.video_count ? '(' + detail.video_count + ')' : '0'}}</div>
+          <div>{{item}} {{index == 1 && detail.video_count ? '(' + detail.video_count + ')' : ''}}</div>
           <div :class="index == tabIndex ? 'tab-bottom-border-show' : 'tab-bottom-border-hide'"></div>
         </div>
       </div>
