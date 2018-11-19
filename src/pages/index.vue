@@ -46,7 +46,9 @@
     <div class="add-class">
       <div @click="addClass"><img src="../assets/practice_add_icon@3x.png" alt=""><span>添加课程</span></div>
     </div>
-    <infinite-loading @infinite="infiniteHandler"></infinite-loading>
+    <infinite-loading @infinite="infiniteHandler">
+      <div slot="no-more" class="no-more-data">没有更多了...</div>
+    </infinite-loading>
     <nav-bar></nav-bar>
   </div>
      
@@ -67,7 +69,8 @@ export default {
       endX : 0,
       user: false,
       userInfo: {},
-      progressBoxW: 45
+      progressBoxW: 45,
+      page: 1
     }
   },
   created() {
@@ -78,8 +81,6 @@ export default {
     if(localStorage.getItem('api_token')) {
       // 获取用户信息
       this.getUserInfo()
-      // 获取课程
-      this.getMyCourse()
     } else {
       window.location.href = 'https://yoga.17link.cc/api/my/web_auth?page=https://yoga.17link.cc/dist/index.html' 
     }
@@ -107,15 +108,24 @@ export default {
         }
       })
     },
-    getMyCourse() {
-      getCourse().then(res => {
+    getMyCourse($state) {
+      getCourse(this.page).then(res => {
         if(res.state == 200) {
-          this.myPracticeList = res.data.data
+          const lists = res.data.data
+          if (lists.length) {
+            this.page += 1;
+            this.myPracticeList.push(...lists)
+            $state.loaded();
+          } else {
+            $state.complete()
+          }
           this.$nextTick(() => {
             if (this.$refs.progressBox) {
               this.progressBoxW = this.$refs.progressBox[0].clientWidth
             }
           })
+        } else {
+          this.$toast.top(res.msg)
         }
 
       })
@@ -201,7 +211,7 @@ export default {
       })
     },
     infiniteHandler($state) {
-      
+      this.getMyCourse($state)
     }
   },
   components: {
@@ -431,6 +441,9 @@ export default {
     height: 60px;
     margin-top: 126px;
   }
+
+
+ 
 
 
 

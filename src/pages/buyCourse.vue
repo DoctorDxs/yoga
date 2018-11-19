@@ -115,6 +115,8 @@ export default {
     this.id = query.id
     this.courseName = query.name
     this.price  = query.price
+    this.type = query.type
+    this.now_phase_id = query.now_phase_id
     document.title = '课程购买';
     let userInfo = localStorage.getItem("userInfo")
     if (userInfo) {
@@ -270,19 +272,12 @@ export default {
   },
   activated() {
     document.title = '课程购买';
-    // let userInfo = localStorage.getItem("userInfo")
-    // if (userInfo) {
-    //   userInfo = JSON.parse(userInfo)
-    //   this.userInfo = userInfo
-    //   this.userName = userInfo.true_name
-    //   this.wx = userInfo.wechat_num
-    //   this.age = userInfo.age + ''
-    //   if (userInfo.address) {
-    //     const addressArr = userInfo.address.split(',')
-    //     this.add = addressArr[0] + ' ' + addressArr[1] + ' ' + addressArr[2]
-    //   };
-    //   this.phone = userInfo.mobile
-    // };
+    let userInfo = localStorage.getItem("userInfo")
+    if (userInfo) {
+      userInfo = JSON.parse(userInfo)
+      this.userInfo = userInfo
+      this.phone = userInfo.mobile
+    };
   },
 
 }

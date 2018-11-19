@@ -88,6 +88,10 @@ export default {
     document.title = '我的消息';
     this.getData()
   },
+  activated() {
+    document.title = '我的消息';
+    this.getData()
+  },
   mounted() {
     this.$refs.page_bg.style.minHeight = window.innerHeight + 'px'
   },

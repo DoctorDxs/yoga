@@ -41,7 +41,7 @@
 </template>
 
 <script>
-import { postVideo, postImg, deleteImg, deleteVideo, addTrend } from '../fetch/api'
+import { postImg, deleteImg, deleteVideo, addTrend, getTecSign } from '../fetch/api'
 export default {
   name: 'submitTrend',
   data () {
@@ -66,9 +66,16 @@ export default {
       document.title = '发动态'; 
     } else if (query.type == 2) {
      document.title = '提问题'; 
-    }
+    };
   },
   methods: {
+    getSignature(callback) {
+      getTecSign().then(result => {
+        if (result.state == 200) {
+          callback(result.data.signature)
+        }
+      })
+    },
     selectImg(e) {
       const inputFile = this.$refs.inputImg1 || this.$refs.inputImg2
       if(inputFile.files[0].length !== 0){ 
@@ -91,20 +98,24 @@ export default {
     },
     selectVideo(e) {
       const inputFile = this.$refs.inputVideo
+      const that = this
+      const video_file = this.$refs.inputVideo.files[0]
       if(this.$refs.inputVideo.files[0].length !== 0){ 
-        let data = new FormData();
-        data.append('file', this.$refs.inputVideo.files[0]);
-        data.append('type', 6)
         this.showLoading = true
-        postVideo(data).then(res => {
-          this.showLoading = false
-          if (res.state == 200) {
-            this.videoUrl = res.data.url
-            inputFile.value = ''
-          } else {
-            this.$toast.top(res.msg)
+        qcVideo.ugcUploader.start({
+          videoFile: video_file,//视频，类型为 File
+          getSignature: that.getSignature,//前文中所述的获取上传签名的函数
+          error: function(result){//上传失败时的回调函数
+            that.showLoading = false
+            that.$toast.top('上传失败')
+              console.log(result)
+          },
+          finish: function(result){//上传成功时的回调函数
+            that.showLoading = false
+            that.videoUrl = result.videoUrl
+            that.$toast.top('上传成功')
           }
-        })
+        }) 
       }
     },
     toast() {

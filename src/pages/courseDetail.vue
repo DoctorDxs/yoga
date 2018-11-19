@@ -5,7 +5,7 @@
 
       <div class="course-tab-box">
         <div :class="index == tabIndex ? 'active-color' : '' " v-for='(item, index) in tabItems' :key='index' @click='switchTabbar(index)'>
-          <div>{{item}} {{index == 1 ? '(' + detail.video_count + ')' : ''}}</div>
+          <div>{{item}} {{index == 1 && detail.video_count ? '(' + detail.video_count + ')' : '0'}}</div>
           <div :class="index == tabIndex ? 'tab-bottom-border-show' : 'tab-bottom-border-hide'"></div>
         </div>
       </div>
@@ -36,7 +36,7 @@
             </div>
             <div class="course-item-info">
               <div>{{item.name}}</div>
-              <div>{{item.time}}</div>
+              <div>{{item.length_time}}</div>
             </div>
           </div>
           <div @click="linkVideo(item.group_id, item.id, item.is_can_see, item.is_try_free)">
@@ -47,7 +47,7 @@
         </div>
       </div>
       <!-- 圈子 -->
-      <div v-if='tabIndex == 2'><trend-list :evaluteList='evaluteList'></trend-list></div>
+      <div v-if='tabIndex == 2'><trend-list :evaluteList='evaluteList' @getTrend='getTrend'></trend-list></div>
     </div>
 
     <div class="course-no-buy" v-if='detail.in_circle != 1'>
@@ -131,14 +131,17 @@ export default {
       evaluteList: [],
       showCancle: false,
       modalContent: '请点击窗口右上角分享给',
-      showModal: false  
+      showModal: false,
+      page: 1
     }
   },
   created() {
-    const id = this.$route.query.id
-    this.id = id 
-    this.getDetail(id)
-    this.getCurrentCourseEval(id)
+    const query = this.$route.query
+    this.id = query.id 
+    if (query.receive_id) {
+      this.receive_id = query.receive_id 
+    }
+    this.getDetail(query.id )
   },
   mounted() {
     document.title = '坐式瑜伽';
@@ -148,7 +151,7 @@ export default {
       this.tabIndex = index
     },
     buyCourse() {
-      this.$router.push({name: 'buyCourse', query: {id: this.id, price: this.detail.price,name: this.detail.name}})
+      this.$router.push({name: 'buyCourse', query: {id: this.id, price: this.detail.price,name: this.detail.name,type: 2}})
     },
     linkAddTrend(type) {
       this.$router.push({name: 'submitTrend', query: {type: type, group_id: this.id}})
@@ -158,6 +161,8 @@ export default {
         this.$router.push({
           name: 'videoDetail', query: {group_id: group_id, learn_id: learn_id, type: this.detail.type}
         })
+      }else {
+        this.$toast.top('暂时无法观看')
       }
     },
     showShare() {
@@ -193,6 +198,9 @@ export default {
         if (res.state == 200) {
           this.detail = res.data
           this.$refs.courseTop.commonShare(res.data); 
+          if (this.receive_id ) {
+            this.$refs.courseTop.giftShare(this.receive_id); 
+          };
           this.getShareInfo({id: res.data.id, type: 1})
         }
       })
@@ -213,7 +221,6 @@ export default {
         }
       })
     },
-
     setConfig(params) {
       let shareInfo = this.shareInfo
       wx.config({
@@ -246,9 +253,20 @@ export default {
         })
     },
 
-    getCurrentCourseEval(id) {
-      getCurrentCourseEval(id).then(res => {
-        this.evaluteList = res.data.data
+    getTrend($state) {
+      getCurrentCourseEval({id: this.id, page: this.page}).then(res => {
+        if (res.state == 200) {
+          const lists = res.data.data
+          if (lists.length) {
+            this.page += 1;
+            this.evaluteList.push(...lists)
+            $state.loaded();
+          } else {
+            $state.complete()
+          }
+        } else {
+          this.$toast.top(res.msg)
+        }
       })
     }
   },
@@ -267,6 +285,7 @@ export default {
   background: #F0F2F7;
   padding-bottom: 120px;
   position: relative;
+  height: 100%;
 }
 
 .course-tab {

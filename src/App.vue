@@ -1,6 +1,6 @@
 <template>
   <div id="app" v-cloak>
-    <keep-alive include="buyCourse, accountSet, community">
+    <keep-alive include="buyCourse, accountSet, community,mineMsg, mine">
       <router-view/>
     </keep-alive>
   </div>
@@ -38,4 +38,17 @@ body {
 ::-webkit-scrollbar {
   display: none;
 }
+
+.mint-swipe-indicator {
+  width: 16px!important;
+  height: 16px!important;
+  margin: 10px 20px!important;
+}
+
+ .no-more-data {
+    font-size: 20px;
+    color: #999;
+    margin-top: 30px;
+  }
+
 </style>

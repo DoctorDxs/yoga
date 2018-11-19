@@ -64,13 +64,13 @@ export default {
       })
     },
     receiveNow() {
-      if (this.sendDetail.is_mine == '1') {
-        this.showModal = true
-      } else {
+      // if (this.sendDetail.is_mine == '1') {
+      //   this.showModal = true
+      // } else {
         this.$router.push({
           name: 'receive',query: {id: this.id, group_name: this.sendDetail.group_name, group_type: this.sendDetail.group_type, goods_cover: this.sendDetail.goods_cover}
         })
-      }
+      // }
       
     },
 

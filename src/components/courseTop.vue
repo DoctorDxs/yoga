@@ -168,14 +168,14 @@ export default {
 
     setConfig(params) {
       let shareInfo = this.shareInfo
-      
+      const that = this
       // 分享到盆友圈
         wx.onMenuShareTimeline({
           title: shareInfo.title,
           link: shareInfo.url,
           imgUrl: shareInfo.cover,
           success: function(res) {
-            this.$toast.top('分享成功！')
+            that.$toast.top('分享成功！')
           },
         })
       //分享给朋友
@@ -185,7 +185,7 @@ export default {
           link: shareInfo.url,
           imgUrl: shareInfo.cover,
           success: function() {
-            this.$toast.top('分享成功！')
+            that.$toast.top('分享成功！')
           }
         })
     },
@@ -207,6 +207,10 @@ export default {
           }
         })
       })
+    },
+
+    giftShare(giving_id) {
+      this.getShareInfo({id: giving_id, type: 3})
     },
 
 

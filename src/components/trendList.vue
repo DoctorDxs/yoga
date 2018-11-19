@@ -6,9 +6,10 @@
       <div class="trend-avatar"><img :src="item.user_avatar" alt=""></div>
       <div class="trend-info">
         <div class='trend-username'>{{item.username}}
-              <img src="../assets/vip_no_icon@3x.png" alt="" v-if='userInfo.status === "0"'>
-              <img src="../assets/vip_nor_icon@3x.png" alt="" v-if='userInfo.status === "1"'>
-              <img src="../assets/vip_supper_icon@3x.png" alt="" v-if='userInfo.status === "2"'>
+            <img src="../assets/vip_no_icon@3x.png" alt="" v-if='item.user_status === "0"'>
+            <img src="../assets/vip_nor_icon@3x.png" alt="" v-if='item.user_status === "1"'>
+            <img src="../assets/vip_supper_icon@3x.png" alt="" v-if='item.user_status === "2"'>
+            <img src="../assets/new_icon@3x.png" alt="" v-if='item.is_new === "1"'>
         </div>
         <div class="trend-time">{{item.time_desc}}{{item.type == 2 ? '·提了一个问题' : ''}}</div>
         <div class="trend-content" v-if='item.type == 1'>
@@ -71,6 +72,9 @@
       @on-confirm='confirm'
       v-show='showModal'>
     </modal>
+    <infinite-loading @infinite="infiniteHandler">
+      <div slot="no-more" class="no-more-data">没有更多了...</div>
+    </infinite-loading>
   </div> 
 </template>
 
@@ -93,6 +97,10 @@ export default {
   },
   
   methods: {
+    infiniteHandler($state) {
+      this.$emit('getTrend', $state)
+    },
+
     // 点赞
     suportTrend(id, is_thumb, index) {
       is_thumb == '1' ? is_thumb = '0' : is_thumb = '1'
@@ -242,7 +250,6 @@ export default {
   }
 
   .trend-username img {
-    width: 72px;
     height: 32px;
     margin-left: 16px; 
   }

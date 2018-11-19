@@ -8,6 +8,11 @@ export function getSign(params) {
   return fetch('/api/my/signature?url=' + params)
 }
 
+
+export function getTecSign() {
+  return fetch('/api/my/vod_signature')
+}
+
 // 分享信息
 
 export function getShareInfo(params) { 
@@ -26,8 +31,8 @@ export function getWx() {
 }
 
 // 我的课程
-export function getCourse() { 
-  return fetch('/api/lesson/my')
+export function getCourse(params) { 
+  return fetch('/api/lesson/my?page=' + params)
 }
 // 发送验证码
 export function sedCode(params) { 
@@ -70,8 +75,8 @@ export function getDetail(id) {
   return fetch(`/api/lesson/detail/${id}`)
 }
 
-export function getCurrentCourseEval(id) { 
-  return fetch(`/api/circle/news?page=1&group_id=${id}`)
+export function getCurrentCourseEval(params) { 
+  return fetch(`/api/circle/news?page=${params.page}&group_id=${params.id}`)
 }
 
 
@@ -110,8 +115,8 @@ export function getVideoDetail(group_id, goods_id) {
  *@params 获取圈子 
  */
 
-export function getTrend() { 
-  return fetch(`/api/circle/news?page=1`)
+export function getTrend(params) { 
+  return fetch(`/api/circle/news?page=${params}`)
 }
 
 
@@ -144,8 +149,8 @@ export function getSomeoneTrend(params) {
 }
 
 // 获取自己的动态
-export function myTrend() { 
-  return fetch(`/api/circle/news?page=1&mine=1`)
+export function myTrend(params) { 
+  return fetch(`/api/circle/news?page=${params}&mine=1`)
 }
 
 // 获取圈子单条回答的详情

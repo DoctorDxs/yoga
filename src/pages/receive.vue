@@ -95,6 +95,19 @@ export default {
     this.group_name = query.group_name
     this.group_type = query.group_type
     this.group_cover = query.group_cover
+    let userInfo = localStorage.getItem("userInfo")
+    if (userInfo) {
+      userInfo = JSON.parse(userInfo)
+      this.userInfo = userInfo
+      this.name = userInfo.true_name
+      this.wx = userInfo.wechat_num
+      this.age = userInfo.age + ''
+      if (userInfo.address) {
+        const addressArr = userInfo.address.split(',')
+        this.add = addressArr[0] + ' ' + addressArr[1] + ' ' + addressArr[2]
+      };
+      this.phone = userInfo.mobile
+    };
   },
   mounted() {
     document.getElementsByClassName('accountSet-page')[0].style.minHeight = window.innerHeight + 'px'

@@ -1,6 +1,6 @@
 <template>
   <div class="community-page">
-    <trend-list :evaluteList='evaluteList'></trend-list>
+    <trend-list :evaluteList='evaluteList' @getTrend='getTrend'></trend-list>
     
     <nav-bar></nav-bar>
   </div>
@@ -15,26 +15,33 @@ export default {
   name: 'community',
   data () {
     return {
-      evaluteList: []
+      evaluteList: [],
+      page: 1
     }
   },
   created() {
     document.title = '圈子';
-    this.getTrendData()
   },
   methods: {
-    getTrendData() {
-      getTrend().then(res => {
+    getTrend($state) {
+      getTrend(this.page).then(res => {
         if (res.state == 200) {
-          let evaluteList = res.data.data
-          if (evaluteList.length > 0) {
-            evaluteList.forEach((item, index) => {
+          let lists = res.data.data
+          if (lists.length) {
+            lists.forEach((item, index) => {
               if (item.img_paths) {
                 item.img_paths = item.img_paths.split(',')
               }
             })
+            this.page += 1;
+            this.evaluteList.push(...lists)
+            $state.loaded();
+
+          }else {
+            $state.complete()
           }
-          this.evaluteList = res.data.data
+        } else {
+          this.$toast.top(res.msg)
         }
       })
     },

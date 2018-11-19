@@ -27,14 +27,12 @@
         <div class="good-students" v-if='detail.excellences.length > 0'>
           <div class="good-student-title"><span class="v-line-border"></span><span>昨日优秀学员</span></div>
           <div class="swiper-box">
-            <swiper :options="swiperOption" ref="mySwiper">
-
-              <swiper-slide v-for='item in detail.excellences' :key='item' class="goods-students-avatar">
-                <img src="http://tx.haiqq.com/uploads/allimg/150402/16094151D-13.jpg" alt="">
-                <div class="student-name">用户名</div>
-              </swiper-slide>
-              
-            </swiper>
+              <mt-swipe :auto="0">
+                <mt-swipe-item  v-for='item in detail.excellences' :key='item' class="goods-students-avatar">
+                  <img src="http://tx.haiqq.com/uploads/allimg/150402/16094151D-13.jpg" alt="">
+                  <div class="student-name">用户名</div>
+                </mt-swipe-item>
+              </mt-swipe>
           </div>
         </div>
         <div class="course-des-detail" v-html='detail.desc'></div>
@@ -49,7 +47,7 @@
             </div>
             <div class="course-item-info">
               <div>{{item.name}}</div>
-              <div>{{item.time}}</div>
+              <div>{{item.length_time}}</div>
             </div>
           </div>
           <div @click="linkVideo(item.group_id, item.id, item.is_can_see, item.is_try_free)">
@@ -60,10 +58,10 @@
         </div>
       </div>
       <!-- 圈子 -->
-      <div v-if='tabIndex == 2'><trend-list :evaluteList='evaluteList'></trend-list></div>
+      <div v-if='tabIndex == 2'><trend-list :evaluteList='evaluteList' @getTrend='getTrend'></trend-list></div>
     </div>
-
-    <div class="course-no-buy" v-if='detail.in_circle != 1'>
+    <!-- 圈外 -->
+    <div class="course-no-buy" v-if='detail.in_circle == "0"'>
       <div class="consult-course" @click="showConsult">
         <div><img src="../assets/class_consult@3x.png" alt=""></div>
         <div>咨询</div>
@@ -72,13 +70,37 @@
         <div><img src="../assets/class_share@3x.png" alt=""></div>
         <div>分享</div>
       </div>
-      <!-- 报名结束 #C7CCD1 -->
-      <!-- 已报名，等待开课 -->
-      <!-- 成为私教会员 -->
-      <div class="add-to-practice" @click="buyCourse">立刻报名</div>
+      <div class="add-to-practice" @click="buyCourse" v-if='!timeEnd'>立刻报名</div>
+      <div class="add-to-practice" style='background: #C7CCD1' @click="hasEnd" v-if="timeEnd">报名结束</div>
+      
     </div>
 
-    <div class="course-is-buy" v-if='detail.in_circle == 1'>
+    <div class="course-no-buy" v-if='detail.in_circle == "-1"'>
+      <div class="consult-course" @click="showConsult">
+        <div><img src="../assets/class_consult@3x.png" alt=""></div>
+        <div>咨询</div>
+      </div>
+      <div class="share-this-course" @click="showShare">
+        <div><img src="../assets/class_share@3x.png" alt=""></div>
+        <div>分享</div>
+      </div>
+      <div class="add-to-practice"  @click="beSvip">成为私教会员</div>
+    </div>
+
+    <div class="course-no-buy" v-if='detail.in_circle == "1" && !startclass'>
+      <div class="consult-course" @click="showConsult">
+        <div><img src="../assets/class_consult@3x.png" alt=""></div>
+        <div>咨询</div>
+      </div>
+      <div class="share-this-course" @click="showShare">
+        <div><img src="../assets/class_share@3x.png" alt=""></div>
+        <div>分享</div>
+      </div>
+      <div class="add-to-practice"  @click="waiteStart" >已报名，等待开课</div>
+    </div>
+
+
+    <div class="course-is-buy" v-if='detail.in_circle == "1"  && startclass'>
       <div class="write-trend" @click="linkAddTrend(1)">
         <div><img src="../assets/class_issue@3x.png" alt=""></div>
         <div>写动态</div>
@@ -90,11 +112,16 @@
       </div>
     </div>
 
-    <!-- 未完成 -->
-    <div class="add-time">
+    
+    <div class="add-time" v-if='!timeEnd'>
       <div>
         <div>距报名截止 还剩{{leftTime}}</div>
-        <div>已有xx人报名</div>
+        <div>已有{{detail.now_phase.subscribe_num}}人报名</div>
+      </div>
+    </div>
+    <div class="add-time" v-if='detail.in_circle == "-1"'>
+      <div>
+        你购买过该训练营,成为私教会员可以继续观看
       </div>
     </div>
 
@@ -140,16 +167,12 @@
 <script>
 import trendList from '@/components/trendList'
 import courseTop from '@/components/courseTop'
-import { swiper, swiperSlide } from 'vue-awesome-swiper'
 import { getDetail, getCurrentCourseEval, getWx, getSign, getShareInfo } from '../fetch/api'
 export default {
   name: 'campDetail',
   data () {
     return {
-      swiperOption: {
-        slidesPerView: 5,
-        spaceBetween: 0,
-      },
+      
       detail: {
         now_phase: {},
         excellences: []
@@ -165,14 +188,20 @@ export default {
       modalContent: '请点击窗口右上角分享给',
       showModal: false,
       timeEnd: false,
-      leftTime: '0天0时0分0秒'
+      leftTime: '0天0时0分0秒',
+      startclass: false,
+      endclass: false,
+      page: 1
     }
   },
   created() {
-    const id = this.$route.query.id
-    this.id = id 
-    this.getDetail(id)
-    this.getCurrentCourseEval(id)
+    const query = this.$route.query
+    this.id = query.id 
+    if (query.receive_id) {
+      this.receive_id = query.receive_id 
+    }
+    this.getDetail(query.id )
+    this.getCurrentCourseEval(query.id )
   },
   mounted() {
     document.title = '坐式瑜伽';
@@ -188,7 +217,18 @@ export default {
       this.$router.push({name: 'buyCourse'})
     },
     buyCourse() {
-      this.$router.push({name: 'buyCourse', query: {id: this.id, price: this.detail.price,name: this.detail.name}})
+      this.$router.push({name: 'buyCourse', query: {id: this.id, price: this.detail.price,name: this.detail.name, now_phase_id: this.detail.now_phase_id,type: 1}})
+    },
+    waiteStart() {
+      this.$toast.top('您已报名，请等待开课')
+    },
+    hasEnd() {
+      this.$toast.top('报名已结束！')
+    },
+    beSvip() {
+      this.$router.push({
+        name: 'beVip'
+      })
     },
     linkAddTrend(type) {
       this.$router.push({name: 'submitTrend', query: {type: type, group_id: this.id}})
@@ -198,6 +238,8 @@ export default {
         this.$router.push({
           name: 'videoDetail', query: {group_id: group_id, learn_id: learn_id, type: this.detail.type}
         })
+      } else {
+        this.$toast.top('暂时无法观看')
       }
     },
     showShare() {
@@ -232,11 +274,27 @@ export default {
       getDetail(id).then(res => {
         if (res.state == 200) {
           this.detail = res.data
-          // let start = res.data.now_phase.sign_started_at
+          let startclass = res.data.now_phase.started_at
+          let endclass = res.data.now_phase.ended_at
+          // 判断是否开课  是否 结课
+          let startclassDiffer = new Date(startclass).getTime() - new Date().getTime()
+          let endclassDiffer = new Date(endclass).getTime() - new Date().getTime()
+          if (startclassDiffer > 0) {
+            this.startclass = false
+          } else {
+            this.startclass = true
+          };
+          if (endclassDiffer > 0) {
+            this.endclass = false
+          } else {
+            this.endclass = true
+          };
           let end = res.data.now_phase.sign_ended_at
-          
           this.setIntervalTime(end)
           this.$refs.courseTop.commonShare(res.data); 
+          if (this.receive_id ) {
+            this.$refs.courseTop.giftShare(this.receive_id); 
+          };
           this.getShareInfo({id: res.data.id, type: 1})
         }
       })
@@ -245,16 +303,17 @@ export default {
       let time =  setInterval(() => {
         let differTiem =parseInt((new Date(end).getTime() - new Date().getTime())/1000) 
         if(differTiem <= 0) {
+          //  报名结束
   　      this.timeEnd = true
   　      clearInterval(time)
     　  } else {
+            this.timeEnd = false
             let day = parseInt(differTiem/60/60/24)  
             let hour = parseInt(differTiem/60/60%24)
             let minute = parseInt(differTiem/60%60)
             let second = parseInt(differTiem%60)
             let leftTime = day+"天"+hour+"时"+minute+"分"+second+"秒"
             this.leftTime = leftTime
-            this.setIntervalTime(differTiem)
           }
       }, 1000)     
 
@@ -309,17 +368,26 @@ export default {
         })
     },
 
-    getCurrentCourseEval(id) {
-      getCurrentCourseEval(id).then(res => {
-        this.evaluteList = res.data.data
+    getTrend($state) {
+      getCurrentCourseEval({id: this.id, page: this.page}).then(res => {
+        if (res.state == 200) {
+          const lists = res.data.data
+          if (lists.length) {
+            this.page += 1;
+            this.evaluteList.push(...lists)
+            $state.loaded();
+          } else {
+            $state.complete()
+          }
+        } else {
+          this.$toast.top(res.msg)
+        }
       })
     }
   },
   components: {
     courseTop,
     trendList,
-    swiper,
-    swiperSlide
   }
   
 

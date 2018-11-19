@@ -42,7 +42,7 @@
       <div class="line-left-border"></div>
       <div>我的动态</div>
     </div>
-    <trend-list :evaluteList='evaluteList'></trend-list>
+    <trend-list :evaluteList='evaluteList' @getTrend='getTrend'></trend-list>
     <nav-bar></nav-bar>
   </div>
      
@@ -57,7 +57,8 @@ export default {
   data () {
     return {
       evaluteList: [],
-      userInfo: {}
+      userInfo: {},
+      page: 1
     }
   },
   created() {
@@ -67,7 +68,6 @@ export default {
       userInfo = JSON.parse(userInfo)
     };
     this.userInfo = userInfo
-    this.getMyTrend()
   },
   mounted() {
     document.getElementsByClassName('mine-page')[0].style.minHeight = window.innerHeight + 'px'
@@ -88,10 +88,19 @@ export default {
     linkGiftRecord() {
       this.$router.push({name: 'giftRecord'})
     },
-    getMyTrend() {
-      myTrend().then(res => {
+    getTrend($state) {
+      myTrend(this.page).then(res => {
         if (res.state == 200) {
-          this.evaluteList = res.data.data
+          const lists = res.data.data
+          if (lists.length) {
+            this.page += 1;
+            this.evaluteList.push(...lists)
+            $state.loaded();
+          } else {
+            $state.complete()
+          }
+        } else {
+          this.$toast.top(res.msg)
         }
       })
     }
@@ -128,8 +137,11 @@ export default {
 .user-avatar ,.user-avatar img{
   height: 110px;
   width: 110px;
-  border-radius: 50%;
   border: 2px solid #fff;
+}
+
+.user-avatar img{
+  border-radius: 50%;
 }
 
 .mine-header-user {

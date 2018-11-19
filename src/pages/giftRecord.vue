@@ -20,10 +20,10 @@
         <div class="sender-detail">
           <div class="sender-info">
             <div class="send-time">
-              <div>{{item.user.avatar.username}}</div>
+              <div>{{item.user.username}}</div>
               <div>{{item.time_desc}}·赠送</div>
             </div>
-            <div class="send-btn" @click='sendAgain(item.id)'>未送出继续送</div>
+            <div class="send-btn" @click='sendAgain(item.id, item.order.group.id, item.order.group.type)'>未送出继续送</div>
           </div>
           <div class="course-info" @click="linkCourse(item.order.group.id, item.order.group.type)">
             <img :src="item.order.group.goods_cover" alt="">
@@ -57,6 +57,9 @@
         </div>
       </div>
     </div>
+    <infinite-loading :identifier="infiniteId" @infinite="infiniteHandler">
+      <div slot="no-more" class="no-more-data">没有更多了...</div>
+    </infinite-loading>
   </div>
      
 </template>
@@ -72,18 +75,18 @@ export default {
       pagesend: 1,
       pagerecive: 1, 
       sentData: [],
-      reciveData: []
+      reciveData: [],
+      infiniteId: +new Date()
     }
   },
   created() {
     document.title = '赠送记录';
-    this.getData()
   },
   mounted() {
     document.getElementsByClassName('giftRecord-page')[0].style.minHeight = window.innerHeight + 'px'
   },
   methods: {
-    getData() {
+    getData($state) {
       let page;
       if (this.type == 1) {
         page = this.pagesend
@@ -92,29 +95,52 @@ export default {
       }
       sendRecord({type: this.type, page: page}).then(res => {
         if (res.state == 200) {
+          const lists = res.data.data
           if (this.type == 1 ) {
-            this.sentData = res.data.data
+            if (lists.length) {
+              this.pagesend += 1;
+              this.sentData.push(...lists)
+              $state.loaded();
+            } else {
+              $state.complete()
+            }
           } else {
-            this.reciveData = res.data.data
+            if (lists.length) {
+              this.pagerecive += 1;
+              this.reciveData.push(...lists)
+              $state.loaded();
+            } else {
+              $state.complete()
+            }
           }
+        } else {
+          this.$toast.top(res.msg)
         }
       })
     },
-    sendAgain(id) {
-      
+    sendAgain(receive_id, id, type) {
+      if (type == '1') {
+        this.$router.push({
+          name: 'campDetail', query: {receive_id: receive_id, id: id}
+        })
+      } else {
+        this.$router.push({
+          name: 'courseDetail', query: {receive_id: receive_id, id: id}
+        })
+      }
     },
     Sent() {
       this.showSent = true,
       this.type = 1
       if (this.sentData.length == 0) {
-        this.getData()
+        this.infiniteId += 1
       }
     },
     Received() {
       this.showSent = false
       this.type = 2
       if (this.reciveData.length == 0) {
-        this.getData()
+        this.infiniteId += 1
       }
     },
     linkCourse(id, type) {
@@ -127,6 +153,11 @@ export default {
           name: 'courseDetail', query: {id: id}
         })
       }
+    },
+    infiniteHandler($state) {
+      
+      this.getData($state)
+
     }
   },
   components: {
