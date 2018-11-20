@@ -67,6 +67,7 @@
           </div>
         </div>
       </div>
+
     </div>
 
     <div class="replay-input-box">
@@ -138,6 +139,9 @@ export default {
     this.type = query.type
     this.group_type = query.group_type
     this.id = query.id
+    if (query.index !== undefined || query.index !== null) {
+      this.trendUpdataIndex = query.index
+    };
     this.getData()
   },
   mounted() {
@@ -176,7 +180,7 @@ export default {
           this.delId = ''
           this.delIndex = ''
           if (this.deleteAnswer) {
-            this.$router.go(-1)
+            localStorage.setItem('trendUpdate' ,JSON.stringify({trendUpdataIndex: this.trendUpdataIndex, 'donwTrend': -1}))
           };
           this.deleteAnswer = false
           this.getData()
@@ -312,6 +316,7 @@ export default {
             this.getData()
             this.content = ''
             this.imgs = []
+            localStorage.setItem('trendUpdate' ,JSON.stringify({trendUpdataIndex: this.trendUpdataIndex, 'donwTrend': 3}))
           }
         })
       } else {
@@ -346,10 +351,12 @@ export default {
           news_id: id,
           is_thumb: 0,
         }
+        localStorage.setItem('trendUpdate', JSON.stringify({trendUpdataIndex: this.trendUpdataIndex, 'donwTrend': 1}))
       } else {
         params = {
           news_id: id,
           is_thumb: 1,
+          localStorage.setItem('trendUpdate', JSON.stringify({trendUpdataIndex: this.trendUpdataIndex, 'donwTrend': 2}))
         }
       }
       addSuport(params).then(res => {

@@ -1,7 +1,7 @@
 <template>
   <div class="trend-comp">
     
-    <div class="trend-list" v-for='(item, index) in evaluteList' :key='index' @click="linkDetail(item.type, item.id, item.group_type)">
+    <div class="trend-list" v-for='(item, index) in evaluteList' :key='index' @click="linkDetail(item.type, item.id, item.group_type, index)">
       <div v-if='evaluteList.length == 0'><img src="../assets/all_none@3x.png" alt=""></div>
       <div class="trend-avatar"><img :src="item.user_avatar" alt=""></div>
       <div class="trend-info">
@@ -104,15 +104,34 @@ export default {
       previewImages: {},
       showModal: false,
       showPost: true,
-      videoIndex: null
+      videoIndex: null,
     }
   },
-  created() {
+  activated() {
     let userInfo = localStorage.getItem("userInfo")
     if (userInfo) {
       userInfo = JSON.parse(userInfo)
     };
     this.userInfo = userInfo
+    let trendUpdate = localStorage.getItem("trendUpdate")
+    if (trendUpdate) {
+      trendUpdate = JSON.parse(trendUpdate)
+    };
+    let evaluteList = this.evaluteList || []
+    if (this.evaluteList.length > 0) {
+      if (trendUpdate.donwTrend == -1) {
+        evaluteList.splice(trendUpdate.index, 1)
+      } else if (trendUpdate.donwTrend == 1) {
+        evaluteList[trendUpdate.index].is_thumb = '0'
+        evaluteList[trendUpdate.index].thumbs =  evaluteList[index].thumbs - 1 + ''
+      } else if (trendUpdate.donwTrend == 2) {
+        evaluteList[trendUpdate.index].is_thumb = '1'
+        evaluteList[trendUpdate.index].thumbs =  evaluteList[index].thumbs - 0 + 1 + ''
+      } else if (trendUpdate.donwTrend == 3) {
+        evaluteList[trendUpdate.index].evaluate_sum = evaluteList[trendUpdate.index].evaluate_sum - 0 + 1
+      }
+      this.evaluteList = evaluteList
+    }
   },
   
   methods: {
@@ -171,19 +190,19 @@ export default {
         });
       })
     },
-    linkDetail(type, id, group_type) {
+    linkDetail(type, id, group_type, index) {
       // 1动态 2提问 3回答
       if (type === '1') {
         this.$router.push({
-          name: 'trendDetail', query: {id: id, type: type}
+          name: 'trendDetail', query: {id: id, type: type, index}
         })  
       } else if (type === '2') {
         this.$router.push({
-          name: 'questionDetail', query: {id: id, type: type}
+          name: 'questionDetail', query: {id: id, type: type, index}
         })  
       } else if (type === '3') {
         this.$router.push({
-          name: 'answerDetail', query: {id: id, type: type}
+          name: 'answerDetail', query: {id: id, type: type, index: index}
         }) 
       }
     },

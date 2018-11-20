@@ -20,6 +20,7 @@ export default {
   },
   activated() {
     document.title = '圈子';
+    
   },
   methods: {
     getTrend($state) {

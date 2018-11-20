@@ -46,7 +46,7 @@
               <div class="num">分享</div>
             </div>
           </div>
-          <div class="trend-more" v-if='trendDetails.is_mine == "1"'><img src="../assets/circle_more_del_icon@3x.png" alt=""></div>
+          <div class="trend-more" v-if='trendDetails.is_mine == "1"' @click.stop="deleteTrend(trendDetails.id, index)"><img src="../assets/circle_more_del_icon@3x.png" alt=""></div>
         </div>
       </div>
     </div>
@@ -58,7 +58,7 @@
 
     <div class="evaluate-list">
       <div v-for='(item, index) in comments' :key='index' class="mar-boot">
-        <div class="trend-user" @click.stop="replay(item.id, item.username)">
+        <div class="trend-user" @click.stop="replay(item.id, item.username, index)">
           <div class="trend-user-avatar">
             <div>
               <img :src="item.user_avatar" alt="">
@@ -128,6 +128,15 @@
         <div class="cancle" @click="hideModal">取消</div>
       </div>
     </div>
+    <modal 
+      title="提示" 
+      content='是否删除?'
+      :showCancle='showCancle' 
+      confirmText='删除'
+      @on-cancel="cancel" 
+      @on-confirm='confirm'
+      v-show='showModal'>
+    </modal>
     <infinite-loading @infinite="infiniteHandler">
       <div slot="no-more" class="no-more-data"> {{comments.length > 9 ? "没有更多了..." : ""}}</div>
       <div slot="no-results"> </div>
@@ -137,7 +146,7 @@
 </template>
 
 <script>
-import { getSomeoneTrend, replayOrCommit, postImg, deleteImg, getSign, addSuport, getUpdate} from '../fetch/api.js'
+import { getSomeoneTrend, replayOrCommit, postImg, deleteImg, getSign, addSuport, getUpdate, delEval} from '../fetch/api.js'
 export default {
   name: 'trendDetail',
   data () {
@@ -152,7 +161,8 @@ export default {
       content: '',
       imgs: [],
       replayInput: 1,
-      page: 1
+      page: 1,
+      showModal: false,
     }
   },
   activated() {
@@ -207,6 +217,27 @@ export default {
         }
       })
     },
+    deleteTrend(id, index) {
+      this.showModal = true
+      this.delId = id
+      this.delIndex = index
+    },
+    confirm() {
+      this.showModal = false
+      delEval({news_id: this.delId}).then(res => {
+        if (res.state == 200) {
+          this.$toast.top('已删除！')
+          this.delId = ''
+          this.delIndex = ''
+          this.$router.go(-1)
+        } else {
+           this.$toast.top(res.msg)
+        }
+      })
+    },
+    cancel() {
+      this.showModal = false
+    },
     submitIdea() {
       if (this.content || this.imgs.length > 0) {
         let params;
@@ -226,7 +257,6 @@ export default {
           }
         }
         this.comment(params)
-        
       } else {
         this.$toast.top('请输入内容或选择图片!')
       }
@@ -237,9 +267,7 @@ export default {
         if (res.state == 200) {
           this.content = ''
           this.imgs = ''
-          this.page = 1
-          this.comments = []
-          this.getData(this.state)
+          this.getupdata(res.data)
         } else {
           this.$toast.top(res.msg)
         }
@@ -247,11 +275,15 @@ export default {
     },
 
     // 获取某一条评论
-    // getupdata() {
-    //   getUpdate(this.id).then(res => {
-    //     console.log(2323)
-    //   }) 
-    // },
+    getupdata(params, com_param) {
+      let api;
+      api = `news_id=${params.id}&comment_id=${com_param.id}`
+      getUpdate(api).then(res => {
+        if(res.state == 200) {
+          this.comments.unshift(res.data)
+        }
+      }) 
+    },
     selectImg(e) {
       const inputFile = this.$refs.inputImg1
       if(inputFile.files[0].length !== 0){ 
@@ -395,7 +427,8 @@ export default {
       }
     },
 
-    replay(id, username) {
+    replay(id, username, index) {
+      this.commentIndex = index
       this.replayInput = 2
       this.comment_id = id
       this.content = ''

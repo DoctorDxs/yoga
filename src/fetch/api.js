@@ -150,7 +150,7 @@ export function getSomeoneTrend(params) {
 
 // 评论后更新数据
 export function getUpdate(params) {
-  return fetch(`/api/circle/news_single?news_id=${params}`)
+  return fetch(`/api/circle/single?${params}`)
 }
 
 // 获取自己的动态
