@@ -1,6 +1,6 @@
 <template>
   <div id="app" v-cloak>
-    <keep-alive include="buyCourse, accountSet, community, mineMsg, mine, trendList">
+    <keep-alive>
       <router-view/>
     </keep-alive>
   </div>
@@ -22,7 +22,11 @@ export default {
   margin: 0;
 }
 
-body {
+.body {
+  height: 100%;
+}
+
+body, html {
   overflow-x: hidden;
   background: #fff;
 }
@@ -31,7 +35,6 @@ body {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  
 }
 
 
@@ -42,13 +45,20 @@ body {
 .mint-swipe-indicator {
   width: 16px!important;
   height: 16px!important;
-  margin: 10px 20px!important;
+  margin: 8px 20px!important;
 }
 
  .no-more-data {
     font-size: 20px;
     color: #999;
     margin-top: 30px;
+  }
+
+  .no-data-icon img {
+    width: 441px;
+    height: 331px;
+    display: block;
+    margin: 30px auto 0;
   }
 
 </style>

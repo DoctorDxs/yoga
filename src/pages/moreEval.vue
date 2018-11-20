@@ -29,6 +29,9 @@
           <div class="trend-img3" v-if='comment.img_path.length == 4'>
             <div v-for='(imgTtem, imgIndex) in comment.img_path' :key='imgIndex'><img :src="imgTtem" alt="" @click.stop="previewImage({currentImg: imgTtem, currentImgLists: comment.img_path})"></div>
           </div>
+          <div class="trend-img4" v-if='comment.img_path.length > 4'>
+            <div v-for='(imgTtem, imgIndex) in comment.img_path' :key='imgIndex'><img :src="imgTtem" alt="" @click.stop="previewImage({currentImg: imgTtem, currentImgLists: comment.img_path})"></div>
+          </div>
           <div class="user-content">
             {{comment.content}}
           </div>
@@ -67,8 +70,11 @@
           <div class="trend-img3" v-if='item.img_path.length == 4'>
             <div v-for='(imgTtem, imgIndex) in item.img_path' :key='imgIndex'><img :src="imgTtem" alt="" @click.stop="previewImage({currentImg: imgTtem, currentImgLists: item.img_path})"></div>
           </div>
+          <div class="trend-img4" v-if='item.img_path.length > 4'>
+            <div v-for='(imgTtem, imgIndex) in item.img_path' :key='imgIndex'><img :src="imgTtem" alt="" @click.stop="previewImage({currentImg: imgTtem, currentImgLists: item.img_path})"></div>
+          </div>
           <div class="user-content">
-            {{item.username}} <span class="replay-text" v-if='item.parent_username'> 回复 </span> {{item.content}}
+            <span v-if='item.parent_username'>{{item.username}}</span> <span class="replay-text" v-if='item.parent_username'> 回复 </span> {{item.content}}
           </div>
         </div>
       </div>
@@ -90,6 +96,11 @@
         </div>
       </div>
     </div>
+
+    <infinite-loading @infinite="infiniteHandler">
+      <div slot="no-more" class="no-more-data"> {{replies.length > 9 ? "没有更多了..." : ""}}</div>
+      <div slot="no-results"> </div>
+    </infinite-loading>
   </div>
   
 </template>
@@ -111,7 +122,7 @@ export default {
       comment_id: ''
     }
   },
-  created() {
+  activated() {
     const query = this.$route.query
     this.id = query.id
     this.type = query.type
@@ -126,6 +137,14 @@ export default {
     
   },
   methods: {
+    infiniteHandler($state) {
+      this.state = $state
+      if (this.type === 'answer') {
+        this.getData(`${this.id}?page=${this.page}&type=answer`)
+      } else {
+        this.getData(`${this.id}?page=${this.page}`)
+      }
+    },
     getData(params) {
       getComments(params).then(res => {
         if (res.state == 200) {
@@ -145,9 +164,15 @@ export default {
                 item.img_path = []
               }
             })
-          };
+            this.page += 1;
+            this.replies.push(...replies)
+            this.state.loaded();
+          } else {
+            this.state.complete()
+          }
           this.comment = comment
-          this.replies = replies
+        } else {
+          this.$toast.top(res.msg)
         }
       })
     },
@@ -403,7 +428,7 @@ export default {
 }
 
 
-.trend-img1,.trend-img2 {
+.trend-img1 {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -420,6 +445,12 @@ export default {
     height: 304px;
   }
 
+  .trend-img2 {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
   .trend-img2 > div {
     background: #F4F6F9;
     width: 200px;
@@ -427,6 +458,25 @@ export default {
   }
 
   .trend-img2 > div img {
+    width: 200px;
+    height: 200px;
+  }
+
+  .trend-img4 {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .trend-img4 > div {
+    background: #F4F6F9;
+    width: 200px;
+    height: 200px;
+    margin-right: 8px;
+    margin-bottom: 10px;
+  }
+
+  .trend-img4 > div img {
     width: 200px;
     height: 200px;
   }

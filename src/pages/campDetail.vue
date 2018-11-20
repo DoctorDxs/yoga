@@ -16,7 +16,7 @@
       <!-- 详情 -->
       <div v-if='tabIndex == 0'>
         <div class="students-study">
-          <div class="students-avatar">
+          <div class="students-avatar" v-if='detail.circle && detail.circle.length'>
             <img :src="item" alt="" v-for='(item, index) in detail.circle' :key='index'>
           </div>
           <div class="course-detail-info">
@@ -56,9 +56,12 @@
             <div v-if='item.is_can_see == 1 ||  (detail.in_circle == 1 && item.is_try_free == 1)' class="course-play"><img src="../assets/class_play@3x.png" alt=""></div>
           </div>
         </div>
+        <div class="no-data-icon" v-if='!detail.videos.length'><img src="../assets/all_none@3x.png" alt="" ></div>
       </div>
       <!-- 圈子 -->
-      <div v-if='tabIndex == 2'><trend-list :evaluteList='evaluteList' @getTrend='getTrend'></trend-list></div>
+      <div v-if='tabIndex == 2'>
+        <trend-list :evaluteList='evaluteList' @getTrend='getTrend'></trend-list>
+      </div>
     </div>
     <!-- 圈外 -->
     <div class="course-no-buy" v-if='detail.in_circle == "0"'>
@@ -87,7 +90,7 @@
       <div class="add-to-practice"  @click="beSvip">成为私教会员</div>
     </div>
 
-    <div class="course-no-buy" v-if='detail.in_circle == "1" && !startclass'>
+    <div class="course-no-buy" v-if='detail.in_circle == "1" && !startclass && (userInfo.status != 2)'>
       <div class="consult-course" @click="showConsult">
         <div><img src="../assets/class_consult@3x.png" alt=""></div>
         <div>咨询</div>
@@ -113,7 +116,7 @@
     </div>
 
     
-    <div class="add-time" v-if='!timeEnd'>
+    <div class="add-time" v-if='!timeEnd && userInfo.status != 2 '>
       <div>
         <div>距报名截止 还剩{{leftTime}}</div>
         <div>已有{{detail.now_phase.subscribe_num}}人报名</div>
@@ -191,20 +194,22 @@ export default {
       leftTime: '0天0时0分0秒',
       startclass: false,
       endclass: false,
-      page: 1
+      page: 1,
+      userInfo: {}
     }
   },
-  created() {
+  activated() {
     const query = this.$route.query
+    let userInfo = localStorage.getItem("userInfo")
+    if (userInfo) {
+      userInfo = JSON.parse(userInfo)
+    };
+    this.userInfo = userInfo
     this.id = query.id 
     if (query.receive_id) {
       this.receive_id = query.receive_id 
     }
     this.getDetail(query.id )
-    this.getCurrentCourseEval(query.id )
-  },
-  mounted() {
-    document.title = '坐式瑜伽';
   },
 
  
@@ -217,7 +222,7 @@ export default {
       this.$router.push({name: 'buyCourse'})
     },
     buyCourse() {
-      this.$router.push({name: 'buyCourse', query: {id: this.id, price: this.detail.price,name: this.detail.name, now_phase_id: this.detail.now_phase_id,type: 1}})
+      this.$router.push({name: 'buyCourse', query: {id: this.id, price: this.detail.price,name: this.detail.name, now_phase_id: this.detail.now_phase_id,type: 1, vip_discount: this.detail.vip_discount}})
     },
     waiteStart() {
       this.$toast.top('您已报名，请等待开课')
@@ -274,6 +279,7 @@ export default {
       getDetail(id).then(res => {
         if (res.state == 200) {
           this.detail = res.data
+          document.title = res.data.name
           let startclass = res.data.now_phase.started_at
           let endclass = res.data.now_phase.ended_at
           // 判断是否开课  是否 结课
@@ -289,9 +295,9 @@ export default {
           } else {
             this.endclass = true
           };
+          this.$refs.courseTop.commonShare(res.data); 
           let end = res.data.now_phase.sign_ended_at
           this.setIntervalTime(end)
-          this.$refs.courseTop.commonShare(res.data); 
           if (this.receive_id ) {
             this.$refs.courseTop.giftShare(this.receive_id); 
           };
@@ -373,6 +379,11 @@ export default {
         if (res.state == 200) {
           const lists = res.data.data
           if (lists.length) {
+            lists.forEach((item, index) => {
+              if (item.img_paths) {
+                item.img_paths = item.img_paths.split(',')
+              }
+            })
             this.page += 1;
             this.evaluteList.push(...lists)
             $state.loaded();
@@ -434,6 +445,7 @@ export default {
 
 .tab-item-detail {
   margin-top: 20px;
+  min-height: 400px;
 }
 
 .students-study {
@@ -473,6 +485,10 @@ export default {
   word-break: break-all;
   padding: 20px;
   font-size: 28px;
+}
+
+.course-des-detail img {
+  width: 710px;
 }
 
 .course-table-item {

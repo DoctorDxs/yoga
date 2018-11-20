@@ -26,7 +26,7 @@ export default {
       imgs: ''
     }
   },
-  created() {
+  activated() {
     const query = this.$route.query
     this.group_id = query.group_id,
     this.learn_id = query.learn_id,

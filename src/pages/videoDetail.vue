@@ -1,7 +1,7 @@
 <template>
   <div class="course-detail-page">
     <div class="video-box">
-      <video controls 
+      <video 
              @ended="endVideo()"
              x5-video-player-type="h5"
             playsinline

@@ -92,6 +92,7 @@ export default {
     flex-direction: row;
     justify-content: space-around;
     align-items: center;
+    z-index: 99999999999;
   }
 
   .nav-bar img {

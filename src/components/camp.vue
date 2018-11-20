@@ -1,14 +1,20 @@
 <template>
   <div class="camp-list">
-    <div class="camp-list-item" @click='linkCampDetail(item.id)' v-for='(item, index) in currentList' :key='item.id'>
+    <div class="camp-list-item" @click='linkCampDetail(item.id)' v-for='(item, index) in currentList' :key='index'>
       <div class="camp-info-wrap">
-        <div class="camp-title">{{item.name}}</div>
+        
+        <div class="camp-title" style="position: relative;z-index: 1;">{{item.name}}</div>
         <!-- item.now_phase.sign_ended_at - item.now_phase.sign_started_at -->
         <!-- timeDifference(item.now_phase ? item.now_phase.sign_ended_at : '', item.now_phase ? item.now_phase.sign_started_at : '') -->
-        <div class="camp-info"><span>报名还剩{{itemTime | timeDifference(item.now_phase ? item.now_phase.sign_ended_at : '', item.now_phase ? item.now_phase.sign_started_at : '')}}天</span> <span>{{item.subscribe_num}}人报名</span></div>
-        <div class="active-camp">限时免费学习</div>
+        <div class="camp-info" style="position: relative;z-index: 1;"><span>报名还剩{{itemTime | timeDifference(item.now_phase ? item.now_phase.sign_ended_at : '', item.now_phase ? item.now_phase.sign_started_at : '')}}天</span> <span>{{item.subscribe_num}}人报名</span></div>
+        <div class="active-camp" style="position: relative;z-index: 1;">限时免费学习</div>
+        <div class="camp-cover"><img :src="item.goods_cover" alt=""></div>
       </div>
-      <div class="camp-cover"><img :src="item.goods_cover ? item.goods_cover : '../assets/bg-img.png'" alt=""></div>
+      <infinite-loading @infinite="infiniteHandler">
+        <div slot="no-more" class="no-more-data">{{evaluteList.length > 9 ? "没有更多了..." : " "}}</div>
+        <div slot="no-results"> </div>
+      </infinite-loading>
+      <div class="no-data-icon" v-if='!currentList.length'><img src="../assets/all_none@3x.png" alt="" ></div>
     </div>
   </div>
 </template>
@@ -93,7 +99,7 @@ export default {
   width: 100%;
   position: absolute;
   background: #F4F6F9;
-  z-index: -1;
+  z-index: 0;
   top: 0;
   left: 0;;
 }

@@ -26,7 +26,7 @@ export default {
       type: 1
     }
   },
-  created() {
+  activated() {
     document.title = '输入验证码';
     let phone = this.$route.query.phone
     let phoneHide = phone.substring(0,3) + '****' + phone.substring(7,11)

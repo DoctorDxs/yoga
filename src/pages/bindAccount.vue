@@ -23,7 +23,7 @@ export default {
       phone: ''
     }
   },
-  created() {
+  activated() {
     document.title = '账号绑定';
     let userInfo = localStorage.getItem("userInfo")
     if (userInfo) {

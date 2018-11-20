@@ -82,6 +82,10 @@
           </div>
         </div>
       </div>
+
+
+
+      <div class="no-data-icon" v-if='!comments.length'><img src="../assets/all_none@3x.png" alt="" ></div>
     </div>
     <div class="replay-input-box">
       <div class="replay-input">
@@ -118,7 +122,10 @@
       @on-confirm='confirm'
       v-show='showModal1'>
     </modal>
-
+    <infinite-loading @infinite="infiniteHandler">
+      <div slot="no-more" class="no-more-data"> {{comments.length > 9 ? "没有更多了..." : ""}}</div>
+      <div slot="no-results"> </div>
+    </infinite-loading>
   </div>
      
 </template>
@@ -145,20 +152,24 @@ export default {
       is_share: false ,
       showCancle: false,
       confirmText: '删除',
-      shareInfo: ''
+      shareInfo: '',
+      page: 1
     }
   },
-  created() {
+  activated() {
     const query = this.$route.query
     this.type = query.type
     this.group_type = query.group_type
     this.id = query.id
     document.title = '问题详情'
-    this.getData()
   },
   methods: {
-    getData() {
-      getSomeoneTrend(this.id).then(res => {
+     infiniteHandler($state) {
+      this.state = $state
+      this.getData($state)
+    },
+    getData($state) {
+      getSomeoneTrend({id:　this.id, page: this.page}).then(res => {
         if(res.state == 200) {
           let trendDetails = res.data.detail
           let  comments;
@@ -185,10 +196,17 @@ export default {
                 })
               }
             })
-          };
+
+            this.page += 1;
+            this.comments.push(...comments)
+            $state.loaded();
+          } else {
+            $state.complete()
+          }
           this.trendDetails = trendDetails
-          this.comments = comments
           this.getShareInfo()
+        } else {
+          this.$toast.top(res.msg)
         }
       })
     },
@@ -247,7 +265,9 @@ export default {
       addTrend(params).then(res => {
         if (res.state == 200) {
           this.$toast.top(res.msg)
-          this.getData()
+          this.comments = []
+          this.page = 1
+          this.getData(this.state)
           this.content = ''
           this.imgs = []
         } else {
@@ -262,7 +282,9 @@ export default {
         if (res.state == 200) {
           this.content = ''
           this.imgs = []
-          this.getData()
+          this.comments = []
+          this.page = 1
+          this.getData(this.state)
         } else {
           this.$toast.top(res.msg)
         }
@@ -472,25 +494,22 @@ export default {
             this.$toast.top('已删除！')
             this.deleteId = ''
             this.delIndex = ''
-            this.getData()
+            this.comments = []
+            this.page = 1
+            this.getData(this.state)
           } else {
             this.$toast.top(res.msg)
           }
         })
         this.is_share = false
       }
-      
     },
     cancel() {
-      console.log(2323)
       this.showModal1 = false
     },
     hideModal() {
       this.modalShow = false
     },
-
-
-
   },
 
 }

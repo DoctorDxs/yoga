@@ -30,7 +30,21 @@
         <div class="trend-img3" v-if='item.img_paths.length == 4'>
           <div v-for='(imgTtem, imgIndex) in item.img_paths' :key='imgIndex'><img :src="imgTtem" alt="" @click.stop="previewImage({currentImg: imgTtem, currentImgLists:item.img_paths})"></div>
         </div>
-        <div class="video-box" v-if='item.video_path'><video :src="item.video_path" controls></video></div>
+        <div class="trend-img4" v-if='item.img_paths.length > 4'>
+          <div v-for='(imgTtem, imgIndex) in item.img_paths' :key='imgIndex'><img :src="imgTtem" alt="" @click.stop="previewImage({currentImg: imgTtem, currentImgLists: item.img_paths})"></div>
+        </div>
+        <div class="video-box" v-if='item.video_path'>
+          <video 
+             @ended="endVideo()"
+             x5-video-player-type="h5"
+            playsinline
+            webkit-playsinlin
+             :src="item.video_path"
+             :ref='"videoTime"+index' v-show="videoIndex == index">
+          </video>
+          <img :src="item.video_cover" alt="" class="video-cover" v-show="videoIndex != index ">
+          <img src="../assets/class_play_icon@3x.png" alt="" class="video-icon" @click.stop="playVideo('videoTime' +index ,index)" v-show="videoIndex != index"> 
+        </div>
         <div class="trend-problem-title" v-if='item.type == 2'>
           <img src="../assets/circle_question_icon@3x.png" alt="">
           <div class="trend-problem-question">{{item.content}}</div>
@@ -62,7 +76,9 @@
           <div class="trend-more" v-if='item.is_mine == "1"' @click.stop="deleteTrend(item.id, index)"><img src="../assets/circle_more_del_icon@3x.png" alt=""></div>
         </div>
       </div>
+
     </div>
+    <div class="no-data-icon" v-if='!evaluteList.length'><img src="../assets/all_none@3x.png" alt="" ></div>
     <modal 
       title="提示" 
       content='是否删除?'
@@ -73,7 +89,8 @@
       v-show='showModal'>
     </modal>
     <infinite-loading @infinite="infiniteHandler">
-      <div slot="no-more" class="no-more-data">没有更多了...</div>
+      <div slot="no-more" class="no-more-data">{{evaluteList.length > 9 ? "没有更多了..." : " "}}</div>
+      <div slot="no-results"> </div>
     </infinite-loading>
   </div> 
 </template>
@@ -85,7 +102,9 @@ export default {
   data () {
     return {
       previewImages: {},
-      showModal: false
+      showModal: false,
+      showPost: true,
+      videoIndex: null
     }
   },
   created() {
@@ -103,12 +122,12 @@ export default {
 
     // 点赞
     suportTrend(id, is_thumb, index) {
-      is_thumb == '1' ? is_thumb = '0' : is_thumb = '1'
-      addSuport({news_id: id, is_thumb: is_thumb}).then(res => {
+      let has_thumb = is_thumb == '1' ?  '0' :  '1'
+      addSuport({news_id: id, is_thumb: has_thumb}).then(res => {
         if (res.state == 200) {
           let evaluteList = this.evaluteList
-          evaluteList[index].is_thumb == '1' ? evaluteList[index].is_thumb = '0' : evaluteList[index].is_thumb = '1'
-          evaluteList[index].is_thumb == '1' ? evaluteList[index].thumbs =  evaluteList[index].thumbs - 1 + '' : evaluteList[index].thumbs =  evaluteList[index].thumbs - 0 + 1 + ''
+          has_thumb == '1' ? evaluteList[index].is_thumb = '1' : evaluteList[index].is_thumb = '0'
+          has_thumb == '1' ? evaluteList[index].thumbs =  evaluteList[index].thumbs - 0 + 1 + '' : evaluteList[index].thumbs =  evaluteList[index].thumbs - 1 + ''
           this.evaluteList = evaluteList
         } else if (res.state == 400) {
           this.$toast.top(res.msg)
@@ -199,7 +218,16 @@ export default {
     },
     cancel() {
       this.showModal = false
-    }
+    },
+    playVideo(ele, index) {
+      this.videoIndex = index
+      this.showPost = false
+      this.$refs[ele][0].play()
+    },
+    endVideo() {
+
+    },
+
   },
   
   props: {
@@ -265,7 +293,7 @@ export default {
     margin: 40px 0 20px;
   }
 
-  .trend-img1,.trend-img2 {
+  .trend-img1 {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -282,6 +310,12 @@ export default {
     height: 304px;
   }
 
+  .trend-img2 {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
   .trend-img2 > div {
     background: #F4F6F9;
     width: 200px;
@@ -289,6 +323,25 @@ export default {
   }
 
   .trend-img2 > div img {
+    width: 200px;
+    height: 200px;
+  }
+
+  .trend-img4 {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .trend-img4 > div {
+    background: #F4F6F9;
+    width: 200px;
+    height: 200px;
+    margin-right: 8px;
+    margin-bottom: 10px;
+  }
+
+  .trend-img4 > div img {
     width: 200px;
     height: 200px;
   }
@@ -322,15 +375,40 @@ export default {
     width: 100%;
   }
 
-  .video-box {
-    width: 100%;
-    height: 234px;
-  }
+.video-box {
+  width: 405px;
+  height: 200px;
+  position: relative;
+}
 
-  .video-box video {
-    width: 100%;
-    height: 234px;
-  }
+.video-box video {
+  width: 405px;
+  height: 200px;
+}
+
+.video-cover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.video-icon {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+  width: 120px;
+  height: 120px;
+}
+
+.video-box video {
+  height: 100%;
+  width: 100%;
+}
 
   .trend-problem-title img {
     width: 100px;
@@ -373,6 +451,25 @@ export default {
     color: #808C92;
     font-size: 20px;
     margin-left: 8px;
+  }
+
+    .trend-img4 {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .trend-img4 > div {
+    background: #F4F6F9;
+    width: 200px;
+    height: 200px;
+    margin-right: 6px;
+    margin-bottom: 10px;
+  }
+
+  .trend-img4 > div img {
+    width: 200px;
+    height: 200px;
   }
 
   

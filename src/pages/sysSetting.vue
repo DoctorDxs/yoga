@@ -41,7 +41,7 @@ export default {
       sysRemind: false
     }
   },
-  created() {
+  activated() {
     document.title = '设置';
     this.getData()
   },

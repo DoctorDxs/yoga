@@ -175,7 +175,7 @@ export default {
       payConfig: {}
     }
   },
-  created() {
+  activated() {
     document.title = '会员';
     this.getVip(2)
     let userInfo = localStorage.getItem("userInfo")
@@ -315,6 +315,7 @@ export default {
           success: function(res) {
             // 支付成功后的回调函数
             this.getUserInfo()
+            this.$router.go(-1)
           },
           fail:function(res){
               

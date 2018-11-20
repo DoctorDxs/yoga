@@ -88,7 +88,7 @@ export default {
       showWxInput: false
     }
   },
-  created() {
+  activated() {
     document.title = '登记信息';
     const query = this.$route.query
     this.id = query.id
@@ -103,7 +103,7 @@ export default {
       this.wx = userInfo.wechat_num
       this.age = userInfo.age + ''
       if (userInfo.address) {
-        const addressArr = userInfo.address.split(',')
+        const addressArr = userInfo.address.split(' ')
         this.add = addressArr[0] + ' ' + addressArr[1] + ' ' + addressArr[2]
       };
       this.phone = userInfo.mobile
@@ -119,10 +119,8 @@ export default {
       const nowClientHeight = document.documentElement.clientHeight || document.body.clientHeight
       if (this.windowH > nowClientHeight) {
         this.inputFocus = true
-        alert.log(232)
       } else {
         this.inputFocus = false
-        alert.log(567)
       } 
     },
 

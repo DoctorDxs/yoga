@@ -26,7 +26,7 @@ export default {
       imgHttp: ''
     }
   },
-  created() {
+  activated() {
     document.title = '意见反馈';
   },
   mounted() {

@@ -40,7 +40,7 @@ export default {
       
     }
   },
-  created() {
+  activated() {
     document.title = '设置';
   },
   mounted() {

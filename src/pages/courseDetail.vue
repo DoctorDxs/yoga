@@ -24,7 +24,8 @@
             <div>{{detail.subscribe_num}}人正在练习</div>
           </div>
         </div>
-        <div class="course-des-detail" v-html='detail.desc'></div>
+        <div class="course-des-detail" v-html='detail.desc' v-if='detail.desc'></div>
+        <div class="no-data-icon" v-if='!detail.desc'><img src="../assets/all_none@3x.png" alt="" ></div>
       </div>
       <!-- 课表 -->
       <div v-if='tabIndex == 1'>
@@ -45,9 +46,12 @@
             <div v-if='item.is_can_see == 1 ||  (detail.in_circle == 1 && item.is_try_free == 1)' class="course-play"><img src="../assets/class_play@3x.png" alt=""></div>
           </div>
         </div>
+        <div class="no-data-icon" v-if='!detail.videos.length'><img src="../assets/all_none@3x.png" alt="" ></div>
       </div>
       <!-- 圈子 -->
-      <div v-if='tabIndex == 2'><trend-list :evaluteList='evaluteList' @getTrend='getTrend'></trend-list></div>
+      <div v-if='tabIndex == 2'>
+        <trend-list :evaluteList='evaluteList' @getTrend='getTrend'></trend-list>
+      </div>
     </div>
 
     <div class="course-no-buy" v-if='detail.in_circle != 1'>
@@ -135,7 +139,7 @@ export default {
       page: 1
     }
   },
-  created() {
+  activated() {
     const query = this.$route.query
     this.id = query.id 
     if (query.receive_id) {
@@ -151,7 +155,7 @@ export default {
       this.tabIndex = index
     },
     buyCourse() {
-      this.$router.push({name: 'buyCourse', query: {id: this.id, price: this.detail.price,name: this.detail.name,type: 2}})
+      this.$router.push({name: 'buyCourse', query: {id: this.id, price: this.detail.price,name: this.detail.name,type: 2, vip_discount: this.detail.vip_discount}})
     },
     linkAddTrend(type) {
       this.$router.push({name: 'submitTrend', query: {type: type, group_id: this.id}})
@@ -258,6 +262,11 @@ export default {
         if (res.state == 200) {
           const lists = res.data.data
           if (lists.length) {
+            lists.forEach((item, index) => {
+              if (item.img_paths) {
+                item.img_paths = item.img_paths.split(',')
+              }
+            })
             this.page += 1;
             this.evaluteList.push(...lists)
             $state.loaded();
@@ -319,6 +328,7 @@ export default {
 
 .tab-item-detail {
   margin-top: 20px;
+  min-height: 400px;
 }
 
 .students-study {

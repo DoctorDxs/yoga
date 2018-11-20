@@ -1,7 +1,6 @@
 <template>
   <div class="community-page">
     <trend-list :evaluteList='evaluteList' @getTrend='getTrend'></trend-list>
-    
     <nav-bar></nav-bar>
   </div>
      
@@ -19,7 +18,7 @@ export default {
       page: 1
     }
   },
-  created() {
+  activated() {
     document.title = '圈子';
   },
   methods: {
@@ -36,7 +35,6 @@ export default {
             this.page += 1;
             this.evaluteList.push(...lists)
             $state.loaded();
-
           }else {
             $state.complete()
           }

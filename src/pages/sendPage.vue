@@ -43,7 +43,7 @@ export default {
       id: ''
     }
   },
-  created() {
+  activated() {
     document.title = '赠送';
     let url = location.href
     let Id = url.split('id')[1].split('=')[1]

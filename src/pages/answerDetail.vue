@@ -9,7 +9,7 @@
     </div>
 
     <div class="evaluate-list">
-      <div class="trend-user" @click='commentUser'>
+      <div class="trend-user" @click='detail.is_mine ? showModal(detail.id, true, "") : commentUser()'>
         <div class="trend-user-avatar">
           <div>
             <img :src="detail.user_avatar" alt="">
@@ -39,12 +39,28 @@
           <div class="trend-img3" v-if='detail.img_paths.length == 4'>
             <div v-for='(imgTtem, imgIndex) in detail.img_paths' :key='imgIndex'><img :src="imgTtem" alt="" @click.stop="previewImage({currentImg: imgTtem, currentImgLists: detail.img_paths})"></div>
           </div>
+          <div class="trend-img4" v-if='detail.img_paths.length > 4'>
+            <div v-for='(imgTtem, imgIndex) in detail.img_paths' :key='imgIndex'><img :src="imgTtem" alt="" @click.stop="previewImage({currentImg: imgTtem, currentImgLists: detail.img_paths})"></div>
+          </div>
+          <div class="video-box" v-if='detail.video_path'>
+            <video 
+              @ended="endVideo()"
+              x5-video-player-type="h5"
+              playsinline
+              webkit-playsinlin
+              :src="detail.video_path"
+              ref='videoTime' v-show="!showPost">
+            </video>
+            <img :src="detail.video_cover" alt="" class="video-cover" v-show="showPost">
+            <img src="../assets/class_play_icon@3x.png" alt="" class="video-icon" @click.stop="playVideo" v-show="showPost"> 
+          </div>
+
           <div class="user-reply" v-if='detail.comments && detail.comments.length > 0'>
             <div v-for='(item, index) in detail.comments' :key='index'>
               <span class="evaluate-user" @click="replay(item.id, item.username)">{{item.username}}</span>
               <span class="replay-text" v-if='item.parent_username'> 回复 </span>
               <span class="evaluate-user">{{item.parent_username}}</span>:
-              <span class="evaluate-content" @click="item.is_mine == '1' ? showModal(item.id, index) : ''">{{item.content}} </span>  
+              <span class="evaluate-content" @click="item.is_mine == '1' ? showModal(item.id, false, index) : ''">{{item.content}} </span>  
               <span class="look-img-btn" v-if='item.img_path.length > 0' @click.stop="previewImage({currentImg: item.img_path[0], currentImgLists: item.img_path})">查看图片</span>
             </div>
             <div class="look-more-btn" @click="lookAllcomment(detail.id)" v-if='detail.evaluate_sum > 3'>查看全部{{detail.evaluate_sum}}条回复</div>
@@ -109,10 +125,14 @@ export default {
       replayInput: false,
       comment_id: '',
       deleteId: '',
-      showModal1: false
+      showModal1: false,
+      showPost: true
     }
   },
   created() {
+    
+  },
+  activated() {
     document.title = '回答详情';
     const query = this.$route.query
     this.type = query.type
@@ -125,9 +145,17 @@ export default {
   },
 
   methods: {
-    showModal(id, index) {
+    playVideo() {
+      this.showPost = false
+      this.$refs.videoTime.play()
+    },
+    endVideo() {
+      
+    },
+    showModal(id,deleteAnswer, index) {
       this.modalShow = true
       this.deleteId = id,
+      this.deleteAnswer = deleteAnswer
       this.delIndex = index
     },
     deleteEval() {
@@ -136,11 +164,21 @@ export default {
     },
     confirm() {
       this.showModal1 = false
-      delEval({comment_id: this.deleteId}).then(res => {
+      let params;
+      if (this.deleteAnswer) {
+        params = {news_id: this.deleteId}
+      } else {
+        params = {comment_id: this.deleteId}
+      }
+      delEval(params).then(res => {
         if (res.state == 200) {
           this.$toast.top('已删除！')
           this.delId = ''
           this.delIndex = ''
+          if (this.deleteAnswer) {
+            this.$router.go(-1)
+          };
+          this.deleteAnswer = false
           this.getData()
         } else {
            this.$toast.top(res.msg)
@@ -689,6 +727,12 @@ export default {
     height: 304px;
   }
 
+  .trend-img2 {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
   .trend-img2 > div {
     background: #F4F6F9;
     width: 200px;
@@ -696,6 +740,25 @@ export default {
   }
 
   .trend-img2 > div img {
+    width: 200px;
+    height: 200px;
+  }
+
+  .trend-img4 {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .trend-img4 > div {
+    background: #F4F6F9;
+    width: 200px;
+    height: 200px;
+    margin-right: 8px;
+    margin-bottom: 10px;
+  }
+
+  .trend-img4 > div img {
     width: 200px;
     height: 200px;
   }
@@ -719,6 +782,42 @@ export default {
     width: 200px;
     height: 200px;
   }
+
+
+.video-box {
+  width: 405px;
+  height: 200px;
+  position: relative;
+}
+
+.video-box video {
+  width: 405px;
+  height: 200px;
+}
+
+.video-cover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.video-icon {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+  width: 120px;
+  height: 120px;
+}
+
+.video-box video {
+  height: 100%;
+  width: 100%;
+}
 
 
 

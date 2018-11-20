@@ -25,7 +25,7 @@ export default {
       count: 0
     }
   },
-  created() {
+  activated() {
     document.title = '我的消息';
     this.count = this.$route.query.count - 0
     this.getData()

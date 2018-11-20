@@ -145,7 +145,12 @@ export function getSomeoneReply(params) {
  * 获取圈子动态单条详情
  */
 export function getSomeoneTrend(params) { 
-  return fetch(`/api/circle/detail/${params}`)
+  return fetch(`/api/circle/detail/${params.id}?page=${params.page}`)
+}
+
+// 评论后更新数据
+export function getUpdate(params) {
+  return fetch(`/api/circle/news_single?news_id=${params}`)
 }
 
 // 获取自己的动态

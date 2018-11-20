@@ -57,7 +57,7 @@
         </div>
 
         <div class="pay-btn" v-if='!inputFocus'>
-          <div><span>实付</span><span class="real-pay">￥{{price}}</span><span class="orgin-pay">￥899</span></div>
+          <div><span>实付</span><span class="real-pay">￥{{price_discount ? price_discount : price}}</span><span class="orgin-pay" v-if='price_discount'>￥{{price}}</span></div>
           <div @click="submitOrder">立即支付</div>
         </div>
         <awesome-picker
@@ -107,7 +107,8 @@ export default {
       courseName: '',
       price: 0,
       windowH: '',
-      payConfig: {}
+      payConfig: {},
+      price_discount: 0
     }
   },
   created() {
@@ -116,6 +117,7 @@ export default {
     this.courseName = query.name
     this.price  = query.price
     this.type = query.type
+    this.vip_discount = query.vip_discount
     this.now_phase_id = query.now_phase_id
     document.title = '课程购买';
     let userInfo = localStorage.getItem("userInfo")
@@ -126,7 +128,7 @@ export default {
       this.wx = userInfo.wechat_num
       this.age = userInfo.age + ''
       if (userInfo.address) {
-        const addressArr = userInfo.address.split(',')
+        const addressArr = userInfo.address.split(' ')
         this.add = addressArr[0] + ' ' + addressArr[1] + ' ' + addressArr[2]
       };
       this.phone = userInfo.mobile
@@ -157,7 +159,7 @@ export default {
       window.removeEventListener('resize', this.watchKeyUp, false)
     },
     selectDiscount() {
-      this.$router.push({name: 'selectType',query: {type: 2}})
+      this.$router.push({name: 'selectType',query: {type: this.type, vip_discount: this.vip_discount}})
     },
     showPickerAge () {
       this.$refs.pickerAge.show()
@@ -181,15 +183,18 @@ export default {
     },
     submitOrder() {
       if (this.checkInfo()) {
-        const params = {
+        let params = {
           true_name: this.userName,
           telephone: this.phone,
           wechat_num: this.wx,
           age: this.age,
-          address: this.add.split(' ').join(','),
+          address: this.add.split(' ').join(' '),
           group_id: this.id,
           is_web: 1
-        }
+        };
+        if (this.vip) {
+          params.is_vip_discount = 1
+        };
         buyCourse(params).then(res => {
           if (res.state == 200) {
             this.payConfig = res.data
@@ -271,7 +276,22 @@ export default {
     }
   },
   activated() {
+    const query = this.$route.query
+    this.id = query.id
+    this.courseName = query.name
+    this.price  = query.price
+    this.type = query.type
+    this.now_phase_id = query.now_phase_id
+    this.vip_discount = query.vip_discount
     document.title = '课程购买';
+    let vip = localStorage.getItem('vip')
+    if (vip) {
+      this.price_discount = (this.vip_discount * 0.01 * this.price).toFixed(2)
+      this.vip = true
+      localStorage.setItem('vip', false)
+    } else {
+      this.price_discount = 0
+    };
     let userInfo = localStorage.getItem("userInfo")
     if (userInfo) {
       userInfo = JSON.parse(userInfo)

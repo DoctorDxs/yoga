@@ -100,6 +100,7 @@
           </div>
         </div>
       </div>
+      <div class="no-data-icon" v-if='!comments.length'><img src="../assets/all_none@3x.png" alt="" ></div>
     </div>
     <div class="replay-input-box">
       <div class="replay-input">
@@ -127,12 +128,16 @@
         <div class="cancle" @click="hideModal">取消</div>
       </div>
     </div>
+    <infinite-loading @infinite="infiniteHandler">
+      <div slot="no-more" class="no-more-data"> {{comments.length > 9 ? "没有更多了..." : ""}}</div>
+      <div slot="no-results"> </div>
+    </infinite-loading>
   </div>
      
 </template>
 
 <script>
-import { getSomeoneTrend, replayOrCommit, postImg, deleteImg, getSign, addSuport} from '../fetch/api.js'
+import { getSomeoneTrend, replayOrCommit, postImg, deleteImg, getSign, addSuport, getUpdate} from '../fetch/api.js'
 export default {
   name: 'trendDetail',
   data () {
@@ -146,20 +151,24 @@ export default {
       comments: [],
       content: '',
       imgs: [],
-      replayInput: 1
+      replayInput: 1,
+      page: 1
     }
   },
-  created() {
+  activated() {
     const query = this.$route.query
     this.type = query.type
     this.group_type = query.group_type
     this.id = query.id
     document.title = '动态详情'
-    this.getData()
   },
   methods: {
-    getData() {
-      getSomeoneTrend(this.id).then(res => {
+    infiniteHandler($state) {
+      this.state = $state
+      this.getData($state)
+    },
+    getData($state) {
+      getSomeoneTrend({id: this.id, page: this.page}).then(res => {
         if(res.state == 200) {
           let trendDetails = res.data.detail
           let  comments;
@@ -186,9 +195,15 @@ export default {
                 })
               }
             })
-          };
+            this.page += 1;
+            this.comments.push(...comments)
+            $state.loaded();
+          } else {
+            $state.complete()
+          }
           this.trendDetails = trendDetails
-          this.comments = comments
+        } else {
+          this.$toast.top(res.msg)
         }
       })
     },
@@ -221,13 +236,22 @@ export default {
       replayOrCommit(params).then(res => {
         if (res.state == 200) {
           this.content = ''
-          this.imgs = []
-          this.getData()
+          this.imgs = ''
+          this.page = 1
+          this.comments = []
+          this.getData(this.state)
         } else {
           this.$toast.top(res.msg)
         }
       })
     },
+
+    // 获取某一条评论
+    // getupdata() {
+    //   getUpdate(this.id).then(res => {
+    //     console.log(2323)
+    //   }) 
+    // },
     selectImg(e) {
       const inputFile = this.$refs.inputImg1
       if(inputFile.files[0].length !== 0){ 
@@ -457,10 +481,7 @@ export default {
   text-indent: 17px;
 }
 
-.replay-input img {
-  width: 44px;
-  height: 44px;
-}
+
 
 .replay-input input:nth-child(1)::placeholder {
   color: #ABB3BA;
@@ -542,6 +563,14 @@ export default {
   position: relative;
   width: 44px;
   height: 44px;
+}
+
+.input-img-box img {
+  width: 44px;
+  height: 44px;
+  position: absolute;
+  left: 0;
+  top: 0;
 }
 
 .input-img-box .input-img {
@@ -843,7 +872,7 @@ export default {
   padding: 10px;
   background: #F7F9FB;
   font-size: 28px;
-  /*  */
+  margin-top: 20px;
 }
 
 .user-reply > div {

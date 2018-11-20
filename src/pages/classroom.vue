@@ -2,8 +2,8 @@
   <div class="classroom-page">
     <div class="ads-banner">
       <mt-swipe :auto="2000">
-        <mt-swipe-item  v-for='(item, index) in banner' :key='index' @click="bannerLink(item.type,item.url)">
-          <img :src="item.image" alt="">
+        <mt-swipe-item  v-for='(item, index) in banner' :key='index'>
+          <img :src="item.image" alt="" @click="bannerLink(item.type,item.url)">
         </mt-swipe-item>
       </mt-swipe>
     </div>
@@ -16,7 +16,6 @@
     <component :is="currentView" :currentList='currentList'></component>
     <nav-bar></nav-bar>
   </div>
-     
 </template>
 
 <script>
@@ -43,18 +42,21 @@ export default {
       bots2: bots2,
       currentIndex: 2,
       lastClickIndex: 0,
-      banner: []
+      banner: [],
+      page1: 1,
+      page2: 1,
+      page3: 1,
+      page4: 1
     }
   },
-  created() {
+  activated() {
     document.title = '课堂';
     this.getData(this.tabIndex)
     this.getBanner()
   },
-  mounted() {
-    
-  },
+  
   methods: {
+
     switchTabbar(index) {
       this.tabIndex = index
       this.currentView = 'components' + index
@@ -72,7 +74,6 @@ export default {
       if (this.lastClickIndex == index) return false;
       this.getData(index)
       this.lastClickIndex = index
-
     },
     getBanner() {
       getBanner().then(res => {
@@ -111,6 +112,7 @@ export default {
       })
     },
     bannerLink(type, url) {
+      console.log(type, url)
       if (type == '1' ) {
         this.$router.push({
           name: 'campDetail', query: {id: url}

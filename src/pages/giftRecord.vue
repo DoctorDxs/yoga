@@ -12,8 +12,6 @@
         </div>
       </div>
     </div>
-
-
     <div class="gift-sent" v-if='showSent'>
       <div v-for='(item, index) in sentData' :key='index' class="gift-item">
         <div class='sender-avatar'><img :src="item.user.avatar" alt=""></div>
@@ -79,7 +77,7 @@ export default {
       infiniteId: +new Date()
     }
   },
-  created() {
+  activated() {
     document.title = '赠送记录';
   },
   mounted() {
@@ -155,9 +153,7 @@ export default {
       }
     },
     infiniteHandler($state) {
-      
       this.getData($state)
-
     }
   },
   components: {

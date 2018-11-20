@@ -61,7 +61,7 @@ export default {
       page: 1
     }
   },
-  created() {
+  activated() {
     document.title = '我';
     let userInfo = localStorage.getItem("userInfo")
     if (userInfo) {
@@ -93,6 +93,11 @@ export default {
         if (res.state == 200) {
           const lists = res.data.data
           if (lists.length) {
+            lists.forEach((item, index) => {
+              if (item.img_paths) {
+                item.img_paths = item.img_paths.split(',')
+              }
+            })
             this.page += 1;
             this.evaluteList.push(...lists)
             $state.loaded();
@@ -134,7 +139,11 @@ export default {
   align-items: center;
 }
 
-.user-avatar ,.user-avatar img{
+.user-avatar {
+  height: 110px;
+  width: 110px;
+} 
+.user-avatar img{
   height: 110px;
   width: 110px;
   border: 2px solid #fff;

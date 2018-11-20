@@ -58,7 +58,7 @@ export default {
   mounted() {
     document.getElementsByClassName('submitTrend-page')[0].style.minHeight = window.innerHeight + 'px'
   },
-  created() {
+  activated() {
     const query = this.$route.query
     this.type = query.type
     this.id  = query.group_id

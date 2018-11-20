@@ -84,11 +84,10 @@ export default {
     } else {
       window.location.href = 'https://yoga.17link.cc/api/my/web_auth?page=https://yoga.17link.cc/dist/index.html' 
     }
-    
     document.title = '练习';
   },
   mounted() {
-    this.setWindowH()
+    // this.setWindowH()
   },
   methods: {
     getUserInfo() {
@@ -114,7 +113,11 @@ export default {
           const lists = res.data.data
           if (lists.length) {
             this.page += 1;
-            this.myPracticeList.push(...lists)
+            if (this.myPracticeList > 0 && this.page == 1) {
+              return false
+            } else {
+              this.myPracticeList.push(...lists)
+            }
             $state.loaded();
           } else {
             $state.complete()
@@ -202,9 +205,9 @@ export default {
       // 删除
       this.myPracticeList.splice(index,1);
     },
-    setWindowH() {
-      if (this.myPracticeList.length == 0) document.getElementsByClassName('index-page')[0].style.minHeight = window.innerHeight + 'px'
-    },
+    // setWindowH() {
+    //   if (this.myPracticeList.length == 0) document.getElementsByClassName('index-page')[0].style.minHeight = window.innerHeight + 'px'
+    // },
     addClass() {
       this.$router.push({
         name: 'classroom'

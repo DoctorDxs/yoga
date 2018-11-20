@@ -27,7 +27,7 @@ export default {
       
     }
   },
-  created() {
+  activated() {
     document.title = '关于';
   },
   mounted() {

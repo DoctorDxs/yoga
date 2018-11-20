@@ -78,7 +78,7 @@ export default {
       modalContent: '请点击窗口右上角来分享至微信好友或朋友圈',
     }
   },
-  created() {
+  activated() {
     const query = this.$route.query
     this.good_name = query.good_name
     this.type = query.type

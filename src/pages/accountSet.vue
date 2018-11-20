@@ -121,7 +121,7 @@ export default {
       imgHttp: ''
     }
   },
-  created() {
+  activated() {
     document.title = '账号设置';
     let userInfo = localStorage.getItem("userInfo")
     if (userInfo) {
@@ -133,7 +133,7 @@ export default {
       this.wx = userInfo.wechat_num
       this.age = userInfo.age
       if (userInfo.address) {
-        const addressArr = userInfo.address.split(',')
+        const addressArr = userInfo.address.split(' ')
         this.add = addressArr[0] + ' ' + addressArr[1] + ' ' + addressArr[2]
       };
       this.dataUrl = userInfo.avatar
@@ -165,7 +165,7 @@ export default {
     handlePickerAreaConfirm (v) {
       this.pickerArea.anchor = v
       this.add = v[0].value + ' ' + v[1].value + ' ' + v[2].value
-      this.postUserInfo('address', v[0].value + ',' + v[1].value + ',' + v[2].value)
+      this.postUserInfo('address', v[0].value + ' ' + v[1].value + ' ' + v[2].value)
     },
     // 处理input 框弹出时 input聚焦拉起键盘问题
     inputName() {

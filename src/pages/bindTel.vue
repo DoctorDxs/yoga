@@ -18,7 +18,7 @@ export default {
       type: 1
     }
   },
-  created() {
+  activated() {
     document.title = '绑定手机号码'
     const query = this.$route.query
     if (query.type) {

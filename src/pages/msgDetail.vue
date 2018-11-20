@@ -18,7 +18,7 @@
         </div>
       </div>
     </div>
-    <infinite-loading @infinite="infiniteHandler" @infinite="infiniteHandler">
+    <infinite-loading @infinite="infiniteHandler" >
       <div slot="no-more" class="no-more-data">没有更多了...</div>
     </infinite-loading>
   </div>
@@ -32,9 +32,19 @@ export default {
     return {
       type: null,
       msgList: [],
-      updateData: true,
       page: 1
     }
+  },
+  created() {
+    const type = this.$route.query.type
+    this.type = type
+    if (type == 1) {
+      document.title = '评论回复通知'
+    } else if (type == 2){
+      document.title = '回答通知'
+    } else if (type == 3) {
+      document.title = '点赞通知'
+    } 
   },
 
   mounted() {
@@ -87,17 +97,18 @@ export default {
     infiniteHandler($state) {
       this.getData($state)
     },
-    activated() {
-      const type = this.$route.query.type
-      this.type = type
-      if (type == 1) {
-        document.title = '评论回复通知'
-      } else if (type == 2){
-        document.title = '回答通知'
-      } else if (type == 3) {
-        document.title = '点赞通知'
-      } 
-    },
+    
+  },
+  activated() {
+    const type2 = this.$route.query.type
+    const type = this.type
+    if (type2 == 1) {
+      document.title = '评论回复通知'
+    } else if (type2 == 2){
+      document.title = '回答通知'
+    } else if (type2 == 3) {
+      document.title = '点赞通知'
+    } 
   },
   components: {
     
