@@ -147,8 +147,7 @@ export default {
       } else if (doWhat == 3) {
         this.$emit('updataTrends', this.$state)
       }
-      
-
+      localStorage.removeItem('trendUpdate')
     },
 
 
