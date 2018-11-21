@@ -22,7 +22,18 @@
         <div class="trend-img3" v-if='trendDetails.img_path.length == 4'>
           <div v-for='(imgTtem, imgIndex) in trendDetails.img_path' :key='imgIndex'><img :src="imgTtem" alt="" @click.stop="previewImage({currentImg: imgTtem, currentImgLists: trendDetails.img_path})"></div>
         </div>
-        <div class="video-box" v-if='trendDetails.video_path'><video :src="trendDetails.video_path" controls></video></div>
+        <div class="video-box" v-if='trendDetails.video_path'>
+          <video 
+            @ended="endVideo()"
+            x5-video-player-type="h5"
+            playsinline
+            webkit-playsinlin
+            :src="trendDetails.video_path"
+            ref='videoTime' v-show="!showPost">
+          </video>
+          <img :src="trendDetails.video_cover" alt="" class="video-cover" v-show="showPost">
+          <img src="../assets/class_play_icon@3x.png" alt="" class="video-icon" @click.stop="playVideo" v-show="showPost"> 
+        </div>
         <div class="trend-problem-title" @click.stop="linkCourse(trendDetails.group_id, trendDetails.group_type)">
           <img :src="trendDetails.group_cover" alt="">
           <div class="course-desc">
@@ -40,7 +51,7 @@
 
     <div class="evaluate-list">
       <div v-for='(item, index) in comments' :key='index' class="mar-boot">
-        <div class="trend-user" @click.stop="replay(item.id, item.username)">
+        <div class="trend-user" @click.stop="replay(true ,item.id, item.username)">
           <div class="trend-user-avatar">
             <div>
               <img :src="item.user_avatar" alt="">
@@ -50,7 +61,7 @@
               <div>{{item.time_desc}}</div>
             </div>
           </div>
-          <div class="support-icon" @click.stop="suportComment(item.id, 2, index, item.is_thumb)">
+          <div class="support-icon" @click.stop="suportComment(item.id, index, item.is_thumb)">
             <span class="suport-num" :style="item.is_thumb == '1' ? '' : 'color: #D4D9DD;'">{{item.thumbs}}</span>
             <img :src="item.is_thumb == '1' ? require('../assets/circle_like_pre_icon@3x.png') : require('../assets/circle_like_nor_icon@3x.png')" alt="">
           </div>
@@ -71,7 +82,7 @@
             </div>
             <div class="user-reply" v-if='item.comments.length > 0'>
               <div v-for='(commentItem, commentIndex) in item.comments' :key='commentIndex'>
-                <span class="evaluate-user" @click.stop="replay(commentItem.id, commentItem.username)">{{commentItem.username}}</span>
+                <span class="evaluate-user" @click.stop="replay(false ,commentItem.id, commentItem.username)">{{commentItem.username}}</span>
                 <span class="replay-text" v-if='commentItem.parent_username'> 回复 </span>
                 <span class="evaluate-user">{{commentItem.parent_username}}</span>:
                 <span class="evaluate-content" @click="commentItem.is_mine == '1' ? showModal(commentItem.id,commentIndex) : ''">{{commentItem.content}} </span>  
@@ -82,9 +93,6 @@
           </div>
         </div>
       </div>
-
-
-
       <div class="no-data-icon" v-if='!comments.length'><img src="../assets/all_none@3x.png" alt="" ></div>
     </div>
     <div class="replay-input-box">
@@ -153,20 +161,45 @@ export default {
       showCancle: false,
       confirmText: '删除',
       shareInfo: '',
-      page: 1
+      page: 1,
+      showPost: true
     }
   },
   activated() {
     const query = this.$route.query
-    this.type = query.type
-    this.group_type = query.group_type
-    this.id = query.id
+    if (this.type && this.id ) {
+      if (this.id == query.id) {
+        return false
+      } else {
+        this.type = query.type
+        this.group_type = query.group_type
+        this.id = query.id
+
+        this.page = 1
+        this.comments = []
+        this.trendDetails = {
+          img_path: []
+        }
+        this.getData(this.state)
+      }
+    } else {
+      this.type = query.type
+      this.group_type = query.group_type
+      this.id = query.id
+    }
     document.title = '问题详情'
   },
   methods: {
      infiniteHandler($state) {
       this.state = $state
       this.getData($state)
+    },
+     playVideo() {
+      this.showPost = false
+      this.$refs.videoTime.play()
+    },
+    endVideo() {
+      
     },
     getData($state) {
       getSomeoneTrend({id:　this.id, page: this.page}).then(res => {
@@ -248,10 +281,18 @@ export default {
           this.postTrend(params)
         } else if (this.replayInput == 2) {
           // 对评论进行回复
-          params = {
-            content: this.content,
-            img_path: this.imgs.length > 0 ? this.imgs.join(',') : '',
-            comment_id: this.comment_id
+          if (this.addComment) {
+            params = {
+              content: this.content,
+              img_path: this.imgs.length > 0 ? this.imgs.join(',') : '',
+              news_id: this.comment_id
+            }
+          } else {
+            params = {
+              content: this.content,
+              img_path: this.imgs.length > 0 ? this.imgs.join(',') : '',
+              comment_id: this.comment_id
+            }
           }
           this.comment(params)
         }
@@ -283,6 +324,7 @@ export default {
           this.content = ''
           this.imgs = []
           this.comments = []
+          this.addComment = false
           this.page = 1
           this.getData(this.state)
         } else {
@@ -381,59 +423,34 @@ export default {
       })
     },
     // 点赞
-    suportComment(id, type, index, is_thumb) {
-      let trendDetails = this.trendDetails
+    suportComment(id,  index, is_thumb) {
       let params;
-      if (type == 1) {
-        if (trendDetails.is_thumb == '1') {
-          params = {
-            news_id: id,
-            is_thumb: 0,
-          }
-        } else {
-          params = {
-            news_id: id,
-            is_thumb: 1,
-          }
+      
+      if (is_thumb == '1') {
+        params = {
+          news_id: id,
+          is_thumb: 0,
         }
-      } else { 
-        if (is_thumb == '1') {
-          params = {
-            comment_id: id,
-            is_thumb: 0
-          }
-        } else {
-          params = {
-            comment_id: id,
-            is_thumb: 1
-          }
+      } else {
+        params = {
+          news_id: id,
+          is_thumb: 1,
         }
-        
       }
       addSuport(params).then(res => {
         if (res.state == 200) {
-          if (type == 1) {
-            if (trendDetails.is_thumb == '1') {
-              trendDetails.thumbs =  trendDetails.thumbs - 1 + ''
-              trendDetails.is_thumb =  '0'
-            } else {
-              trendDetails.thumbs =  trendDetails.thumbs - 0 + 1 + ''
-              trendDetails.is_thumb =  '1'
-            }
-           this.trendDetails = trendDetails
-          } else {
-            let comments = this.comments
-            if (is_thumb == 1) {
-              comments[index].is_thumb = '0'
-              comments[index].thumbs = comments[index].thumbs - 1 + ''
-            } else {
-              comments[index].is_thumb = '1'
-              comments[index].thumbs = comments[index].thumbs - 0 + 1 + ''
-            }
-            this.comments = comments
-          }
           
-        }
+          let comments = this.comments
+          if (is_thumb == 1) {
+            comments[index].is_thumb = '0'
+            comments[index].thumbs = comments[index].thumbs - 1 + ''
+          } else {
+            comments[index].is_thumb = '1'
+            comments[index].thumbs = comments[index].thumbs - 0 + 1 + ''
+          }
+          this.comments = comments
+        } 
+        
       })
     },
 
@@ -443,9 +460,10 @@ export default {
       this.replayInput = 1
     },
 
-    replay(id, username) {
+    replay(addComment, id, username) {
       this.replayInput = 2
       this.comment_id = id
+      this.addComment = addComment
       this.content = ''
       this.imgs = []
       this.$refs.commentInput.setAttribute('placeholder', `回复  ${username}`)
@@ -803,15 +821,40 @@ export default {
     width: 100%;
   }
 
-  .video-box {
-    width: 100%;
-    height: 234px;
-  }
+.video-box {
+  width: 405px;
+  height: 200px;
+  position: relative;
+}
 
-  .video-box video {
-    width: 100%;
-    height: 234px;
-  }
+.video-box video {
+  width: 405px;
+  height: 200px;
+}
+
+.video-cover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.video-icon {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+  width: 120px;
+  height: 120px;
+}
+
+.video-box video {
+  height: 100%;
+  width: 100%;
+}
 
   .trend-problem-title img {
     width: 100px;

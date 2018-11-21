@@ -138,7 +138,6 @@ export default {
       };
       this.dataUrl = userInfo.avatar
     };
-    
   },
   mounted() {
     document.getElementsByClassName('accountSet-page')[0].style.minHeight = window.innerHeight + 'px'

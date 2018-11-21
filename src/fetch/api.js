@@ -164,6 +164,11 @@ export function getSomeOneAnswer(params) {
 }
 
 
+export function updataTrend(params) {
+  return fetch(`/api/circle/news_single?news_id=${params}`)
+}
+
+
 
 /**
  * 

@@ -78,7 +78,7 @@
       
     </div>
 
-    <div class="course-no-buy" v-if='detail.in_circle == "-1"'>
+    <div class="course-no-buy" v-if='detail.in_circle == "-1" && startclass'>
       <div class="consult-course" @click="showConsult">
         <div><img src="../assets/class_consult@3x.png" alt=""></div>
         <div>咨询</div>
@@ -90,7 +90,7 @@
       <div class="add-to-practice"  @click="beSvip">成为私教会员</div>
     </div>
 
-    <div class="course-no-buy" v-if='detail.in_circle == "1" && !startclass && (userInfo.status != 2)'>
+    <div class="course-no-buy" v-if='detail.in_circle == "1" && !startclass'>
       <div class="consult-course" @click="showConsult">
         <div><img src="../assets/class_consult@3x.png" alt=""></div>
         <div>咨询</div>

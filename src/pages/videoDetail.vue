@@ -32,7 +32,7 @@
         </div>
       </div>
     </div>
-    <div class="trend-list-box"><trend-list :evaluteList='evaluteList'></trend-list></div>
+    <div class="trend-list-box"><trend-list :evaluteList='evaluteList' @getTrend='getTrend'></trend-list></div>
     <div class="course-is-buy">
       <div class="write-trend" @click="linkAddTrend(1)">
         <div><img src="../assets/class_issue@3x.png" alt=""></div>
@@ -59,16 +59,29 @@ export default {
     return {
       videoInfo: {learns_avatar: []},
       evaluteList: [],
-      showPost: true
+      showPost: true,
+      page: 1
     }
   },
   created() {
     const query = this.$route.query
-    this.group_id = query.group_id
-    this.learn_id = query.learn_id
-    this.type = query.type
+    if (this.type && this.group_id ) {
+      if (this.group_id == query.group_id) {
+        return false
+      } else {
+        this.type = query.type
+        this.group_id = query.group_id
+        this.learn_id = query.learn_id
+        this.page = 1
+        this.evaluteList = []
+        this.getTrend(this.state)
+      }
+    } else {
+      this.type = query.type
+      this.learn_id = query.learn_id
+      this.group_id = query.group_id
+    }
     this.getVideo()
-    this.getTrend()
   },
 
   methods: {
@@ -88,10 +101,25 @@ export default {
     },
 
 
-    getTrend() {
+    getTrend($state) {
+      this.state = $state
       getCurrentCourseEval(this.group_id).then(res => {
         if (res.state == 200) {
-          this.evaluteList = res.data.data
+          const lists = res.data.data
+          if (lists.length) {
+            lists.forEach((item, index) => {
+              if (item.img_paths) {
+                item.img_paths = item.img_paths.split(',')
+              }
+            })
+            this.page += 1;
+            this.evaluteList.push(...lists)
+            $state.loaded();
+          } else {
+            $state.complete()
+          }
+        } else {
+          this.$toast.top(res.msg)
         }
       })
     },

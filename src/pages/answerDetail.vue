@@ -356,8 +356,8 @@ export default {
         params = {
           news_id: id,
           is_thumb: 1,
-          localStorage.setItem('trendUpdate', JSON.stringify({trendUpdataIndex: this.trendUpdataIndex, 'donwTrend': 2}))
         }
+        localStorage.setItem('trendUpdate', JSON.stringify({trendUpdataIndex: this.trendUpdataIndex, 'donwTrend': 2}))
       }
       addSuport(params).then(res => {
         if (res.state == 200) {

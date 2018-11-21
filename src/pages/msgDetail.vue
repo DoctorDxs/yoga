@@ -1,12 +1,12 @@
 <template>
   <div class="msgDetail-page">
-    <div class="trend-msg" v-for='(item, index) in msgList' :key='index'>
+    <div class="trend-msg" v-for='(item, index) in msgList' :key='index' @click.stop="linkDetail(item.link_id, item.link_type)">
       <div class="msg-type" >
         <div class="msg-title">
           <div class="msg-type-icon">
             <img :src="item.user_avatar" alt="">
           </div>
-          <div @click.stop="linkDetail(item.id, item.link_type)">
+          <div >
             <div class="msg-type-title" :style='item.is_read == "1" ? "color: #D9DEEC" : ""'>{{item.username}}</div>
             <div class="msg-tips" v-if='type == 1' :style='item.is_read == "1" ? "color: #D9DEEC" : ""'>评论了你 | 回复了你</div>
             <div class="msg-tips" v-if='type == 2' :style='item.is_read == "1" ? "color: #D9DEEC" : ""'>回答了你</div>
@@ -34,17 +34,6 @@ export default {
       msgList: [],
       page: 1
     }
-  },
-  created() {
-    const type = this.$route.query.type
-    this.type = type
-    if (type == 1) {
-      document.title = '评论回复通知'
-    } else if (type == 2){
-      document.title = '回答通知'
-    } else if (type == 3) {
-      document.title = '点赞通知'
-    } 
   },
 
   mounted() {
@@ -95,20 +84,32 @@ export default {
       })
     },
     infiniteHandler($state) {
+      this.state = $state
       this.getData($state)
     },
     
   },
   activated() {
-    const type2 = this.$route.query.type
-    const type = this.type
-    if (type2 == 1) {
+    const query = this.$route.query
+    if (this.type) {
+      if (this.type == query.type) {
+        return false
+      } else {
+        this.type = query.type
+        this.page = 1
+        this.msgList = []
+        this.getData(this.state)
+      }
+    } else {
+      this.type = query.type
+    }
+    if (query.type == 1) {
       document.title = '评论回复通知'
-    } else if (type2 == 2){
+    } else if (query.type == 2){
       document.title = '回答通知'
-    } else if (type2 == 3) {
+    } else if (query.type == 3) {
       document.title = '点赞通知'
-    } 
+    };
   },
   components: {
     

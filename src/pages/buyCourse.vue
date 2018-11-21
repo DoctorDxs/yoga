@@ -8,19 +8,16 @@
           
           <div class="input-item" >
             <div class="input-title">姓名</div>
-            <!--@click="inputName" {{userName ? userName : "请输入您的姓名"}} -->
             <div class="input-box"><input type="text" placeholder="请输入您的姓名" v-model.trim="userName" @focus="hideBottomBtn" @blur="showBottomBtn"></div>
           </div>
 
           <div class="input-item">
             <div class="input-title">电话号码</div>
-            <!--  @click="inputPhone" {{phone ? phone : "请输入您的电话号码"}}-->
             <div class="input-box"><input type="number" maxlength="11" placeholder="请输入你的电话号码" v-model="phone" @focus="hideBottomBtn" @blur="showBottomBtn"></div>
           </div>
 
           <div class="input-item" >
             <div class="input-title">微信号</div>
-            <!-- @click="inputWx"   {{wx ? wx : "请输入你的微信号"}}-->
             <div class="input-box"><input type="text" placeholder="请输入你的微信号" v-model="wx" @focus="hideBottomBtn" @blur="showBottomBtn"></div>
           </div>
 
@@ -50,7 +47,7 @@
           <div class="input-item">
             <div class="input-title">会员折扣</div>
             <div class="input-box" @click="selectDiscount">
-              <div>未选择</div>
+              <div>{{discountTypeText ? discountTypeText : '未选择'}}</div>
               <div><img src="../assets/class_next_icon@3x.png" alt=""></div>
             </div>
           </div>
@@ -108,7 +105,8 @@ export default {
       price: 0,
       windowH: '',
       payConfig: {},
-      price_discount: 0
+      price_discount: 0,
+      discountTypeText: '' 
     }
   },
   created() {
@@ -288,9 +286,11 @@ export default {
     if (vip) {
       this.price_discount = (this.vip_discount * 0.01 * this.price).toFixed(2)
       this.vip = true
+      this.discountTypeText = '会员' + vip_discount + '折'
       localStorage.setItem('vip', false)
     } else {
       this.price_discount = 0
+      this.discountTypeText = '不使用折扣'
     };
     let userInfo = localStorage.getItem("userInfo")
     if (userInfo) {

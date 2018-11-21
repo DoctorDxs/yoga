@@ -11,7 +11,9 @@
             <img src="../assets/vip_supper_icon@3x.png" alt="" v-if='item.user_status === "2"'>
             <img src="../assets/new_icon@3x.png" alt="" v-if='item.is_new === "1"'>
         </div>
-        <div class="trend-time">{{item.time_desc}}{{item.type == 2 ? '·提了一个问题' : ''}}</div>
+        <div class="trend-time" v-if='item.type == 1'>{{item.time_desc}}</div>
+        <div class="trend-time" v-if='item.type == 2'>{{item.time_desc}}·提了一个问题</div>
+        <div class="trend-time" v-if='item.type == 3'>{{item.time_desc}}·回答了一个问题</div>
         <div class="trend-content" v-if='item.type == 1'>
           {{item.content}}
         </div>
@@ -96,7 +98,7 @@
 </template>
 
 <script>
-import { getSign, addSuport, delEval } from '../fetch/api'
+import { getSign, addSuport, delEval, updataTrend } from '../fetch/api'
 export default {
   name: 'trendList',
   data () {
@@ -113,31 +115,43 @@ export default {
       userInfo = JSON.parse(userInfo)
     };
     this.userInfo = userInfo
+    // 列表页无刷新 更新数据  （点赞数，评论数、删除某一动态） （回答问题、添加动态、提问等需要清空列表 重新请求数据  page 1）
     let trendUpdate = localStorage.getItem("trendUpdate")
     if (trendUpdate) {
       trendUpdate = JSON.parse(trendUpdate)
-    };
-    let evaluteList = this.evaluteList || []
-    if (this.evaluteList.length > 0) {
-      if (trendUpdate.donwTrend == -1) {
-        evaluteList.splice(trendUpdate.index, 1)
-      } else if (trendUpdate.donwTrend == 1) {
-        evaluteList[trendUpdate.index].is_thumb = '0'
-        evaluteList[trendUpdate.index].thumbs =  evaluteList[index].thumbs - 1 + ''
-      } else if (trendUpdate.donwTrend == 2) {
-        evaluteList[trendUpdate.index].is_thumb = '1'
-        evaluteList[trendUpdate.index].thumbs =  evaluteList[index].thumbs - 0 + 1 + ''
-      } else if (trendUpdate.donwTrend == 3) {
-        evaluteList[trendUpdate.index].evaluate_sum = evaluteList[trendUpdate.index].evaluate_sum - 0 + 1
-      }
-      this.evaluteList = evaluteList
+      setTimeout(() => {
+        this.updateTrend(trendUpdate)
+      }, 1500)
     }
   },
   
   methods: {
     infiniteHandler($state) {
+      this.state = $state
       this.$emit('getTrend', $state)
     },
+
+    updateTrend(trendUpdate) {
+      const evaluteList = this.evaluteList
+      const id = trendUpdate.trendId
+      const trendIndex = trendUpdate.trendIndex
+      const doWhat = trendUpdate.doWhat
+      if (doWhat == 1) {
+        updataTrend(id).then(res => {
+          if (res.state == 200) {
+            this.evaluteList.splice(trendIndex, 1, res.data)
+          }
+        })
+      } else if (doWhat == 2) {
+        this.evaluteList.splice(trendIndex, 1)
+      } else if (doWhat == 3) {
+        this.$emit('updataTrends', this.$state)
+      }
+      
+
+    },
+
+
 
     // 点赞
     suportTrend(id, is_thumb, index) {
@@ -194,17 +208,19 @@ export default {
       // 1动态 2提问 3回答
       if (type === '1') {
         this.$router.push({
-          name: 'trendDetail', query: {id: id, type: type, index}
+          name: 'trendDetail', query: {id: id, type: type, index: index}
         })  
       } else if (type === '2') {
         this.$router.push({
-          name: 'questionDetail', query: {id: id, type: type, index}
+          name: 'questionDetail', query: {id: id, type: type, index: index}
         })  
       } else if (type === '3') {
         this.$router.push({
           name: 'answerDetail', query: {id: id, type: type, index: index}
         }) 
-      }
+      };
+      // 0 未操作  1 更新某条数据  2 删除某条数据 3 刷新整个页面
+      localStorage.setItem('trendUpdate',JSON.stringify({trendIndex: index, doWhat: 0, trendId: id}))
     },
     linkCourse(id, type) {
       if (type === '1') {
@@ -252,7 +268,8 @@ export default {
   props: {
     evaluteList: {
       type: Array,
-      required: true
+      required: true,
+      default: []
     }
   }
 }

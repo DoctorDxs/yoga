@@ -17,7 +17,18 @@
         <div class="trend-img3" v-if='trendDetails.img_path.length == 4'>
           <div v-for='(imgTtem, imgIndex) in trendDetails.img_path' :key='imgIndex'><img :src="imgTtem" alt="" @click.stop="previewImage({currentImg: imgTtem, currentImgLists: trendDetails.img_path})"></div>
         </div>
-        <div class="video-box" v-if='trendDetails.video_path'><video :src="trendDetails.video_path" controls></video></div>
+        <div class="video-box" v-if='trendDetails.video_path'>
+          <video 
+            @ended="endVideo()"
+            x5-video-player-type="h5"
+            playsinline
+            webkit-playsinlin
+            :src="trendDetails.video_path"
+            ref='videoTime' v-show="!showPost">
+          </video>
+          <img :src="trendDetails.video_cover" alt="" class="video-cover" v-show="showPost">
+          <img src="../assets/class_play_icon@3x.png" alt="" class="video-icon" @click.stop="playVideo" v-show="showPost"> 
+        </div>
         <div class="trend-problem-title" v-if='trendDetails.type == 2'>
           <img src="../assets/circle_question_icon@3x.png" alt="">
           <div class="trend-problem-question">{{trendDetails.content}}</div>
@@ -46,7 +57,7 @@
               <div class="num">分享</div>
             </div>
           </div>
-          <div class="trend-more" v-if='trendDetails.is_mine == "1"' @click.stop="deleteTrend(trendDetails.id, index)"><img src="../assets/circle_more_del_icon@3x.png" alt=""></div>
+          <div class="trend-more" v-if='trendDetails.is_mine == "1"' @click.stop="showdelModal(trendDetails.id, '', '', 1)"><img src="../assets/circle_more_del_icon@3x.png" alt=""></div>
         </div>
       </div>
     </div>
@@ -58,7 +69,7 @@
 
     <div class="evaluate-list">
       <div v-for='(item, index) in comments' :key='index' class="mar-boot">
-        <div class="trend-user" @click.stop="replay(item.id, item.username, index)">
+        <div class="trend-user" @click.stop="item.is_mine == '1' ? showdelModal(item.id, index, item.id, 2) : replay(item.id, item.username,item.id, index)">
           <div class="trend-user-avatar">
             <div>
               <img :src="item.user_avatar" alt="">
@@ -89,10 +100,10 @@
             </div>
             <div class="user-reply" v-if='item.comments.length > 0'>
               <div v-for='(commentItem, commentIndex) in item.comments' :key='commentIndex'>
-                <span class="evaluate-user" @click.stop="replay(commentItem.id, commentItem.username)">{{commentItem.username}}</span>
+                <span class="evaluate-user" @click.stop="replay(commentItem.id, commentItem.username, item.id, index)">{{commentItem.username}}</span>
                 <span class="replay-text" v-if='commentItem.parent_username'> 回复 </span>
                 <span class="evaluate-user">{{commentItem.parent_username}}</span>:
-                <span class="evaluate-content" @click="commentItem.is_mine == '1' ? showModal() : ''">{{commentItem.content}} </span>  
+                <span class="evaluate-content" @click.stop="commentItem.is_mine == '1' ? showdelModal(commentItem.id, commentIndex, item.id, 3) : ''">{{commentItem.content}} </span>  
                 <span class="look-img-btn" v-if='commentItem.img_path.length > 0' @click.stop="previewImage({currentImg: commentItem.img_path[0], currentImgLists: commentItem.img_path})">查看图片</span>
               </div>
               <div class="look-more-btn" @click="lookAll(item.id)" v-if='item.evaluate_sum > 3'>查看全部{{item.evaluate_sum}}条回复</div>
@@ -124,7 +135,7 @@
     </div>
     <div class="modal-bg" v-if='modalShow' @click="hideModal">
       <div class="modal-box">
-        <div class="delete-Evaluate" @click.stop="deleteEval">删除</div>
+        <div class="delete-Evaluate" @click.stop="deleteEvalBtn">删除</div>
         <div class="cancle" @click="hideModal">取消</div>
       </div>
     </div>
@@ -163,16 +174,41 @@ export default {
       replayInput: 1,
       page: 1,
       showModal: false,
+      modalShow: false
     }
   },
   activated() {
     const query = this.$route.query
-    this.type = query.type
-    this.group_type = query.group_type
-    this.id = query.id
+    this.trendIndex = query.index
+    if (this.id && query.id ) {
+      if (this.id == query.id) {
+        return false
+      } else {
+        this.type = query.type
+        this.group_type = query.group_type
+        this.id = query.id
+        this.page = 1
+        this.comments = []
+        this.trendDetails = {
+          img_path: []
+        }
+        this.getData(this.state)
+      }
+    } else {
+      this.type = query.type
+      this.group_type = query.group_type
+      this.id = query.id
+    }
     document.title = '动态详情'
   },
   methods: {
+    playVideo() {
+      this.showPost = false
+      this.$refs.videoTime.play()
+    },
+    endVideo() {
+      
+    },
     infiniteHandler($state) {
       this.state = $state
       this.getData($state)
@@ -217,19 +253,65 @@ export default {
         }
       })
     },
-    deleteTrend(id, index) {
+
+
+    showdelModal(id,index, devalId, type) {
+      // 删除 动态
+      if (type == 1) {
+        this.showModal = true
+        this.deletetRendId = id
+      } else if (type == 2) {
+        // 删除评论
+        this.modalShow = true
+        this.deleteEvalId = id
+        this.deleteEvalIndex = index
+      } else if (type == 3) {
+        this.modalShow = true
+        this.delComentId = id
+        this.deleteEvalId = devalId
+        this.deleteEvalIndex = index
+      }
+      this.delType = type
+    },
+    deleteEvalBtn() {
+      this.modalShow = false
       this.showModal = true
-      this.delId = id
-      this.delIndex = index
     },
     confirm() {
       this.showModal = false
-      delEval({news_id: this.delId}).then(res => {
+      let params;
+      if (this.delType == 1) {
+        params = {news_id: this.deletetRendId}
+      } else if (this.delType == 2) {
+        params = {comment_id:　this.deleteEvalId}
+      } else if (this.delType == 3) {
+        params = {comment_id:　this.delComentId}
+      }
+      delEval(params).then(res => {
         if (res.state == 200) {
           this.$toast.top('已删除！')
-          this.delId = ''
-          this.delIndex = ''
-          this.$router.go(-1)
+          // 删除动态
+          if (this.delType == 1) {
+            let trendUpdate = JSON.parse(localStorage.getItem('trendUpdate'))
+            trendUpdate.doWhat = 2
+            localStorage.setItem('trendUpdate', JSON.stringify(trendUpdate))
+            this.$router.go(-1)
+          } else if (this.delType == 2) {
+            // 删一条评论 本页面 评论数 -1 评论列表中删除
+            let trendDetails = this.trendDetails
+            this.comments.splice(this.deleteEvalIndex, 1)
+            trendDetails.evaluate_sum = trendDetails.evaluate_sum - 0 +1
+            this.trendDetails = trendDetails
+
+            let trendUpdate = JSON.parse(localStorage.getItem('trendUpdate'))
+            trendUpdate.doWhat = 1
+            localStorage.setItem('trendUpdate', JSON.stringify(trendUpdate))
+          } else if (this.delType == 3) {
+            this.replayInput = 2
+            this.evalId = this.deleteEvalId
+            this.getupdata('', 3)
+          }
+          
         } else {
            this.$toast.top(res.msg)
         }
@@ -238,6 +320,12 @@ export default {
     cancel() {
       this.showModal = false
     },
+
+    hideModal() {
+      this.modalShow = false
+    },
+
+
     submitIdea() {
       if (this.content || this.imgs.length > 0) {
         let params;
@@ -248,6 +336,7 @@ export default {
             news_id: this.id,
             img_path: this.imgs.length > 0 ? this.imgs.join(',') : ''
           }
+          
         } else if (this.replayInput == 2) {
           // 对评论进行回复
           params = {
@@ -263,10 +352,18 @@ export default {
     },
     // 评论
     comment(params) {
+      let trendDetails = this.trendDetails
       replayOrCommit(params).then(res => {
         if (res.state == 200) {
           this.content = ''
           this.imgs = ''
+          if (this.replayInput == 1) {
+            trendDetails.evaluate_sum = trendDetails.evaluate_sum - 0 +1
+            this.trendDetails = trendDetails
+            let trendUpdate = JSON.parse(localStorage.getItem('trendUpdate'))
+            trendUpdate.doWhat = 1
+            localStorage.setItem('trendUpdate', JSON.stringify(trendUpdate))
+          };
           this.getupdata(res.data)
         } else {
           this.$toast.top(res.msg)
@@ -275,12 +372,25 @@ export default {
     },
 
     // 获取某一条评论
-    getupdata(params, com_param) {
+    getupdata(data, delType) {
       let api;
-      api = `news_id=${params.id}&comment_id=${com_param.id}`
+      if (this.replayInput == 1) {
+        api = `news_id=${this.id}&comment_id=${data.id}`
+      } else {
+        api = `news_id=${this.id}&comment_id=${this.evalId}`
+      }
+      
       getUpdate(api).then(res => {
         if(res.state == 200) {
-          this.comments.unshift(res.data)
+          if (delType == 3) {
+            // 删除一条回复
+            this.comments.splice(this.deleteEvalIndex, 1, res.data);
+          } else {
+            // 增加一条评论
+            if (this.replayInput == 1) this.comments.unshift(res.data);
+            // 修改一条评论
+            if (this.replayInput == 2) this.comments.splice(this.commentIndex, 1, res.data);
+          }
         }
       }) 
     },
@@ -389,10 +499,14 @@ export default {
             if (trendDetails.is_thumb == '1') {
               trendDetails.thumbs =  trendDetails.thumbs - 1 + ''
               trendDetails.is_thumb =  '0'
+              
             } else {
               trendDetails.thumbs =  trendDetails.thumbs - 0 + 1 + ''
               trendDetails.is_thumb =  '1'
             }
+            let trendUpdate = JSON.parse(localStorage.getItem('trendUpdate'))
+            trendUpdate.doWhat = 1
+            localStorage.setItem('trendUpdate', JSON.stringify(trendUpdate))
            this.trendDetails = trendDetails
           } else {
             let comments = this.comments
@@ -409,12 +523,6 @@ export default {
       })
     },
 
-    toTrend() {
-      this.content = ''
-      this.imgs = []
-      this.replayInput = 1
-    },
-
     linkCourse(id, type) {
       if (type == 1) {
         this.$router.push({
@@ -427,10 +535,11 @@ export default {
       }
     },
 
-    replay(id, username, index) {
+    replay(id, username, evalId, index) {
       this.commentIndex = index
       this.replayInput = 2
       this.comment_id = id
+      this.evalId = evalId
       this.content = ''
       this.imgs = []
       this.$refs.commentInput.setAttribute('placeholder', `回复  ${username}`)
@@ -723,14 +832,39 @@ export default {
   }
 
   .video-box {
-    width: 100%;
-    height: 234px;
-  }
+  width: 405px;
+  height: 200px;
+  position: relative;
+}
 
-  .video-box video {
-    width: 100%;
-    height: 234px;
-  }
+.video-box video {
+  width: 405px;
+  height: 200px;
+}
+
+.video-cover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.video-icon {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+  width: 120px;
+  height: 120px;
+}
+
+.video-box video {
+  height: 100%;
+  width: 100%;
+}
 
   .trend-problem-title img {
     width: 100px;

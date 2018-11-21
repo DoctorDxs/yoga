@@ -126,7 +126,7 @@ export default {
       } else if (type == "4") {
         this.linkDetail(url)
       } else if (type == '5') {
-        window.location.href = res.data.information.url
+        window.location.href = url
       }
     },
 

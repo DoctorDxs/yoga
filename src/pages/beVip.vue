@@ -96,22 +96,22 @@
 
     <div class="modal-bg" v-if='showSvpiSelect && svip' @click="hideSvpiSelectModal">
       <div class="select-item-box" @click.stop="stopFather">
-        <div class="select-items" @click="selectThis(1,'', svipInfo.upgrade_p_vip_price, '', true)" v-if='svipInfo.upgrade_p_vip_desc'>
+        <div class="select-items2" @click="selectThis(2,'', svipInfo.upgrade_p_vip_price, '', true)" v-if='svipInfo.upgrade_p_vip_desc'>
           <div>
             <div class="title-sec">升为私教尊贵会员</div>  
             <div class="upgrade-desc">{{svipInfo.upgrade_p_vip_desc}}</div>
           </div>
           <div class="new-price">￥{{svipInfo.upgrade_p_vip_price}}</div>
         </div>
-        <div class="select-items" @click.stop="selectThis(2,1, svipInfo.price_month, '', false)">
+        <div class="select-items" @click.stop="selectThis(2,1, svipInfo.price_month, '', false)" >
           <div>月付</div>
           <div class="new-price">￥{{svipInfo.price_month}}</div>
         </div>
-        <div class="select-items" @click.stop="selectThis(2,2, svipInfo.price_half_year, '', false)">
+        <div class="select-items" @click.stop="selectThis(2,2, svipInfo.price_half_year, '', false)" >
           <div>半年付</div>
           <div class="new-price">￥{{svipInfo.price_half_year}}</div>
         </div>
-        <div class="select-items" @click.stop="selectThis(2,3, svipInfo.price_year_discount, svipInfo.price_year, false)">
+        <div class="select-items" @click.stop="selectThis(2,3, svipInfo.price_year_discount, svipInfo.price_year, false)" >
           <div class="year-icon">
             <div>年付</div> 
             <div class="limit-time-cout"><span>限时折扣</span></div> 
@@ -125,14 +125,6 @@
 
     <div class="modal-bg" v-if='showVpiSelect && !svip' @click="hideVpiSelectModal">
       <div class="select-item-box" @click.stop="stopFather">
-        <!-- true 是否升级为私教 -->
-        <!-- <div class="select-items" @click="selectThis(1,'', vipInfo.upgrade_p_vip_price, '', true)" v-if='vipInfo.upgrade_p_vip_desc'>
-          <div>
-            <div class="title-sec">升为私教尊贵会员</div>  
-            <div class="upgrade-desc">{{vipInfo.upgrade_p_vip_desc}}</div>
-          </div>
-          <div class="new-price">￥{{vipInfo.upgrade_p_vip_price}}</div>
-        </div> -->
         <div class="select-items" @click="selectThis(1,1,vipInfo.price_month, '', false)">
           <div>月付</div>
           <div class="new-price">￥{{vipInfo.price_month}}</div>
@@ -172,17 +164,18 @@ export default {
       svipType: 3,
       vipType: 3,
       toSvip: false,
-      payConfig: {}
+      payConfig: {},
+      userInfo: {}
     }
   },
   activated() {
     document.title = '会员';
-    this.getVip(2)
     let userInfo = localStorage.getItem("userInfo")
     if (userInfo) {
       userInfo = JSON.parse(userInfo)
     };
     this.userInfo = userInfo
+    this.getVip(2)
   },
   mounted() {
     document.getElementsByClassName('beVip-page')[0].style.minHeight = window.innerHeight + 'px'
@@ -243,11 +236,19 @@ export default {
       })
     },
     beSvip() {
+      let params;
       // 购买私教
-      const params = {
-        vip_type: 2,
-        type: this.svipType,
-        is_web: 1
+      if (this.toSvip) {
+        params = {
+          vip_type: 3,
+          is_web: 1
+        }
+      } else {
+        params = {
+          vip_type: 2,
+          type: this.svipType,
+          is_web: 1
+        }
       }
       buyVip(params).then(res => {
         if (res.state == 200) {
@@ -261,19 +262,19 @@ export default {
     beCommonVip() {
       let params;
       // 升级到私教
-      if (this.toSvip) {
-        params = {
-          vip_type: 3,
-          is_web: 1
-        }
-      } else {
-        // 普通会员
+      // if (this.toSvip) {
+      //   params = {
+      //     vip_type: 3,
+      //     is_web: 1
+      //   }
+      // } else {
+      //   // 普通会员
         params = {
           vip_type: 1,
           type: this.svipType,
           is_web: 1
         }
-      }
+      // }
       buyVip(params).then(res => {
         if (res.state == 200) {
           this.payConfig = res.data
@@ -456,7 +457,7 @@ export default {
   font-size: 24px;
   color: #fff;
   position: fixed;
-  bottom: 133px;
+  bottom: 130px;
   left: 0; 
   width: 100%;
   text-align: center;
@@ -547,7 +548,16 @@ export default {
   border-top: 1px solid #F4F6F9;
   justify-content: space-between;
   height: 100px;
+}
 
+.select-items2 {
+  display: flex;
+  align-items: center;
+  font-size: 32px;
+  padding: 0 30px;
+  border-top: 1px solid #F4F6F9;
+  justify-content: space-between;
+  padding: 0 20px;
 }
 
 .upgrade-desc {
@@ -561,7 +571,7 @@ export default {
   height: calc(100% - 136px);
   background: rgba(0,0,0, .5);
   left: 0;
-  bottom: 133px;
+  bottom: 130px;
 }
 
 .year-icon {
