@@ -1,7 +1,7 @@
 <template>
   <div class="moreEval-page">
     <div class="moreEval-list">
-      <div class="trend-user" @click.stop="toComment(comment.id, comment.username)">
+      <div class="trend-user" @click.stop="comment.is_mine == '1' ? showdelModal(comment.id, '', 1) : toComment(comment.id, comment.username)">
         <div class="trend-user-avatar">
           <div>
             <img :src="comment.user_avatar" alt="">
@@ -43,7 +43,7 @@
       <div>回复列表</div>
     </div>
     <div class="moreEval-list-replay" v-for='(item, index) in replies' :key='index'>
-      <div class="trend-user" @click.stop="toreplay(item.id, item.username)">
+      <div class="trend-user" @click.stop="item.is_mine == '1' ? showdelModal(item.id, index, 2) : toreplay(item.id, item.username)">
         <div class="trend-user-avatar">
           <div>
             <img :src="item.user_avatar" alt="">
@@ -74,11 +74,15 @@
             <div v-for='(imgTtem, imgIndex) in item.img_path' :key='imgIndex'><img :src="imgTtem" alt="" @click.stop="previewImage({currentImg: imgTtem, currentImgLists: item.img_path})"></div>
           </div>
           <div class="user-content">
-            <span v-if='item.parent_username'>{{item.username}}</span> <span class="replay-text" v-if='item.parent_username'> 回复 </span> {{item.content}}
+            <span v-if='item.parent_name' style="color: #5D7993;">{{item.username}}</span> 
+            <span class="replay-text" v-if='item.parent_name'> 回复 </span> 
+            <span v-if='item.parent_name' style="color: #5D7993;">{{item.parent_name}}</span> 
+            <span>{{item.content}}</span>
           </div>
         </div>
       </div>
     </div>
+    <div class="no-data-icon" v-if='!replies.length'><img src="../assets/all_none@3x.png" alt="" ></div>
     <div class="replay-input-box">
       <div class="replay-input">
         <input type="text" :placeholder="'回复 ' + comment.username" v-model.trim="content" ref='commentInput'>
@@ -97,6 +101,12 @@
       </div>
     </div>
 
+    <div class="modal-bg" v-if='modalShow' @click="hideModal">
+      <div class="modal-box">
+        <div class="delete-Evaluate" @click.stop="deleteEvalBtn">删除</div>
+        <div class="cancle" @click="hideModal">取消</div>
+      </div>
+    </div>
     <infinite-loading @infinite="infiniteHandler">
       <div slot="no-more" class="no-more-data"> {{replies.length > 9 ? "没有更多了..." : ""}}</div>
       <div slot="no-results"> </div>
@@ -106,7 +116,7 @@
 </template>
 
 <script>
-import { getComments, replayOrCommit, postImg, deleteImg, addSuport, delEval } from '../fetch/api.js'
+import { getComments, replayOrCommit, postImg, deleteImg, addSuport, delEval , getUpdate} from '../fetch/api.js'
 export default {
   name: 'moreEval',
   data () {
@@ -119,7 +129,8 @@ export default {
       content: '',
       page: 1,
       type: false,
-      comment_id: ''
+      comment_id: '',
+      modalShow:　false
     }
   },
   activated() {
@@ -127,11 +138,11 @@ export default {
     this.id = query.id
     this.type = query.type
     this.comment_id = query.id
-    if (query.type === 'answer') {
-      this.getData(`${this.id}?page=${this.page}&type=answer`)
-    } else {
-      this.getData(`${this.id}?page=${this.page}`)
-    }
+    this.evalIndex = this.evalIndex
+    this.page = 1
+    this.replies = []
+    this.comment = {img_path: ''}
+    
   },
   mounted() {
     
@@ -164,8 +175,13 @@ export default {
                 item.img_path = []
               }
             })
+            if(this.page == 1) {
+              this.replies = replies
+            } else {
+              this.replies.push(...replies)
+            }
             this.page += 1;
-            this.replies.push(...replies)
+
             this.state.loaded();
           } else {
             this.state.complete()
@@ -182,12 +198,12 @@ export default {
       if (type == 1) {
         if (comment.is_thumb == '1') {
           params = {
-            news_id: id,
+            comment_id: id,
             is_thumb: 0,
           }
         } else {
           params = {
-            news_id: id,
+            comment_id: id,
             is_thumb: 1,
           }
         }
@@ -215,6 +231,9 @@ export default {
               comment.thumbs =  comment.thumbs - 0 + 1 + ''
               comment.is_thumb =  '1'
             }
+            let evalUpdate = JSON.parse(localStorage.getItem('evalUpdate'))
+            evalUpdate.doWhat = 1
+            localStorage.setItem('evalUpdate', JSON.stringify(evalUpdate))
            this.comment = comment
           } else {
             let replies = this.replies
@@ -227,7 +246,6 @@ export default {
             }
             this.replies = replies
           }
-          
         }
       })
     },
@@ -249,6 +267,16 @@ export default {
             }
             this.content = ''
             this.imgs = []
+            this.page = 1
+            if (this.type === 'answer') {
+              this.getData(`${this.id}?page=${this.page}&type=answer`)
+            } else {
+              this.getData(`${this.id}?page=${this.page}`)
+            }
+            let evalUpdate = JSON.parse(localStorage.getItem('evalUpdate'))
+            evalUpdate.doWhat = 1
+            localStorage.setItem('evalUpdate', JSON.stringify(evalUpdate))
+
           }
         })
       } else {
@@ -314,6 +342,48 @@ export default {
       this.comment_id = id
     },
 
+
+    showdelModal(id, index, type) {
+      this.modalShow = true
+      this.delId = id
+      this.delType = type
+      this.delIndex = index
+    },
+
+    deleteEvalBtn() {
+      this.modalShow = false
+      let params = {comment_id:　this.delId}
+      delEval(params).then(res => {
+        if (res.state == 200) {
+          this.$toast.top('已删除！')
+          // 删除动态
+          if (this.delType == 1) {
+            // 删除整条评论   上一页删除相应的评论
+            let evalUpdate = JSON.parse(localStorage.getItem('evalUpdate'))
+            evalUpdate.doWhat = 2
+            localStorage.setItem('evalUpdate', JSON.stringify(evalUpdate))
+            this.$router.go(-1)
+          } else {
+            // 删除  评论下的某一条回复  上一页更新相应的评论
+            this.replies.splice(this.delIndex, 1)
+            let evalUpdate = JSON.parse(localStorage.getItem('evalUpdate'))
+            evalUpdate.doWhat = 1
+            localStorage.setItem('evalUpdate', JSON.stringify(evalUpdate))
+          }
+        } else {
+           this.$toast.top(res.msg)
+        }
+      })
+    },
+
+    hideModal() {
+      this.modalShow = false
+    },
+
+
+
+
+
   }
   
 }
@@ -321,8 +391,10 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-.moreEval-page {
+body {
   background: #F4F6F9;
+}
+.moreEval-page {
   padding-bottom: 120px;
 }
 
@@ -600,6 +672,38 @@ export default {
   left: 0;
   width: 44px;
   height: 44px;
+}
+
+
+
+.modal-bg {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background: rgba(0, 0, 0, .5);
+}
+
+.modal-box {
+  background: #F0F2F7;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+}
+
+.modal-box > div {
+  height: 88px;
+  text-align: center;
+  line-height: 88px;
+  color: #444C52;
+  font-size: 32px;
+  background: #fff;
+}
+
+.modal-box > div:nth-child(1) {
+  margin-bottom: 20px;
 }
 
 </style>

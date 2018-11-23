@@ -3,9 +3,6 @@
     <div class="video-box">
       <video 
              @ended="endVideo()"
-             x5-video-player-type="h5"
-            playsinline
-            webkit-playsinlin
              :src="videoInfo.url"
              ref='videoTime' v-show="!showPost">
       </video>
@@ -18,12 +15,7 @@
       <div>
         <div class="students-study">
           <div class="students-avatar">
-            <img src="http://tx.haiqq.com/uploads/allimg/150402/16094151D-13.jpg" alt="">
-            <img src="http://tx.haiqq.com/uploads/allimg/150402/16094151D-13.jpg" alt="">
-            <img src="http://tx.haiqq.com/uploads/allimg/150402/16094151D-13.jpg" alt="">
-            <img src="http://tx.haiqq.com/uploads/allimg/150402/16094151D-13.jpg" alt="">
-            <img src="http://tx.haiqq.com/uploads/allimg/150402/16094151D-13.jpg" alt="">
-            <img src="http://tx.haiqq.com/uploads/allimg/150402/16094151D-13.jpg" alt="">
+            <span v-for='(item, index) in videoInfo.learns_avatar' :key='index'><img :src="item" alt="" ></span>
           </div>
           <div class="course-detail-info">
             <div>DAY{{videoInfo.learn_id - 0 + 1}}</div>
@@ -63,10 +55,10 @@ export default {
       page: 1
     }
   },
-  created() {
+  activated() {
     const query = this.$route.query
-    if (this.type && this.group_id ) {
-      if (this.group_id == query.group_id) {
+    if (this.type && this.learn_id ) {
+      if (this.learn_id == query.learn_id) {
         return false
       } else {
         this.type = query.type
@@ -87,6 +79,9 @@ export default {
   methods: {
     linkAddTrend(type) {
       this.$router.push({name: 'submitTrend', query: {type: type, group_id: this.group_id}})
+      let trendUpdate = JSON.parse(localStorage.getItem('trendUpdate'))
+        trendUpdate.doWhat = 2
+        localStorage.setItem('trendUpdate', JSON.stringify(trendUpdate))
     },
     getVideo() {
       getVideoDetail(this.group_id, this.learn_id).then(res => {
@@ -97,13 +92,16 @@ export default {
       })
     },
     endVideo() {
+      this.$refs.videoTime.webkitExitFullScreen()
+      this.$refs.videoTime.srcObject = new window.webkitMediaStream
+      this.showPost = true
       this.$router.push({name: 'complated1', query: {group_id: this.group_id, learn_id: this.learn_id, good_name: this.videoInfo.good_name, type: this.type, videoTime: this.$refs.videoTime.duration}})
     },
 
 
     getTrend($state) {
       this.state = $state
-      getCurrentCourseEval(this.group_id).then(res => {
+      getCurrentCourseEval({page: this.page, id: this.group_id}).then(res => {
         if (res.state == 200) {
           const lists = res.data.data
           if (lists.length) {
@@ -139,6 +137,9 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+body {
+   background: #F0F2F7;
+}
 .course-detail-page {
   background: #F0F2F7;
   padding-bottom: 120px;
@@ -173,6 +174,7 @@ export default {
 .video-box video {
   height: 100%;
   width: 100%;
+  object-fit: fill;
 }
 
 .students-study {
@@ -207,6 +209,7 @@ export default {
 
 .trend-list-box {
   margin-top: 20px;
+  height: 500px;
 }
 
 .course-is-buy {

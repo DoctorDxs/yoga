@@ -188,7 +188,8 @@ export default {
           age: this.age,
           address: this.add.split(' ').join(' '),
           group_id: this.id,
-          is_web: 1
+          is_web: 1,
+          phase_id: this.now_phase_id
         };
         if (this.vip) {
           params.is_vip_discount = 1

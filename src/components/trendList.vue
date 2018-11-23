@@ -38,21 +38,18 @@
         <div class="video-box" v-if='item.video_path'>
           <video 
              @ended="endVideo()"
-             x5-video-player-type="h5"
-            playsinline
-            webkit-playsinlin
              :src="item.video_path"
              :ref='"videoTime"+index' v-show="videoIndex == index">
           </video>
           <img :src="item.video_cover" alt="" class="video-cover" v-show="videoIndex != index ">
           <img src="../assets/class_play_icon@3x.png" alt="" class="video-icon" @click.stop="playVideo('videoTime' +index ,index)" v-show="videoIndex != index"> 
         </div>
-        <div class="trend-problem-title" v-if='item.type == 2'>
+        <div class="trend-problem-title" v-if='item.type == 1'>
           <img src="../assets/circle_question_icon@3x.png" alt="">
           <div class="trend-problem-question">{{item.content}}</div>
         </div>
 
-         <div class="trend-problem-title" v-if='item.type != 2' @click.stop="linkCourse(item.group_id, item.group_type)">
+         <div class="trend-problem-title" v-if='item.type != 1' @click.stop="linkCourse(item.group_id, item.group_type)">
           <img :src="item.group_cover" alt="">
           <div class="course-desc">
             <div>{{item.group_name}}</div>
@@ -300,7 +297,7 @@ export default {
   }
 
   .trend-info {
-    width: 570px;
+    width: 610px;
   }
 
   .trend-username {
@@ -407,7 +404,7 @@ export default {
     display: flex;
     align-items: center;
     margin-top: 20px;
-    width: 100%;
+    width: 570px;
   }
 
 .video-box {

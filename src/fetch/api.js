@@ -423,6 +423,8 @@ export function msgRead(params) {
   })
 }
 
+
+
 /**
  * 
  *  修改个人资料
@@ -434,6 +436,10 @@ export function changUserInfo(params) {
   })
 }
 
+// 获取系统消息
+export function getSysMsg(params) {
+  return fetch(`/api/notification/system`)
+}
 
 /**
  * 
@@ -446,7 +452,7 @@ export function feedBack(params) {
   })
 }
 
-
+// 收藏
 export function collectList(params) { 
   return fetch(`/api/my/fav?type=${params.type}&page=${params.page}`)
 }

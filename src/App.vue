@@ -28,9 +28,17 @@ export default {
   display: none;
 }
 
+video {
+  object-fit: fill;
+}
+
 * {
   padding: 0;
   margin: 0;
+}
+
+img {
+  object-fit: cover;
 }
 
 .body {

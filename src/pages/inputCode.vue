@@ -33,11 +33,9 @@ export default {
     this.phoneHide = phoneHide
     this.phone = phone
     const query = this.$route.query
-    if (query.type) {
-      this.type = query.type
-    } else {
-      this.type = 1
-    }
+    
+    this.type = 1
+    
     this.sedCode()
   },
   mounted() {

@@ -40,7 +40,7 @@
               <div>{{item.length_time}}</div>
             </div>
           </div>
-          <div @click="linkVideo(item.group_id, item.id, item.is_can_see, item.is_try_free)">
+          <div @click="linkVideo(item.group_id, item.id, item.is_can_see, item.is_try_free, detail.in_circle)">
             <div v-if='item.is_try_free == 1 && item.is_can_see != 1 && detail.in_circle != 1' class="free-try-see">免费试看</div>
             <div v-if='item.is_can_see != 1 && item.is_try_free != 1' class="course-locked"><img src="../assets/class_lock@3x.png" alt=""></div>
             <div v-if='item.is_can_see == 1 ||  (detail.in_circle == 1 && item.is_try_free == 1)' class="course-play"><img src="../assets/class_play@3x.png" alt=""></div>
@@ -77,20 +77,6 @@
         <div>提问题</div>
       </div>
     </div>
-    <!-- <div class="share-modal-bg" v-if='showShareModal' @click="hideShare">
-      <div class="share-modal-box">
-        <div class="share-modal">
-          <div>
-            <img src="../assets/class_share01@3x.png" alt="">
-            <div>分享好友</div>
-          </div>
-          <div>
-            <img src="../assets/class_share02@3x.png" alt="">
-            <div>分享朋友圈</div>
-          </div>
-        </div>
-      </div>
-    </div> -->
     <modal 
       title="提示" 
       :content='modalContent'
@@ -148,7 +134,7 @@ export default {
     this.getDetail(query.id )
   },
   mounted() {
-    document.title = '坐式瑜伽';
+    
   },
   methods: {
     switchTabbar(index) {
@@ -159,6 +145,7 @@ export default {
     },
     linkAddTrend(type) {
       this.$router.push({name: 'submitTrend', query: {type: type, group_id: this.id}})
+      localStorage.setItem('trendUpdate',JSON.stringify({trendIndex: null, doWhat: 0, trendId: null}))
     },
     linkVideo(group_id, learn_id, can_see, try_see) {
       if (can_see == '1' || try_see == '1') {
@@ -200,10 +187,12 @@ export default {
     getDetail(id) {
       getDetail(id).then(res => {
         if (res.state == 200) {
+          document.title = res.data.name;
           this.detail = res.data
           this.$refs.courseTop.commonShare(res.data); 
           if (this.receive_id ) {
             this.$refs.courseTop.giftShare(this.receive_id); 
+            this.receive_id = ''
           };
           this.getShareInfo({id: res.data.id, type: 1})
         }

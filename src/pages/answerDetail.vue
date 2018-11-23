@@ -164,7 +164,8 @@ export default {
     },
     deleteEval() {
       this.modalShow = false
-      this.showModal1 = true
+      // this.showModal1 = true
+      this.confirm()
     },
     confirm() {
       this.showModal1 = false
@@ -180,7 +181,11 @@ export default {
           this.delId = ''
           this.delIndex = ''
           if (this.deleteAnswer) {
-            localStorage.setItem('trendUpdate' ,JSON.stringify({trendUpdataIndex: this.trendUpdataIndex, 'donwTrend': -1}))
+            // 删除动态 回答
+            let trendUpdate = JSON.parse(localStorage.getItem('trendUpdate'))
+            trendUpdate.doWhat = 2
+            localStorage.setItem('trendUpdate', JSON.stringify(trendUpdate))
+            this.$router.go(-1)
           };
           this.deleteAnswer = false
           this.getData()

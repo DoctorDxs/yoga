@@ -9,18 +9,18 @@
         <div class="trend-content">
           {{trendDetails.content}}
         </div>
-        <div class="trend-desc">
+        <div class="trend-desc" v-if='trendDetails.desc'>
           {{trendDetails.desc}}
         </div>
         
-        <div class="trend-img1" v-if='trendDetails.img_path.length == 1 || trendDetails.img_path.length == 2'>
-          <div v-for='(imgTtem, imgIndex) in trendDetails.img_path' :key='imgIndex'><img :src="imgTtem" alt="" @click.stop="previewImage({currentImg: imgTtem, currentImgLists: trendDetails.img_path})"></div>
+        <div class="trend-img1" v-if='trendDetails.img_paths.length == 1 || trendDetails.img_paths.length == 2'>
+          <div v-for='(imgTtem, imgIndex) in trendDetails.img_paths' :key='imgIndex'><img :src="imgTtem" alt="" @click.stop="previewImage({currentImg: imgTtem, currentImgLists: trendDetails.img_paths})"></div>
         </div>
-        <div class="trend-img2" v-if='trendDetails.img_path.length == 3'>
-          <div v-for='(imgTtem, imgIndex) in trendDetails.img_path' :key='imgIndex'><img :src="imgTtem" alt="" @click.stop="previewImage({currentImg: imgTtem, currentImgLists: trendDetails.img_path})"></div>
+        <div class="trend-img2" v-if='trendDetails.img_paths.length == 3'>
+          <div v-for='(imgTtem, imgIndex) in trendDetails.img_paths' :key='imgIndex'><img :src="imgTtem" alt="" @click.stop="previewImage({currentImg: imgTtem, currentImgLists: trendDetails.img_paths})"></div>
         </div>
-        <div class="trend-img3" v-if='trendDetails.img_path.length == 4'>
-          <div v-for='(imgTtem, imgIndex) in trendDetails.img_path' :key='imgIndex'><img :src="imgTtem" alt="" @click.stop="previewImage({currentImg: imgTtem, currentImgLists: trendDetails.img_path})"></div>
+        <div class="trend-img3" v-if='trendDetails.img_paths.length == 4'>
+          <div v-for='(imgTtem, imgIndex) in trendDetails.img_paths' :key='imgIndex'><img :src="imgTtem" alt="" @click.stop="previewImage({currentImg: imgTtem, currentImgLists: trendDetails.img_paths})"></div>
         </div>
         <div class="video-box" v-if='trendDetails.video_path'>
           <video 
@@ -51,7 +51,7 @@
 
     <div class="evaluate-list">
       <div v-for='(item, index) in comments' :key='index' class="mar-boot">
-        <div class="trend-user" @click.stop="replay(true ,item.id, item.username)">
+        <div class="trend-user" @click.stop="item.is_mine ? linkAnswers(item.id,index) : replay(true ,item.id, item.username, item.index, item.id)">
           <div class="trend-user-avatar">
             <div>
               <img :src="item.user_avatar" alt="">
@@ -71,30 +71,32 @@
             <div class="user-content">
               {{item.content}}
             </div>
-            <div class="trend-img1" v-if='item.img_path.length == 1 || item.img_path.length == 2'>
-              <div v-for='(imgTtem, imgIndex) in item.img_path' :key='imgIndex'><img :src="imgTtem" alt="" @click.stop="previewImage({currentImg: imgTtem, currentImgLists:item.img_path})"></div>
+            <div class="trend-img1" v-if='item.img_paths.length == 1 || item.img_paths.length == 2'>
+              <div v-for='(imgTtem, imgIndex) in item.img_paths' :key='imgIndex'><img :src="imgTtem" alt="" @click.stop="previewImage({currentImg: imgTtem, currentImgLists:item.img_paths})"></div>
             </div>
-            <div class="trend-img2" v-if='item.img_path.length == 3'>
-              <div v-for='(imgTtem, imgIndex) in item.img_path' :key='imgIndex'><img :src="imgTtem" alt="" @click.stop="previewImage({currentImg: imgTtem, currentImgLists:item.img_path})"></div>
+            <div class="trend-img2" v-if='item.img_paths.length == 3'>
+              <div v-for='(imgTtem, imgIndex) in item.img_paths' :key='imgIndex'><img :src="imgTtem" alt="" @click.stop="previewImage({currentImg: imgTtem, currentImgLists:item.img_paths})"></div>
             </div>
-            <div class="trend-img3" v-if='item.img_path.length == 4'>
-              <div v-for='(imgTtem, imgIndex) in item.img_path' :key='imgIndex'><img :src="imgTtem" alt="" @click.stop="previewImage({currentImg: imgTtem, currentImgLists:item.img_path})"></div>
+            <div class="trend-img3" v-if='item.img_paths.length == 4'>
+              <div v-for='(imgTtem, imgIndex) in item.img_paths' :key='imgIndex'><img :src="imgTtem" alt="" @click.stop="previewImage({currentImg: imgTtem, currentImgLists:item.img_paths})"></div>
             </div>
             <div class="user-reply" v-if='item.comments.length > 0'>
               <div v-for='(commentItem, commentIndex) in item.comments' :key='commentIndex'>
-                <span class="evaluate-user" @click.stop="replay(false ,commentItem.id, commentItem.username)">{{commentItem.username}}</span>
+                <span class="evaluate-user" @click.stop="replay(false ,commentItem.id, commentItem.username, item.index, item.id)">{{commentItem.username}}</span>
                 <span class="replay-text" v-if='commentItem.parent_username'> 回复 </span>
                 <span class="evaluate-user">{{commentItem.parent_username}}</span>:
                 <span class="evaluate-content" @click="commentItem.is_mine == '1' ? showModal(commentItem.id,commentIndex) : ''">{{commentItem.content}} </span>  
-                <span class="look-img-btn" v-if='commentItem.img_path.length > 0' @click.stop="previewImage({currentImg: commentItem.img_path[0], currentImgLists: commentItem.img_path})">查看图片</span>
+                
+                <span class="look-img-btn" v-if='commentItem.img_paths.length > 0' @click.stop="previewImage({currentImg: commentItem.img_paths[0], currentImgLists: commentItem.img_paths})">查看图片</span>
               </div>
               <div class="look-more-btn" @click="lookAll(item.id)" v-if='item.evaluate_sum > 3'>查看全部{{item.evaluate_sum}}条回复</div>
             </div>
           </div>
         </div>
       </div>
-      <div class="no-data-icon" v-if='!comments.length'><img src="../assets/all_none@3x.png" alt="" ></div>
+      
     </div>
+    <div class="no-data-icon" v-if='!comments.length'><img src="../assets/all_none@3x.png" alt="" ></div>
     <div class="replay-input-box">
       <div class="replay-input">
         <!-- 请输入你的想法 -->
@@ -139,7 +141,7 @@
 </template>
 
 <script>
-import { getSomeoneTrend, replayOrCommit, postImg, deleteImg, getSign, addSuport, delEval, addTrend,getShareInfo} from '../fetch/api.js'
+import { getSomeoneTrend, replayOrCommit, postImg, deleteImg, getSign, addSuport, delEval, addTrend,getShareInfo,updataTrend} from '../fetch/api.js'
 export default {
   name: 'questionDetail',
   data () {
@@ -148,7 +150,7 @@ export default {
       type: '',
       id: '',
       trendDetails: {
-        img_path: []
+        img_paths: []
       },
       comments: [],
       content: '',
@@ -166,6 +168,7 @@ export default {
     }
   },
   activated() {
+    document.title = '问题详情'
     const query = this.$route.query
     if (this.type && this.id ) {
       if (this.id == query.id) {
@@ -178,7 +181,7 @@ export default {
         this.page = 1
         this.comments = []
         this.trendDetails = {
-          img_path: []
+          img_paths: []
         }
         this.getData(this.state)
       }
@@ -187,7 +190,7 @@ export default {
       this.group_type = query.group_type
       this.id = query.id
     }
-    document.title = '问题详情'
+    
   },
   methods: {
      infiniteHandler($state) {
@@ -206,25 +209,25 @@ export default {
         if(res.state == 200) {
           let trendDetails = res.data.detail
           let  comments;
-          if (trendDetails.img_path) {
-            trendDetails.img_path = detail.img_path.split(',')
+          if (trendDetails.img_paths) {
+            trendDetails.img_paths = detail.img_paths.split(',')
           } else {
-            trendDetails.img_path = []
+            trendDetails.img_paths = []
           }
           comments = res.data.answers.data
           if (comments.length > 0) {
             comments.forEach((item, index) => {
-              if (item.img_path) {
-                item.img_path = item.img_path.split(',')
+              if (item.img_paths) {
+                item.img_paths = item.img_paths.split(',')
               } else {
-                item.img_path = []
+                item.img_paths = []
               }
               if (item.comments.length > 0) {
                 item.comments.forEach(item2 => {
-                  if (item2.img_path) {
-                    item2.img_path = item2.img_path.split(',')
+                  if (item2.img_paths) {
+                    item2.img_paths = item2.img_paths.split(',')
                   } else {
-                    item2.img_path = []
+                    item2.img_paths = []
                   }
                 })
               }
@@ -284,13 +287,13 @@ export default {
           if (this.addComment) {
             params = {
               content: this.content,
-              img_path: this.imgs.length > 0 ? this.imgs.join(',') : '',
+              img_paths: this.imgs.length > 0 ? this.imgs.join(',') : '',
               news_id: this.comment_id
             }
           } else {
             params = {
               content: this.content,
-              img_path: this.imgs.length > 0 ? this.imgs.join(',') : '',
+              img_paths: this.imgs.length > 0 ? this.imgs.join(',') : '',
               comment_id: this.comment_id
             }
           }
@@ -306,9 +309,11 @@ export default {
       addTrend(params).then(res => {
         if (res.state == 200) {
           this.$toast.top(res.msg)
-          this.comments = []
-          this.page = 1
-          this.getData(this.state)
+          // this.comments = []
+          // this.page = 1
+          // this.getData(this.state)
+          this.trendId = res.data.id
+          this.updataTrend(res.data)
           this.content = ''
           this.imgs = []
         } else {
@@ -317,16 +322,41 @@ export default {
       })
     },
 
+
+    updataTrend() {
+      updataTrend(this.trendId).then(res => {
+          if (res.state == 200) {
+            let data = res.data
+            data.comments = []
+
+            
+            // 添加一条新动态
+            if(this.replayInput == 1) {
+              this.comments.unshift(data)
+              let trendUpdate = JSON.parse(localStorage.getItem('trendUpdate'))
+              trendUpdate.doWhat = 3
+              localStorage.setItem('trendUpdate', JSON.stringify(trendUpdate))
+            } else {
+              this.comments.splice(this.trendIndex, 1, data)
+              let trendUpdate = JSON.parse(localStorage.getItem('trendUpdate'))
+              trendUpdate.doWhat = 1
+              localStorage.setItem('trendUpdate', JSON.stringify(trendUpdate))
+            }
+          }
+        })
+    },
+
+
+
+
     // 评论
     comment(params) {
       replayOrCommit(params).then(res => {
         if (res.state == 200) {
           this.content = ''
           this.imgs = []
-          this.comments = []
           this.addComment = false
-          this.page = 1
-          this.getData(this.state)
+          this.updataTrend()
         } else {
           this.$toast.top(res.msg)
         }
@@ -449,19 +479,18 @@ export default {
             comments[index].thumbs = comments[index].thumbs - 0 + 1 + ''
           }
           this.comments = comments
+          let trendUpdate = JSON.parse(localStorage.getItem('trendUpdate'))
+          trendUpdate.doWhat = 1
+          localStorage.setItem('trendUpdate', JSON.stringify(trendUpdate))
         } 
         
       })
     },
 
-    toTrend() {
-      this.content = ''
-      this.imgs = []
-      this.replayInput = 1
-    },
-
-    replay(addComment, id, username) {
+    replay(addComment, id, username, trendIndex, trendId) {
       this.replayInput = 2
+      this.trendIndex = trendIndex
+      this.trendId = trendId
       this.comment_id = id
       this.addComment = addComment
       this.content = ''
@@ -528,6 +557,13 @@ export default {
     hideModal() {
       this.modalShow = false
     },
+
+    linkAnswers(id, index) {
+      this.$router.push({
+        name: 'answerDetail', query: {id: id, type: this.type, index: index}
+      }) 
+      localStorage.setItem('trendUpdate',JSON.stringify({trendIndex: index, doWhat: 0, trendId: id}))
+    }
   },
 
 }
@@ -535,10 +571,11 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-
+body {
+  background: #F4F6F9;
+}
 .trendDetail-page {
   padding-bottom: 100px;
-  background: #F4F6F9;
   position: relative;
 }
 
@@ -949,7 +986,7 @@ export default {
   }
 
 
-  .evaluate-list {
+.evaluate-list {
   padding: 30px 20px;
   background: #fff;
   border-top: 1px solid rgba(171,181,188,.3);

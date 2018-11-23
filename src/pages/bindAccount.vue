@@ -1,7 +1,7 @@
 <template>
   <div class="bindAccount-page">
     
-    <div class="account-info-item" @click="changeTEL(phone ? 2 : 1)">
+    <div class="account-info-item" @click="changeTEL">
       <div>手机号码</div>
       <div class="item-detail"><span>{{phone ? phone : '未绑定'}}</span><img src="../assets/class_next_icon@3x.png" alt=""></div>
     </div>
@@ -38,9 +38,9 @@ export default {
     document.getElementsByClassName('bindAccount-page')[0].style.minHeight = window.innerHeight + 'px'
   },
   methods: {
-    changeTEL(type) {
+    changeTEL() {
       this.$router.push({
-        name: 'bindTel', query: {type: type}
+        name: 'bindTel', query: {type: 1}
       })
     }
   },

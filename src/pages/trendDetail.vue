@@ -101,18 +101,18 @@
             <div class="user-reply" v-if='item.comments.length > 0'>
               <div v-for='(commentItem, commentIndex) in item.comments' :key='commentIndex'>
                 <span class="evaluate-user" @click.stop="replay(commentItem.id, commentItem.username, item.id, index)">{{commentItem.username}}</span>
-                <span class="replay-text" v-if='commentItem.parent_username'> 回复 </span>
-                <span class="evaluate-user">{{commentItem.parent_username}}</span>:
-                <span class="evaluate-content" @click.stop="commentItem.is_mine == '1' ? showdelModal(commentItem.id, commentIndex, item.id, 3) : ''">{{commentItem.content}} </span>  
+                <span class="replay-text" v-if='commentItem.parent_name'> 回复 </span>
+                <span class="evaluate-user">{{commentItem.parent_name}}</span>:
+                <span class="evaluate-content" @click.stop="commentItem.is_mine == '1' ? showdelModal(commentItem.id, index, item.id, 3) : ''">{{commentItem.content}} </span>  
                 <span class="look-img-btn" v-if='commentItem.img_path.length > 0' @click.stop="previewImage({currentImg: commentItem.img_path[0], currentImgLists: commentItem.img_path})">查看图片</span>
               </div>
-              <div class="look-more-btn" @click="lookAll(item.id)" v-if='item.evaluate_sum > 3'>查看全部{{item.evaluate_sum}}条回复</div>
+              <div class="look-more-btn" @click="lookAll(item.id, index)" v-if='item.evaluate_sum > 3'>查看全部{{item.evaluate_sum}}条回复</div>
             </div>
           </div>
         </div>
       </div>
-      <div class="no-data-icon" v-if='!comments.length'><img src="../assets/all_none@3x.png" alt="" ></div>
     </div>
+    <div class="no-data-icon" v-if='!comments.length'><img src="../assets/all_none@3x.png" alt="" ></div>
     <div class="replay-input-box">
       <div class="replay-input">
         <!-- 请输入你的想法 -->
@@ -200,8 +200,31 @@ export default {
       this.id = query.id
     }
     document.title = '动态详情'
+
+    let evalUpdate = localStorage.getItem("evalUpdate")
+    if (evalUpdate) {
+      evalUpdate = JSON.parse(evalUpdate)
+      setTimeout(() => {
+        this.updateEval(evalUpdate)
+      }, 1500)
+    }
   },
   methods: {
+    updateEval(evalUpdate) {
+      const comments = this.evaluteList
+      const id = evalUpdate.commentId
+      const evalIndex = evalUpdate.evalIndex
+      const doWhat = evalUpdate.doWhat
+      if (doWhat == 1) {
+        this.evalId = id
+        this.commentIndex = evalIndex
+        this.replayInput = 2
+        this.getupdata()
+      } else if (doWhat == 2) {
+        this.comments.splice(evalIndex, 1)
+      }
+      localStorage.removeItem('evalUpdate')
+    },
     playVideo() {
       this.showPost = false
       this.$refs.videoTime.play()
@@ -243,6 +266,7 @@ export default {
             })
             this.page += 1;
             this.comments.push(...comments)
+            console.log(comments)
             $state.loaded();
           } else {
             $state.complete()
@@ -275,7 +299,8 @@ export default {
     },
     deleteEvalBtn() {
       this.modalShow = false
-      this.showModal = true
+      // this.showModal = true
+      this.confirm()
     },
     confirm() {
       this.showModal = false
@@ -382,14 +407,30 @@ export default {
       
       getUpdate(api).then(res => {
         if(res.state == 200) {
+          let data = res.data
+          if (data.img_path) {
+            data.img_path = data.img_path.split(',')
+          } else {
+            data.img_path = []
+          };
+          if (data.comments.length > 0) {
+            data.comments.forEach( item => {
+              if (item.img_path) {
+                item.img_path = item.img_path.split(',')
+              } else {
+                item.img_path = []
+              }
+            })
+          };
+
           if (delType == 3) {
             // 删除一条回复
-            this.comments.splice(this.deleteEvalIndex, 1, res.data);
+            this.comments.splice(this.deleteEvalIndex, 1, data);
           } else {
             // 增加一条评论
-            if (this.replayInput == 1) this.comments.unshift(res.data);
+            if (this.replayInput == 1) this.comments.unshift(data);
             // 修改一条评论
-            if (this.replayInput == 2) this.comments.splice(this.commentIndex, 1, res.data);
+            if (this.replayInput == 2) this.comments.splice(this.commentIndex, 1, data);
           }
         }
       }) 
@@ -551,10 +592,12 @@ export default {
       this.$refs.commentInput.setAttribute('placeholder', '请输入你的想法')
       
     },
-    lookAll(id) {
+    lookAll(id, index) {
       this.$router.push({
-        name: 'moreEval', query: {id: id}
+        name: 'moreEval', query: {id: id, evalIndex: index}
       })
+      // 0 未操作  对于评论来说（删除、和点赞） 1 更新某条数据   2 （新增）刷新整个页面
+      localStorage.setItem('evalUpdate',JSON.stringify({evalIndex: index, doWhat: 0, commentId: id}))
     },
     // 分享提示
     shareTips() {
@@ -567,7 +610,9 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-
+body {
+  background: #F4F6F9;
+}
 .trendDetail-page {
   padding-bottom: 100px;
   background: #F4F6F9;

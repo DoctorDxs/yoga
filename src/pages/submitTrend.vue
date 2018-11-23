@@ -53,6 +53,7 @@ export default {
       content: '',
       id: '',
       title: '',
+      videoId: ''
     }
   },
   mounted() {
@@ -111,8 +112,10 @@ export default {
               console.log(result)
           },
           finish: function(result){//上传成功时的回调函数
+          console.log(result)
             that.showLoading = false
             that.videoUrl = result.videoUrl
+            that.videoId = result.fileId
             that.$toast.top('上传成功')
           }
         }) 
@@ -148,12 +151,13 @@ export default {
     },
     submitTrends() {
       if (this.type == 1) {
-        if (this.content) {
+        if (this.content || this.imgs.length) {
           const params = {
             type: this.type,
             content:　this.content,
             group_id: this.id,
             video_path: this.videoUrl,
+            video_id: this.videoId,
             image_paths: this.imgs.length > 0 ? this.imgs.join(',') : ''
           }
           this.postTrend(params)
@@ -163,7 +167,7 @@ export default {
       } else if (this.type == 2) {
         if (!this.title) {
           this.$toast.top('问题标题不能为空')
-        } else if (!this.content) {
+        } else if (!this.content || !this.imgs.length) {
           this.$toast.top('问题描述不能为空')
         } else {
           const params = {
@@ -172,6 +176,7 @@ export default {
             desc:　this.content,
             group_id: this.id,
             video_path: this.videoUrl,
+            video_id: this.videoId,
             image_paths: this.imgs.length > 0 ? this.imgs.join(',') : ''
           }
           this.postTrend(params)
@@ -187,7 +192,10 @@ export default {
         } else {
           this.$toast.top(res.msg)
           this.$router.go(-1)
-        }
+        };
+        let trendUpdate = JSON.parse(localStorage.getItem('trendUpdate'))
+        trendUpdate.doWhat = 2
+        localStorage.setItem('trendUpdate', JSON.stringify(trendUpdate))
       })
     }
 

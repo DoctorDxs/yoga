@@ -219,7 +219,7 @@ export default {
       this.tabIndex = index
     },
     buyCourse() {
-      this.$router.push({name: 'buyCourse'})
+      this.$router.push({name: 'buyCourse', query: {id: this.id, price: this.detail.price,name: this.detail.name,type: 2, vip_discount: this.detail.vip_discount, now_phase_id: this.detail.now_phase_id}})
     },
     buyCourse() {
       this.$router.push({name: 'buyCourse', query: {id: this.id, price: this.detail.price,name: this.detail.name, now_phase_id: this.detail.now_phase_id,type: 1, vip_discount: this.detail.vip_discount}})

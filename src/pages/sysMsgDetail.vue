@@ -1,13 +1,13 @@
 <template>
   <div class="sysMsg-page">
     <div v-for="(item, index) in sysList" :key='index' class="sysMsg-item">
-      <div class="sys-avatar"><img :src="item.message.from_user.avatar" alt=""></div>
+      <div class="sys-avatar"><img :src="item.user_avatar" alt=""></div>
       <div class="msg-info-box">
         <div class="msg-info">
-          <div>{{item.message.from_user.username}}</div>
-          <div>{{item.time_desc | getDate(item.time_desc)}}</div>
+          <div>{{item.username}}</div>
+          <div>{{item.time_desc}}</div>
         </div>
-        <div class="msg-content">{{item.message.content}}</div>
+        <div class="msg-content">{{item.content}}</div>
       </div>
     </div>
   </div>
@@ -15,14 +15,15 @@
 </template>
 
 <script>
-import { msgList, msgRead } from '../fetch/api'
+import { getSysMsg } from '../fetch/api'
 import getDate from '../utils/timeFormat'
 export default {
   name: 'sysMsgDetail',
   data () {
     return {
       sysList: [],
-      count: 0
+      count: 0,
+      page: 1
     }
   },
   activated() {
@@ -36,11 +37,11 @@ export default {
   },
   methods: {
     getData() {
-      msgList(4).then(res => {
+      getSysMsg().then(res => {
         if (res.state == 200) {
           const data = res.data.data
           this.sysList = data
-          this.msgRead()
+          // this.msgRead()
         }
       })
     },
@@ -53,11 +54,6 @@ export default {
           })
         })
       }
-    }
-  },
-  filters: {
-    getDate(time) {
-      return getDate(time)
     }
   },
   components: {
