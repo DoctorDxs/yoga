@@ -41,9 +41,9 @@
             </div>
           </div>
           <div @click="linkVideo(item.group_id, item.id, item.is_can_see, item.is_try_free, detail.in_circle)">
-            <div v-if='item.is_try_free == 1 && item.is_can_see != 1 && detail.in_circle != 1' class="free-try-see">免费试看</div>
-            <div v-if='item.is_can_see != 1 && item.is_try_free != 1' class="course-locked"><img src="../assets/class_lock@3x.png" alt=""></div>
-            <div v-if='item.is_can_see == 1 ||  (detail.in_circle == 1 && item.is_try_free == 1)' class="course-play"><img src="../assets/class_play@3x.png" alt=""></div>
+            <div v-if='item.is_try_free == 1' class="free-try-see">免费试看</div>
+            <div v-if='item.is_can_see == "0"' class="course-locked"><img src="../assets/class_lock@3x.png" alt=""></div>
+            <div v-if='item.is_can_see == 1  && item.is_try_free == "0"' class="course-play"><img src="../assets/class_play@3x.png" alt=""></div>
           </div>
         </div>
         <div class="no-data-icon" v-if='!detail.videos.length'><img src="../assets/all_none@3x.png" alt="" ></div>
@@ -147,10 +147,17 @@ export default {
       this.$router.push({name: 'submitTrend', query: {type: type, group_id: this.id}})
       localStorage.setItem('trendUpdate',JSON.stringify({trendIndex: null, doWhat: 0, trendId: null}))
     },
-    linkVideo(group_id, learn_id, can_see, try_see) {
+    linkVideo(group_id, learn_id, can_see, try_see, in_circle) {
+      // 课程未购买 锁着状态点击提示“您还未购买该课程”
+      // 训练营未购买 锁着状态点击提示“您还未购买该训练营”
+      // 训练营已购买 锁着状态点击提示“该训练营还未解锁，待解锁后观看”
+
+      // if (can_see == '0') {
+      //   this.$toast.top('暂时无法观看')
+      // }
       if (can_see == '1' || try_see == '1') {
         this.$router.push({
-          name: 'videoDetail', query: {group_id: group_id, learn_id: learn_id, type: this.detail.type}
+          name: 'videoDetail', query: {group_id: group_id, learn_id: learn_id, type: this.detail.type, in_circle: in_circle}
         })
       }else {
         this.$toast.top('暂时无法观看')
