@@ -32,7 +32,9 @@
           <input type="file" @change='selectVideo' class="input-img1" accept="video/*" ref="inputVideo" v-if='imgs.length == 0'>
         </div>
       </div>
-      <div :class="[content !=='' ?  'can-submit' : '' , 'submit-trend-btn']"  @click="submitTrends">发表</div>
+      <!-- 发问题有title就行 -->
+      <div :class="[title !=='' ?  'can-submit' : '' , 'submit-trend-btn']"  @click="submitTrends" v-if='type == 2'>发表</div>
+      <div :class="[content !=='' ?  'can-submit' : '' , 'submit-trend-btn']"  @click="submitTrends" v-if='type == 1'>发表</div>
     </div>
     <div class="loading-bg" v-if='showLoading'>
       <loading></loading>
