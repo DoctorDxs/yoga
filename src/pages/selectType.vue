@@ -8,9 +8,9 @@
           <img src="../assets/class_select_pre@3x.png" alt="" v-if='selectIndex == 1'>
         </div>
       </div>
-      <div class="select-item" @click="selectThis(2)" v-if='vip_discount != "0"'>
+      <div class="select-item" @click="selectThis(2)" v-if='vip_discount != 100'>
         <div class="s-vip">
-          <div>会员{{vip_discount == 100 ? "不打" : vip_discount}}折</div>
+          <div>会员{{ vip_discount == '0' ? '免费' :  vip_discount}}折</div>
           <div class="s-vip-icon" v-if='userInfo.status == 0'  @click.stop="linkBevip">成为会员享受专属折扣</div>
         </div>
         <div>
@@ -28,9 +28,9 @@
           <img src="../assets/class_select_pre@3x.png" alt="" v-if='selectIndex == 1'>
         </div>
       </div>
-      <div class="select-item" @click="selectThis(2)" v-if='vip_discount != "0"'>
+      <div class="select-item" @click="selectThis(2)" v-if='vip_discount != 100'>
         <div class="s-vip">
-          <div>私教会员{{vip_discount == 100 ? "不打" : vip_discount}}折</div>
+          <div>私教会员{{vip_discount == '0' ? '免费' : vip_discount}}折</div>
           <div class="s-vip-icon" v-if='userInfo.status != 2' @click.stop="linkBevip">成为会员享受专属折扣</div>
         </div>
         <div>
@@ -39,7 +39,6 @@
         </div>
       </div>
     </div>
-
   </div>
   
 </template>
@@ -64,6 +63,7 @@ export default {
     this.selectIndex = 1
     this.userInfo = userInfo
     document.title = '会员折扣';
+    let vip = localStorage.getItem('vip')
   },
   mounted() {
     document.getElementsByClassName('selectType-page')[0].style.minHeight = window.innerHeight + 'px'
@@ -76,22 +76,20 @@ export default {
       })
     },
     selectThis(selectIndex) {
-      this.selectIndex = selectIndex
+      
       if (selectIndex == 2) {
         if (this.type == 2) {
           if (this.userInfo.status == 0) {
             this.$toast.top('您还不是会员，请先成为会员')
-          } else if (this.vip_discount == 100) {
-            this.$toast.top('此节课程不参与折扣')
           } else {
+            this.selectIndex = selectIndex
             localStorage.setItem('vip', true)
           } 
         } else {
-          if (this.userInfo.status == 2) {
+          if (this.userInfo.status != 2) {
             this.$toast.top('您还不是私教会员，请先成为私教会员')
-          } else if (this.vip_discount == 100) {
-            this.$toast.top('此节课程不参与折扣')
-          } else {
+          }  else {
+            this.selectIndex = selectIndex
             localStorage.setItem('vip', true)
           } 
         }

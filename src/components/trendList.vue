@@ -2,7 +2,6 @@
   <div class="trend-comp">
     
     <div class="trend-list" v-for='(item, index) in evaluteList' :key='index' @click="linkDetail(item.type, item.id, item.group_type, index)">
-      <div v-if='evaluteList.length == 0'><img src="../assets/all_none@3x.png" alt=""></div>
       <div class="trend-avatar"><img :src="item.user_avatar" alt=""></div>
       <div class="trend-info">
         <div class='trend-username'>{{item.username}}
@@ -275,7 +274,7 @@ export default {
 <style scoped>
 
   .trend-list {
-    padding: 30px 10px;
+    padding: 30px 20px 20px;
     background: #fff;
     border-top: 1px solid #E1E2E4;
     /* border-bottom: 1px solid #E1E2E4; */
@@ -322,7 +321,7 @@ export default {
   .trend-content {
     color: #2F343C;
     font-size: 32px;
-    margin: 40px 0 20px;
+    margin: 30px 0 20px;
   }
 
   .trend-img1 {
@@ -459,7 +458,7 @@ export default {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 40px;
+    margin-top: 30px;
   }
 
   .trend-meat-left {

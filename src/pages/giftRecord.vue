@@ -50,7 +50,6 @@
               <div>{{item.order.group.name}}</div>
               <div>{{item.order.group.type == 2 ? '课程' : '训练营'}}</div>
             </div>
-            
           </div>
         </div>
       </div>

@@ -49,21 +49,25 @@ export default {
     document.getElementsByClassName('setting-page')[0].style.minHeight = window.innerHeight + 'px'
   },
   methods: {
+    // 课程
     changeCourse() {
       this.courseRemind = !this.courseRemind
       let lessonOn = this.courseRemind === true ? 1 : 0
       this.postData({type: 'lesson', on: lessonOn})
     },
+    // 训练营
     changeCamp() {
       this.campRemind = !this.campRemind
-      let trainOn = this.courseRemind === true ? 1 : 0
+      let trainOn = this.campRemind === true ? 1 : 0
       this.postData({type: 'train', on: trainOn})
     },
+    // 系统通知
     changeSys() {
       this.sysRemind = !this.sysRemind
-      let systemOn = this.courseRemind === true ? 1 : 0
+      let systemOn = this.sysRemind === true ? 1 : 0
       this.postData({type: 'system', on: systemOn})
     },
+    // 获取初始数据
     getData() {
       getSetting().then(res => {
         if(res.state == 200) {
@@ -75,9 +79,14 @@ export default {
         }
       })
     },
+    // 提交修改
     postData(params) {
       msgBtn(params).then(res => {
-        this.$toast.top(res.msg)
+        if (params.on == 1) {
+          this.$toast.top('通知已开启！')
+        } else {
+          this.$toast.top('通知已关闭！')
+        }
       })
     },
 

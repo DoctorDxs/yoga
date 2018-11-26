@@ -78,10 +78,10 @@ export default {
   name: 'mineMsg',
   data () {
     return {
-      reply: {},
-      system: {},
-      thumb: {},
-      answer: {}
+      reply: {count: 0},
+      system: {count: 0},
+      thumb: {count: 0},
+      answer: {count: 0}
     }
   },
   activated() {

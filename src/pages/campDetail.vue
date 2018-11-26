@@ -15,8 +15,8 @@
     <div class="tab-item-detail">
       <!-- 详情 -->
       <div v-if='tabIndex == 0'>
-        <div class="students-study">
-          <div class="students-avatar" v-if='detail.circle && detail.circle.length'>
+        <div class="students-study" v-if='detail.circle && detail.circle.length'>
+          <div class="students-avatar" >
             <img :src="item" alt="" v-for='(item, index) in detail.circle' :key='index'>
           </div>
           <div class="course-detail-info">
@@ -50,10 +50,10 @@
               <div>{{item.length_time}}</div>
             </div>
           </div>
-          <div @click="linkVideo(item.group_id, item.id, item.is_can_see, item.is_try_free)">
-            <div v-if='item.is_try_free == 1 && item.is_can_see != 1 && detail.in_circle != 1' class="free-try-see">免费试看</div>
-            <div v-if='item.is_can_see != 1 && item.is_try_free != 1' class="course-locked"><img src="../assets/class_lock@3x.png" alt=""></div>
-            <div v-if='item.is_can_see == 1 ||  (detail.in_circle == 1 && item.is_try_free == 1)' class="course-play"><img src="../assets/class_play@3x.png" alt=""></div>
+          <div @click="linkVideo(item.group_id, item.id, item.is_can_see, item.is_try_free, detail.in_circle)">
+            <div v-if='item.is_try_free == 1' class="free-try-see">免费试看</div>
+            <div v-if='item.is_can_see == "0"' class="course-locked"><img src="../assets/class_lock@3x.png" alt=""></div>
+            <div v-if='item.is_can_see == 1  && item.is_try_free == "0"' class="course-play"><img src="../assets/class_play@3x.png" alt=""></div>
           </div>
         </div>
         <div class="no-data-icon" v-if='!detail.videos.length'><img src="../assets/all_none@3x.png" alt="" ></div>
@@ -75,7 +75,6 @@
       </div>
       <div class="add-to-practice" @click="buyCourse" v-if='!timeEnd'>立刻报名</div>
       <div class="add-to-practice" style='background: #C7CCD1' @click="hasEnd" v-if="timeEnd">报名结束</div>
-      
     </div>
 
     <div class="course-no-buy" v-if='detail.in_circle == "-1" && startclass'>
@@ -116,32 +115,17 @@
     </div>
 
     
-    <div class="add-time" v-if='!timeEnd && userInfo.status != 2 '>
+    <div class="add-time" v-if='!timeEnd'>
       <div>
         <div>距报名截止 还剩{{leftTime}}</div>
         <div>已有{{detail.now_phase.subscribe_num}}人报名</div>
       </div>
     </div>
-    <div class="add-time" v-if='detail.in_circle == "-1"'>
+    <div class="add-time" v-if='detail.in_circle == "-1" '>
       <div>
         你购买过该训练营,成为私教会员可以继续观看
       </div>
     </div>
-
-    <!-- <div class="share-modal-bg" v-if='showShareModal' @click="hideShare">
-      <div class="share-modal-box">
-        <div class="share-modal">
-          <div>
-            <img src="../assets/class_share01@3x.png" alt="">
-            <div>分享好友</div>
-          </div>
-          <div>
-            <img src="../assets/class_share02@3x.png" alt="">
-            <div>分享朋友圈</div>
-          </div>
-        </div>
-      </div>
-    </div> -->
     <modal 
       title="提示" 
       :content='modalContent'
@@ -190,12 +174,13 @@ export default {
       showCancle: false,
       modalContent: '请点击窗口右上角分享给',
       showModal: false,
-      timeEnd: false,
+      timeEnd: true,
       leftTime: '0天0时0分0秒',
       startclass: false,
       endclass: false,
       page: 1,
-      userInfo: {}
+      userInfo: {},
+      setTime: null
     }
   },
   activated() {
@@ -204,11 +189,13 @@ export default {
     if (userInfo) {
       userInfo = JSON.parse(userInfo)
     };
+    
     this.userInfo = userInfo
     this.id = query.id 
     if (query.receive_id) {
       this.receive_id = query.receive_id 
-    }
+    };
+    clearInterval(this.setTime)
     this.getDetail(query.id )
   },
 
@@ -219,10 +206,7 @@ export default {
       this.tabIndex = index
     },
     buyCourse() {
-      this.$router.push({name: 'buyCourse', query: {id: this.id, price: this.detail.price,name: this.detail.name,type: 2, vip_discount: this.detail.vip_discount, now_phase_id: this.detail.now_phase_id}})
-    },
-    buyCourse() {
-      this.$router.push({name: 'buyCourse', query: {id: this.id, price: this.detail.price,name: this.detail.name, now_phase_id: this.detail.now_phase_id,type: 1, vip_discount: this.detail.vip_discount}})
+      this.$router.push({name: 'buyCourse', query: {id: this.id, price: this.detail.price,name: this.detail.name,type: 1, vip_discount: this.detail.vip_discount, now_phase_id: this.detail.now_phase_id,}})
     },
     waiteStart() {
       this.$toast.top('您已报名，请等待开课')
@@ -306,12 +290,12 @@ export default {
       })
     },
     setIntervalTime(end) {
-      let time =  setInterval(() => {
+      this.setTime =  setInterval(() => {
         let differTiem =parseInt((new Date(end).getTime() - new Date().getTime())/1000) 
         if(differTiem <= 0) {
           //  报名结束
   　      this.timeEnd = true
-  　      clearInterval(time)
+  　      clearInterval(this.setTime)
     　  } else {
             this.timeEnd = false
             let day = parseInt(differTiem/60/60/24)  
@@ -400,8 +384,6 @@ export default {
     courseTop,
     trendList,
   }
-  
-
 }
 </script>
 
@@ -483,12 +465,13 @@ export default {
   min-height: 500px;
   background: #fff;
   word-break: break-all;
-  padding: 20px;
+  /* padding: 20px; */
   font-size: 28px;
 }
 
-.course-des-detail img {
-  width: 710px;
+.course-des-detail >>> img {
+  width: 100%!important;
+  margin-top: 20px;
 }
 
 .course-table-item {
@@ -565,8 +548,8 @@ export default {
 }
 
 .course-locked img {
-  height: 42px;
-  width: 38px;
+  height: 50px;
+  width: 50px;
 }
 
 .course-play img {
@@ -703,7 +686,7 @@ export default {
   bottom: 100px;
   left: 0;
   text-align: center;
-  z-index: 66666;
+  /* z-index: 1; */
 }
 
 .add-time > div{

@@ -20,6 +20,7 @@
     </div>
     <infinite-loading @infinite="infiniteHandler" >
       <div slot="no-more" class="no-more-data">没有更多了...</div>
+      <div slot="no-results"> </div>
     </infinite-loading>
   </div>
 </template>
@@ -145,6 +146,7 @@ export default {
   width: 80px;
   height: 80px;
   margin-right: 32px;
+  border-radius: 50%;
 }
 
 .msg-title {

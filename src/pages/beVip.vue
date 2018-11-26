@@ -47,18 +47,21 @@
       <div class="svip-item">
         <div class="svip-icon"><img src="../assets/vip_icon04@3x.png" alt=""></div>
         <div class="svip-info">
-          <div class="svip-desc">私教尊贵会员</div>
-          <div class="svip-subdesc">点亮私教尊贵会员标识</div>
+          <div class="svip-desc">课程优惠</div>
+          <div class="svip-subdesc">课程免费观看/折扣购买</div>
         </div>
       </div>
-      <div class="vip-limit-time" v-if='userInfo.vip_ended_at'>{{userInfo.vip_ended_at}}</div>
+      <div class="vip-limit-time" v-if='userInfo.vip_ended_at'>你的会员{{userInfo.vip_ended_at}}到期</div>
       <div class="svip-bottom">
         <div class="select-drop" @click="showSvpiSelectModal">
           <div class="select-type">
             <div class="new-price">￥{{selectsPrice ? selectsPrice : svipInfo.price_year_discount}}</div>
             <div class="old-price" v-if='selectsPrice && selectOldsPrice'>￥{{selectOldsPrice ? selectOldsPrice : svipInfo.price_year}}</div>
           </div>
-          <div class="drap-icon"><img src="../assets/vip_select@3x.png" alt=""></div>
+          <div class="select-type-time">{{svipType == 1 ? '月付' : svipType == 2 ? '半年付' : svipType == 3 ? '年付' : ''}}</div>
+          <div class="drap-icon">
+            <img src="../assets/vip_select@3x.png" alt="" :style="showSvpiSelect ? 'transform: rotate(180deg)' : ''">
+          </div>
         </div>
         
         <div class="confirm-btn" @click="beSvip">开通私教尊贵会员</div>
@@ -87,7 +90,10 @@
             <div class="new-price">￥{{selectPrice ? selectPrice : vipInfo.price_year_discount}}</div>
             <div class="old-price" v-if='selectPrice && selectOldPrice'>￥{{selectOldPrice ? selectOldPrice : vipInfo.price_year}}</div>
           </div>
-          <div class="drap-icon"><img src="../assets/vip_select@3x.png" alt=""></div>
+          <div class="select-type-time">{{vipType == 1 ? '月付' : vipType === 2 ? '半年付' : '年付'}}</div>
+          <div class="drap-icon">
+            <img src="../assets/vip_select@3x.png" alt="" :style="showVpiSelect ? 'transform: rotate(180deg)' : ''">
+          </div>
         </div>
         <div class="confirm-btn" @click="beCommonVip">开通会员</div>
       </div>
@@ -103,15 +109,15 @@
           </div>
           <div class="new-price">￥{{svipInfo.upgrade_p_vip_price}}</div>
         </div>
-        <div class="select-items" @click.stop="selectThis(2,1, svipInfo.price_month, '', false)" >
+        <div class="select-items" @click.stop="selectThis(2,1, svipInfo.price_month, '', false)" v-if='userInfo.status != 1'>
           <div>月付</div>
           <div class="new-price">￥{{svipInfo.price_month}}</div>
         </div>
-        <div class="select-items" @click.stop="selectThis(2,2, svipInfo.price_half_year, '', false)" >
+        <div class="select-items" @click.stop="selectThis(2,2, svipInfo.price_half_year, '', false)" v-if='userInfo.status != 1'>
           <div>半年付</div>
           <div class="new-price">￥{{svipInfo.price_half_year}}</div>
         </div>
-        <div class="select-items" @click.stop="selectThis(2,3, svipInfo.price_year_discount, svipInfo.price_year, false)" >
+        <div class="select-items" @click.stop="selectThis(2,3, svipInfo.price_year_discount, svipInfo.price_year, false)" v-if='userInfo.status != 1'>
           <div class="year-icon">
             <div>年付</div> 
             <div class="limit-time-cout"><span>限时折扣</span></div> 
@@ -120,7 +126,6 @@
         </div>
       </div>
     </div>
-
 
 
     <div class="modal-bg" v-if='showVpiSelect && !svip' @click="hideVpiSelectModal">
@@ -304,7 +309,8 @@ export default {
       });
       this.wxPay(params)
     },
-     wxPay(params) {
+    wxPay(params) {
+      let that = this
       const payConfig = this.payConfig
       wx.ready(function(){
         wx.chooseWXPay({
@@ -315,8 +321,7 @@ export default {
           paySign: payConfig.pay.sign, // 支付签名
           success: function(res) {
             // 支付成功后的回调函数
-            this.getUserInfo()
-            this.$router.go(-1)
+            that.getUserInfo()
           },
           fail:function(res){
               
@@ -470,16 +475,17 @@ export default {
   position: fixed;
   bottom: 0;
   left: 0; 
-  width: 100%;
+  width: 690px;
   display: flex;
   align-items: center;
-  justify-content: space-around;
+  justify-content: space-between;
+  padding: 0 30px;
 }
 
 
 
 .select-drop, .confirm-btn {
-  width: 336px;
+  width: 296px;
   height: 76px;
 }
 
@@ -489,11 +495,13 @@ export default {
 
 .confirm-btn {
   border: 1px solid #fff;
-  background: url('../assets/class_zhekoubg@3x.png');
+  background: url('../assets/class_zhekoubg@3x.png') no-repeat;
+  background-size: cover;
   color: #FAF7CC;
   font-size: 32px;
   text-align: center;
   line-height: 76px;
+  border-radius: 4px;
 }
 
 .select-drop {
@@ -511,11 +519,18 @@ export default {
   width: 22px;
   height: 12px;
   vertical-align: middle;
+  margin-top: -8px;
 }
 
 .select-type {
   display: flex;
   align-items: center;
+}
+
+.select-type-time {
+  font-size: 22px;
+  color: #AEB6BD;
+  margin-top: 6px;
 }
 
 .new-price {
@@ -557,7 +572,7 @@ export default {
   padding: 0 30px;
   border-top: 1px solid #F4F6F9;
   justify-content: space-between;
-  padding: 0 20px;
+  padding: 10px 20px;
 }
 
 .upgrade-desc {

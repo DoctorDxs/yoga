@@ -48,6 +48,7 @@
     </div>
     <infinite-loading @infinite="infiniteHandler">
       <div slot="no-more" class="no-more-data">没有更多了...</div>
+      <div slot="no-results"> </div>
     </infinite-loading>
     <nav-bar></nav-bar>
   </div>
@@ -87,7 +88,9 @@ export default {
     document.title = '练习';
   },
   mounted() {
-    // this.setWindowH()
+    this.$nextTick(() => {
+      this.setWindowH()
+    })
   },
   methods: {
     getUserInfo() {
@@ -113,12 +116,13 @@ export default {
           const lists = res.data.data
           if (lists.length) {
             this.page += 1;
-            if (this.myPracticeList > 0 && this.page == 1) {
+            if (this.myPracticeList.length  && this.page == 1) {
               return false
             } else {
               this.myPracticeList.push(...lists)
             }
             $state.loaded();
+            
           } else {
             $state.complete()
           }
@@ -130,8 +134,10 @@ export default {
         } else {
           this.$toast.top(res.msg)
         }
+        this.setWindowH()
 
       })
+
     },
     //跳转详情
     skipDetail(id, type){
@@ -205,9 +211,9 @@ export default {
       // 删除
       this.myPracticeList.splice(index,1);
     },
-    // setWindowH() {
-    //   if (this.myPracticeList.length == 0) document.getElementsByClassName('index-page')[0].style.minHeight = window.innerHeight + 'px'
-    // },
+    setWindowH() {
+      document.getElementsByClassName('index-page')[0].style.minHeight = window.innerHeight - 100 + 'px'
+    },
     addClass() {
       this.$router.push({
         name: 'classroom'

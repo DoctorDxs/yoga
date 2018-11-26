@@ -153,7 +153,7 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .classroom-page {padding-bottom: 120px;}
-.ads-banner{padding: 0 30px;height: 230px;position: relative;}
+.ads-banner{padding: 0 30px;height: 230px;position: relative;margin-top: 30px;}
 .ads-banner img{width: 690px;height: 230px;}
 .tab-bar {display: flex;font-size: 32px;color: #444C52;font-weight: 600;justify-content: space-around;margin-top: 30px;padding: 0 30px;}
 .tab-bar > div {opacity: 0.3;}

@@ -64,6 +64,7 @@ export default {
         this.type = query.type
         this.group_id = query.group_id
         this.learn_id = query.learn_id
+        this.in_circle = query.in_circle
         this.page = 1
         this.evaluteList = []
         this.getTrend(this.state)
@@ -72,16 +73,30 @@ export default {
       this.type = query.type
       this.learn_id = query.learn_id
       this.group_id = query.group_id
+      this.in_circle = query.in_circle
     }
     this.getVideo()
   },
 
   methods: {
     linkAddTrend(type) {
-      this.$router.push({name: 'submitTrend', query: {type: type, group_id: this.group_id}})
-      let trendUpdate = JSON.parse(localStorage.getItem('trendUpdate'))
+      if (this.in_circle == 1) {
+        this.$router.push({name: 'submitTrend', query: {type: type, group_id: this.group_id}})
+        let trendUpdate = JSON.parse(localStorage.getItem('trendUpdate'))
         trendUpdate.doWhat = 2
         localStorage.setItem('trendUpdate', JSON.stringify(trendUpdate))
+      } else {
+        if (this.type == '1') {
+          this.$toast.top('您还未购买该课程')
+        } else {
+          this.$toast.top('您还未购买该训练营')
+        }
+      }
+      
+    },
+    playVideo() {
+      this.showPost = false
+      this.$refs.videoTime.play()
     },
     getVideo() {
       getVideoDetail(this.group_id, this.learn_id).then(res => {
@@ -121,10 +136,7 @@ export default {
         }
       })
     },
-    playVideo() {
-      this.showPost = false
-      this.$refs.videoTime.play()
-    }
+    
     
   },
   components: {
@@ -198,7 +210,7 @@ body {
   height: 80px;
   border-radius: 50%;
   margin-left: -40px;
-  border: 2px solid #fff;
+  border: 4px solid #fff;
 }
 
 .course-detail-info {

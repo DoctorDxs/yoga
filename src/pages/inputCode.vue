@@ -14,8 +14,7 @@
 </template>
 
 <script>
-import {sedCode} from '../fetch/api'
-import {checkCode} from '../fetch/api'
+import {sedCode, getUser, checkCode} from '../fetch/api'
 export default {
   name: 'inputCode',
   data () {

@@ -13,7 +13,7 @@
       <div class="send-modal-box">
         <div class="send-modal">
           <div class="course-info">
-            <img src="http://tx.haiqq.com/uploads/allimg/150402/16094151D-13.jpg" alt="">
+            <img :src="detail.goods_cover" alt="">
             <div class='course-desc'>
               <div>{{detail.name}}</div>
               <div>课程</div>

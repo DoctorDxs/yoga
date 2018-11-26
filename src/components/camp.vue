@@ -3,19 +3,17 @@
     <div class="camp-list-item" @click='linkCampDetail(item.id)' v-for='(item, index) in currentList' :key='index'>
       <div class="camp-info-wrap">
         
-        <div class="camp-title" style="position: relative;z-index: 1;">{{item.name}}</div>
-        <!-- item.now_phase.sign_ended_at - item.now_phase.sign_started_at -->
-        <!-- timeDifference(item.now_phase ? item.now_phase.sign_ended_at : '', item.now_phase ? item.now_phase.sign_started_at : '') -->
-        <div class="camp-info" style="position: relative;z-index: 1;"><span>报名还剩{{itemTime | timeDifference(item.now_phase ? item.now_phase.sign_ended_at : '', item.now_phase ? item.now_phase.sign_started_at : '')}}天</span> <span>{{item.subscribe_num}}人报名</span></div>
-        <div class="active-camp" style="position: relative;z-index: 1;">限时免费学习</div>
+        <div class="camp-title">{{item.name}}</div>
+        <div class="camp-info"><span>{{item.day_count}}</span> <span>{{item.subscribe_num}}人报名</span></div>
+        <div class="active-camp" :style="item.color ? 'color:' + item.color : ''">限时免费学习</div>
         <div class="camp-cover"><img :src="item.goods_cover" alt=""></div>
       </div>
       <!-- <infinite-loading @infinite="infiniteHandler">
         <div slot="no-more" class="no-more-data">{{evaluteList.length > 9 ? "没有更多了..." : " "}}</div>
         <div slot="no-results"> </div>
       </infinite-loading> -->
-      <div class="no-data-icon" v-if='!currentList.length'><img src="../assets/all_none@3x.png" alt="" ></div>
     </div>
+    <div class="no-data-icon" v-if='!currentList.length'><img src="../assets/all_none@3x.png" alt="" ></div>
   </div>
 </template>
 
@@ -41,11 +39,6 @@ export default {
       type: Array,
       required: true
     }
-  },
-  filters: {
-    timeDifference(value, end, start) {
-      if(end && start) return (new Date(end) - new Date(start)) / (1000 * 60 * 60 *24)
-    }
   }
   
 }
@@ -68,6 +61,11 @@ export default {
 
 .camp-info-wrap {
   margin-left: 30px;
+}
+
+.camp-title, .camp-info, .active-camp {
+  position: relative;
+  z-index: 1;
 }
 
 .camp-title {

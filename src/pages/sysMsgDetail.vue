@@ -10,6 +10,11 @@
         <div class="msg-content">{{item.content}}</div>
       </div>
     </div>
+    <div class="no-data-icon" v-if='!sysList.length'><img src="../assets/all_none@3x.png" alt="" ></div>
+    <infinite-loading @infinite="infiniteHandler">
+      <div slot="no-more" class="no-more-data">没有更多了...</div>
+      <div slot="no-results"> </div>
+    </infinite-loading>
   </div>
      
 </template>
@@ -22,38 +27,41 @@ export default {
   data () {
     return {
       sysList: [],
-      count: 0,
       page: 1
     }
   },
   activated() {
-    document.title = '我的消息';
-    this.count = this.$route.query.count - 0
-    this.getData()
-
+    document.title = '系统消息';
   },
   mounted() {
-    document.getElementsByClassName('sysMsg-page')[0].style.minHeight = window.innerHeight + 'px'
+    this.$nextTick(() => {
+      document.getElementsByClassName('sysMsg-page')[0].style.minHeight = window.innerHeight + 'px'
+    })
   },
   methods: {
-    getData() {
-      getSysMsg().then(res => {
+    getData($state) {
+      getSysMsg(this.page).then(res => {
         if (res.state == 200) {
-          const data = res.data.data
-          this.sysList = data
-          // this.msgRead()
+          const lists = res.data.data
+          if (lists.length) {
+            this.page += 1;
+            if (this.sysList.length && this.page == 1) {
+              return false
+            } else {
+              this.sysList.push(...lists)
+            }
+            $state.loaded();
+          } else {
+            $state.complete()
+          }
+          
+        } else {
+          this.$toast.top(res.msg)
         }
       })
     },
-    msgRead() {
-      if (this.count > 0) {
-        const notReadList = this.sysList.slice(0, this.count)
-        notReadList.forEach((item, index) => {
-          msgRead(item.id).then(res => {
-            console.log(res)
-          })
-        })
-      }
+    infiniteHandler($state) {
+      this.getData($state)
     }
   },
   components: {

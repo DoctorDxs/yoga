@@ -45,7 +45,7 @@
           </div>
 
           <div class="input-item">
-            <div class="input-title">会员折扣</div>
+            <div class="input-title">{{type == 1 ? '私教尊贵' : ''}}会员折扣</div>
             <div class="input-box" @click="selectDiscount">
               <div>{{discountTypeText ? discountTypeText : '未选择'}}</div>
               <div><img src="../assets/class_next_icon@3x.png" alt=""></div>
@@ -54,7 +54,11 @@
         </div>
 
         <div class="pay-btn" v-if='!inputFocus'>
-          <div><span>实付</span><span class="real-pay">￥{{price_discount ? price_discount : price}}</span><span class="orgin-pay" v-if='price_discount'>￥{{price}}</span></div>
+          <div>
+            <span>实付</span>
+            <span class="real-pay">￥{{price_discount !== 0 ? price_discount : price}}</span>
+            <span class="orgin-pay" v-if='price_discount !== 0'>￥{{price}}</span>
+          </div>
           <div @click="submitOrder">立即支付</div>
         </div>
         <awesome-picker
@@ -229,6 +233,7 @@ export default {
 
     wxPay(params) {
       const payConfig = this.payConfig
+      const that  = this
       wx.ready(function(){
         wx.chooseWXPay({
           timestamp: payConfig.pay.timeStamp, // 支付签名时间戳，注意微信jssdk中的所有使用timestamp字段均为小写。但最新版的支付后台生成签名使用的timeStamp字段名需大写其中的S字符
@@ -238,7 +243,7 @@ export default {
           paySign: payConfig.pay.sign, // 支付签名
           success: function(res) {
             // 支付成功后的回调函数
-            this.$router.go(-1)
+            that.$router.go(-1)
           },
           fail:function(res){
               
@@ -283,15 +288,28 @@ export default {
     this.now_phase_id = query.now_phase_id
     this.vip_discount = query.vip_discount
     document.title = '课程购买';
-    let vip = localStorage.getItem('vip')
+    let vip = JSON.parse(localStorage.getItem('vip')) 
+    console.log(vip == false)
     if (vip) {
-      this.price_discount = (this.vip_discount * 0.01 * this.price).toFixed(2)
+      this.price_discount = (this.vip_discount * 0.01 * this.price).toFixed(2) + ''
       this.vip = true
-      this.discountTypeText = '会员' + vip_discount + '折'
-      localStorage.setItem('vip', false)
+      if (this.vip_discount == '0') {
+        if (this.type == 2) {
+          this.discountTypeText = '会员免费'
+        } else {
+          this.discountTypeText = '私教会员免费'
+        }
+      } else {
+        if(this.type == 1) {
+          this.discountTypeText = '私教会员' + this.vip_discount + '折'
+        } else {
+          this.discountTypeText = '会员' + this.vip_discount + '折'
+        }
+      }
     } else {
       this.price_discount = 0
       this.discountTypeText = '不使用折扣'
+      this.vip = false
     };
     let userInfo = localStorage.getItem("userInfo")
     if (userInfo) {

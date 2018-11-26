@@ -15,7 +15,7 @@
     <div class="tab-item-detail">
       <!-- 详情 -->
       <div v-if='tabIndex == 0'>
-        <div class="students-study">
+        <div class="students-study" v-if='detail.circle && detail.circle.length'>
           <div class="students-avatar">
             <img :src="item" alt="" v-for='(item, index) in detail.circle' :key='index'>
           </div>
@@ -125,6 +125,7 @@ export default {
       page: 1
     }
   },
+  
   activated() {
     const query = this.$route.query
     this.id = query.id 
@@ -152,15 +153,12 @@ export default {
       // 训练营未购买 锁着状态点击提示“您还未购买该训练营”
       // 训练营已购买 锁着状态点击提示“该训练营还未解锁，待解锁后观看”
 
-      // if (can_see == '0') {
-      //   this.$toast.top('暂时无法观看')
-      // }
-      if (can_see == '1' || try_see == '1') {
+      if (can_see == '0') {
+        this.$toast.top('您还未购买该课程')
+      } else {
         this.$router.push({
           name: 'videoDetail', query: {group_id: group_id, learn_id: learn_id, type: this.detail.type, in_circle: in_circle}
         })
-      }else {
-        this.$toast.top('暂时无法观看')
       }
     },
     showShare() {
@@ -363,8 +361,13 @@ export default {
   min-height: 500px;
   background: #fff;
   word-break: break-all;
-  padding: 20px;
+  /* padding: 20px; */
   font-size: 28px;
+}
+
+.course-des-detail >>> img {
+  width: 100%!important;
+  margin-top: 20px;
 }
 
 .course-table-item {
@@ -412,11 +415,12 @@ export default {
   background: #B78FDA;
   width: 70px;
   height: 30px;
-  border-bottom-right-radius: 30px; 
+  border-bottom-right-radius: 15px; 
   font-size: 24px;
   text-align: center;
   line-height: 30px;
   color: #fff;
+  font-weight: 600;
 }
 
 .course-item-left img {
@@ -441,8 +445,8 @@ export default {
 }
 
 .course-locked img {
-  height: 42px;
-  width: 38px;
+  height: 50px;
+  width: 50px;
 }
 
 .course-play img {

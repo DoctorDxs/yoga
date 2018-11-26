@@ -9,7 +9,14 @@
       <div>微信</div>
       <div class="item-detail"><span>已绑定</span></div>
     </div>
-    
+    <modal 
+      title="提示" 
+      content='是否更改已绑定的手机号'
+      :showCancle='showCancle' 
+      @on-confirm='confirm'
+      @on-cancel="cancel" 
+      v-show='showModal'>
+    </modal>
   </div>
      
 </template>
@@ -20,7 +27,9 @@ export default {
   name: 'bindAccount',
   data () {
     return {
-      phone: ''
+      phone: '',
+      showCancle:　true,
+      showModal: false
     }
   },
   activated() {
@@ -38,11 +47,20 @@ export default {
     document.getElementsByClassName('bindAccount-page')[0].style.minHeight = window.innerHeight + 'px'
   },
   methods: {
+
     changeTEL() {
+      this.showModal = true
+      
+    },
+    confirm() {
+      this.showModal = false
       this.$router.push({
         name: 'bindTel', query: {type: 1}
       })
-    }
+    },
+    cancel() {
+      this.showModal = false
+    },
   },
   components: {
     

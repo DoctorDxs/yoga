@@ -167,8 +167,9 @@ export default {
       } else if (this.type == 2) {
         if (!this.title) {
           this.$toast.top('问题标题不能为空')
-        } else if (!this.content || !this.imgs.length) {
-          this.$toast.top('问题描述不能为空')
+        // } 
+        // else if (!this.content || !this.imgs.length) {
+          // this.$toast.top('问题描述不能为空')
         } else {
           const params = {
             content: this.title,
