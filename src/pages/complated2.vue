@@ -34,6 +34,7 @@ export default {
     this.videoTime = query.videoTime
     this.type = query.type
     this.feel = query.feel
+    this.content = '我刚刚完成了'+ query.courseNmae + '·' + query.good_name
   },
   mounted() {
     document.title = '完成情况';

@@ -39,18 +39,18 @@
       </div>
       <!-- 课表 -->
       <div v-if='tabIndex == 1'>
-        <div class="course-table-item" v-for='(item, index) in detail.videos' :key='index'>
+        <div class="course-table-item" v-for='(item, index) in detail.videos' :key='index' @click="linkVideo(item.group_id, item.id, item.is_can_see, item.is_try_free, detail.in_circle)">
           <div class="course-item-cover">
             <div class="course-item-left">
               <img :src='item.cover' alt="">
-              <div class="course-sort">{{index > 9 ? index+1 : '0' + (index +1)}}</div>
+              <div class="course-sort" v-if='item.is_try_free != 1'>{{index > 9 ? index : '0' + index}}</div>
             </div>
             <div class="course-item-info">
               <div>{{item.name}}</div>
               <div>{{item.length_time}}</div>
             </div>
           </div>
-          <div @click="linkVideo(item.group_id, item.id, item.is_can_see, item.is_try_free, detail.in_circle)">
+          <div >
             <div v-if='item.is_try_free == 1' class="free-try-see">免费试看</div>
             <div v-if='item.is_can_see == "0"' class="course-locked"><img src="../assets/class_lock@3x.png" alt=""></div>
             <div v-if='item.is_can_see == 1  && item.is_try_free == "0"' class="course-play"><img src="../assets/class_play@3x.png" alt=""></div>
@@ -159,7 +159,6 @@ export default {
   name: 'campDetail',
   data () {
     return {
-      
       detail: {
         now_phase: {},
         excellences: []
@@ -172,7 +171,7 @@ export default {
       wxCode: '',
       evaluteList: [],
       showCancle: false,
-      modalContent: '请点击窗口右上角分享给',
+      modalContent: '请点击窗口右上角分享给好友或分享到朋友圈',
       showModal: false,
       timeEnd: true,
       leftTime: '0天0时0分0秒',
@@ -189,7 +188,6 @@ export default {
     if (userInfo) {
       userInfo = JSON.parse(userInfo)
     };
-    
     this.userInfo = userInfo
     this.id = query.id 
     if (query.receive_id) {
@@ -222,13 +220,28 @@ export default {
     linkAddTrend(type) {
       this.$router.push({name: 'submitTrend', query: {type: type, group_id: this.id}})
     },
-    linkVideo(group_id, learn_id, can_see, try_see) {
-      if (can_see == '1' || try_see == '1') {
-        this.$router.push({
-          name: 'videoDetail', query: {group_id: group_id, learn_id: learn_id, type: this.detail.type}
-        })
-      } else {
-        this.$toast.top('暂时无法观看')
+    linkVideo(group_id, learn_id, can_see, try_see, in_circle) {
+      // 课程未购买 锁着状态点击提示“您还未购买该课程”
+      // 训练营未购买 锁着状态点击提示“您还未购买该训练营”
+      // 训练营已购买 锁着状态点击提示“该训练营还未解锁，待解锁后观看”
+      if (in_circle == 0) {
+        if (try_see == '1') {
+          this.$router.push({
+            name: 'videoDetail', query: {group_id: group_id, learn_id: learn_id, type: this.detail.type, in_circle: in_circle, courseNmae: this.detail.name}
+          })
+        } else {
+          this.$toast.top('您还未购买该训练营')
+        }
+      } else if (in_circle == 1) {
+        if (can_see == 1) {
+          this.$router.push({
+            name: 'videoDetail', query: {group_id: group_id, learn_id: learn_id, type: this.detail.type, in_circle: in_circle, courseNmae: this.detail.name}
+          })
+        } else {
+          this.$toast.top('该训练营还未解锁，待解锁后观看')
+        }
+      } else if (in_circle == -1) {
+        this.$toast.top('你购买过该训练营,成为私教会员可以继续观看')
       }
     },
     showShare() {
@@ -264,8 +277,9 @@ export default {
         if (res.state == 200) {
           this.detail = res.data
           document.title = res.data.name
-          let startclass = res.data.now_phase.started_at
-          let endclass = res.data.now_phase.ended_at
+          let startclass = res.data.now_phase.started_at.replace(/-/g, "/")
+          let endclass = res.data.now_phase.ended_at.replace(/-/g, "/")
+          
           // 判断是否开课  是否 结课
           let startclassDiffer = new Date(startclass).getTime() - new Date().getTime()
           let endclassDiffer = new Date(endclass).getTime() - new Date().getTime()
@@ -280,7 +294,7 @@ export default {
             this.endclass = true
           };
           this.$refs.courseTop.commonShare(res.data); 
-          let end = res.data.now_phase.sign_ended_at
+          let end = res.data.now_phase.sign_ended_at.replace(/-/g, "/")
           this.setIntervalTime(end)
           if (this.receive_id ) {
             this.$refs.courseTop.giftShare(this.receive_id); 
@@ -291,7 +305,7 @@ export default {
     },
     setIntervalTime(end) {
       this.setTime =  setInterval(() => {
-        let differTiem =parseInt((new Date(end).getTime() - new Date().getTime())/1000) 
+        let differTiem =parseInt((new Date(end.replace(/-/g, "/")).getTime() - new Date().getTime())/1000) 
         if(differTiem <= 0) {
           //  报名结束
   　      this.timeEnd = true

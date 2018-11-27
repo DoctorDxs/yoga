@@ -72,6 +72,7 @@ export default {
     justify-content: center; 
     align-items: center; 
     z-index: 99999999;
+    
 }
 .modal { 
     background-color: #fff; 
@@ -101,6 +102,7 @@ export default {
     position: relative; 
     padding: 20px; 
     font-size: 28px;
+    text-align: center;
 }
 .btn-close, .btn-confirm {    
     border-radius: 8px;

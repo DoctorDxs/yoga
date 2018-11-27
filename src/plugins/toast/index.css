@@ -7,9 +7,8 @@
   left: 50%;
   box-sizing: border-box;
   max-width: 80%;
-  height: 80px;
-  line-height: 80px;
-  padding: 0 40px;
+  min-width: 60%;
+  padding: 10px 40px;
   transform: translateX(-50%);
   -webkit-transform: translateX(-50%);
   text-align: center;
@@ -20,9 +19,6 @@
   background: #fff;
   animation: show-toast .5s;
   -webkit-animation: show-toast .5s;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
   box-shadow: 0 6px 24px rgba(0,0,0,.1); 
 }
  

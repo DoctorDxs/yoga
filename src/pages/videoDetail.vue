@@ -1,7 +1,7 @@
 <template>
   <div class="course-detail-page">
     <div class="video-box">
-      <video 
+      <video controls
              @ended="endVideo()"
              :src="videoInfo.url"
              ref='videoTime' v-show="!showPost">
@@ -15,7 +15,7 @@
       <div>
         <div class="students-study">
           <div class="students-avatar">
-            <span v-for='(item, index) in videoInfo.learns_avatar' :key='index'><img :src="item" alt="" ></span>
+            <img :src="item" alt="" v-for='(item, index) in videoInfo.learns_avatar' :key='index'>
           </div>
           <div class="course-detail-info">
             <div>DAY{{videoInfo.learn_id - 0 + 1}}</div>
@@ -57,6 +57,7 @@ export default {
   },
   activated() {
     const query = this.$route.query
+    this.courseNmae = query.courseNmae
     if (this.type && this.learn_id ) {
       if (this.learn_id == query.learn_id) {
         return false
@@ -67,6 +68,7 @@ export default {
         this.in_circle = query.in_circle
         this.page = 1
         this.evaluteList = []
+        this.showPost = true
         this.getTrend(this.state)
       }
     } else {
@@ -86,7 +88,7 @@ export default {
         trendUpdate.doWhat = 2
         localStorage.setItem('trendUpdate', JSON.stringify(trendUpdate))
       } else {
-        if (this.type == '1') {
+        if (this.type == '2') {
           this.$toast.top('您还未购买该课程')
         } else {
           this.$toast.top('您还未购买该训练营')
@@ -110,7 +112,7 @@ export default {
       this.$refs.videoTime.webkitExitFullScreen()
       this.$refs.videoTime.srcObject = new window.webkitMediaStream
       this.showPost = true
-      this.$router.push({name: 'complated1', query: {group_id: this.group_id, learn_id: this.learn_id, good_name: this.videoInfo.good_name, type: this.type, videoTime: this.$refs.videoTime.duration}})
+      this.$router.push({name: 'complated1', query: {group_id: this.group_id, learn_id: this.learn_id, good_name: this.videoInfo.good_name, type: this.type, videoTime: this.$refs.videoTime.duration, courseNmae: this.courseNmae}})
     },
 
 
@@ -202,6 +204,8 @@ body {
   width: 310px;
   flex-shrink: 0;
   display: flex;
+  height: 130px;
+  align-items: center;
   margin-left: 40px;
 }
 

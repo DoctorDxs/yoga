@@ -3,8 +3,8 @@
     <div class="complated-box">
       <div class="content-box">
         <div class="complate-title">你完成了</div>
-        <div class="course-title">21天瑜伽训练营·热身训练</div>
-        <div class="complate-time">9月10日 星期一 10:10</div>
+        <div class="course-title">{{text}}</div>
+        <div class="complate-time">{{time}}</div>
         <div class="complate-feel">感觉如何？</div>
         <div class="complate-icon">
           <div @click="selectThis(index)" v-for='(item, index) in iconType' :key='index'>
@@ -30,7 +30,9 @@ export default {
         {icon: require('../assets/class_view02_nor@3x.png'), selectIcon: require('../assets/class_view02_press@3x.png'), text: '刚刚好'},
         {icon: require('../assets/class_view03_nor@3x.png'), selectIcon: require('../assets/class_view03_press@3x.png'), text: '轻松'},
       ],
-      selectIndex: 0
+      selectIndex: 0,
+      text: '',
+      time: ''
     }
   },
   activated() {
@@ -40,6 +42,15 @@ export default {
     this.good_name = query.good_name
     this.videoTime = query.videoTime
     this.type = query.type
+    this.courseNmae = query.courseNmae
+    this.text = query.courseNmae + '·' + query.good_name
+    let date = new Date(); 
+    let month = date.getMonth() + 1
+    let day = date.getDate() 
+    let week = date.getDay(); 
+    let weeks = ["日","一","二","三","四","五","六"]; 
+    let getWeek = "星期" + weeks[week]; 
+    this.time = `${month}月${day}日 ${getWeek} ${date.getHours()}:${date.getMinutes()}`
   },
   mounted() {
     document.title = '完成情况';
@@ -54,7 +65,7 @@ export default {
     },
     linkNext() {
       this.$router.push({
-        name: 'complated2', query: {group_id: this.group_id, learn_id: this.learn_id, feel: this.selectIndex + 1, good_name: this.good_name, type: this.type,videoTime: this.videoTime}
+        name: 'complated2', query: {group_id: this.group_id, learn_id: this.learn_id, feel: this.selectIndex + 1, good_name: this.good_name, type: this.type,videoTime: this.videoTime, courseNmae: this.courseNmae}
       })
     }
   },

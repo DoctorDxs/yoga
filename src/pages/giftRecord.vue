@@ -33,6 +33,7 @@
           </div>
         </div>
       </div>
+      <div class="no-data-icon" v-if='!sentData.length'><img src="../assets/all_none@3x.png" alt="" ></div>
     </div>
     <div class="gift-received" v-if='!showSent'>
       <div v-for='(item, index) in reciveData' :key='index' class="gift-item">
@@ -53,8 +54,10 @@
           </div>
         </div>
       </div>
+      <div class="no-data-icon" v-if='!reciveData.length'><img src="../assets/all_none@3x.png" alt="" ></div>
     </div>
     <infinite-loading :identifier="infiniteId" @infinite="infiniteHandler">
+      <div slot="no-results"> </div>
       <div slot="no-more" class="no-more-data">没有更多了...</div>
     </infinite-loading>
   </div>

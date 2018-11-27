@@ -139,15 +139,18 @@ export default {
   border-bottom: 1px solid  #e1e2e3;
   display: flex;
   justify-content: space-between;
-  align-items: center;display: flex;
-  justify-content: space-between;
   align-items: center;
 }
 
-.msg-type img {
+.msg-type-icon {
   width: 80px;
   height: 80px;
   margin-right: 32px;
+}
+
+.msg-type-icon img{
+  width: 80px;
+  height: 80px;
 }
 
 .msg-title {
@@ -170,15 +173,16 @@ export default {
   display: flex;
   justify-content: flex-end;
   margin-top: 9px;
+  text-align: center;
 }
 
 .msg-num span {
   background: #FF7D8D;
-  padding: 0 8px;
-  height: 32px;
   border-radius: 32px;
+  padding: 0 10px;
+  height: 32px;
+  line-height: 33px;
   text-align: center;
-  line-height: 32px;
 }
 
 .sys-msg {

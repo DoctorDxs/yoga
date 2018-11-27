@@ -5,7 +5,8 @@
         <div class="mine-header-user">
           <div class="user-avatar"><img :src="userInfo.avatar" alt=""></div>
           <div>
-            <div class="mine-user-name"><span>{{userInfo.username}}</span>
+            <div class="mine-user-name">
+              <span>{{userInfo.username}}</span>
               <img src="../assets/vip_no_icon@3x.png" alt="" v-if='userInfo.status === "0"'>
               <img src="../assets/vip_nor_icon@3x.png" alt="" v-if='userInfo.status === "1"'>
               <img src="../assets/vip_supper_icon@3x.png" alt="" v-if='userInfo.status === "2"'>
@@ -102,6 +103,7 @@ export default {
             this.evaluteList.push(...lists)
             $state.loaded();
           } else {
+            this.sysList = []
             $state.complete()
           }
         } else {
@@ -178,7 +180,7 @@ export default {
 }
 
 .mine-user-name img {
-  width: 72px;
+  /* width: 72px; */
   height: 32px;
   margin-left: 16px;
 }
@@ -223,7 +225,13 @@ export default {
 
 .my-msg-set {
   position: relative;
+  margin-bottom: 5px;
 }
+
+.my-msg-set img {
+  position: relative;
+  margin-bottom: 0;
+} 
 
 .mine-msg-dots {
   position: absolute;

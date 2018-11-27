@@ -29,18 +29,18 @@
       </div>
       <!-- 课表 -->
       <div v-if='tabIndex == 1'>
-        <div class="course-table-item" v-for='(item, index) in detail.videos' :key='index'>
+        <div class="course-table-item" v-for='(item, index) in detail.videos' :key='index' @click="linkVideo(item.group_id, item.id, item.is_can_see, item.is_try_free, detail.in_circle)">
           <div class="course-item-cover">
             <div class="course-item-left">
               <img :src='item.cover' alt="">
-              <div class="course-sort">{{index > 9 ? index+1 : '0' + (index +1)}}</div>
+              <div class="course-sort" v-if='item.is_try_free != 1'>{{index > 9 ? index : '0' + index}}</div>
             </div>
             <div class="course-item-info">
               <div>{{item.name}}</div>
-              <div>{{item.length_time}}</div>
+              <div>{{item.length_time | toMin}}</div>
             </div>
           </div>
-          <div @click="linkVideo(item.group_id, item.id, item.is_can_see, item.is_try_free, detail.in_circle)">
+          <div >
             <div v-if='item.is_try_free == 1' class="free-try-see">免费试看</div>
             <div v-if='item.is_can_see == "0"' class="course-locked"><img src="../assets/class_lock@3x.png" alt=""></div>
             <div v-if='item.is_can_see == 1  && item.is_try_free == "0"' class="course-play"><img src="../assets/class_play@3x.png" alt=""></div>
@@ -120,7 +120,7 @@ export default {
       wxCode: '',
       evaluteList: [],
       showCancle: false,
-      modalContent: '请点击窗口右上角分享给',
+      modalContent: '请点击窗口右上角分享给好友或分享到朋友圈',
       showModal: false,
       page: 1
     }
@@ -149,15 +149,13 @@ export default {
       localStorage.setItem('trendUpdate',JSON.stringify({trendIndex: null, doWhat: 0, trendId: null}))
     },
     linkVideo(group_id, learn_id, can_see, try_see, in_circle) {
-      // 课程未购买 锁着状态点击提示“您还未购买该课程”
-      // 训练营未购买 锁着状态点击提示“您还未购买该训练营”
-      // 训练营已购买 锁着状态点击提示“该训练营还未解锁，待解锁后观看”
+      
 
       if (can_see == '0') {
         this.$toast.top('您还未购买该课程')
       } else {
         this.$router.push({
-          name: 'videoDetail', query: {group_id: group_id, learn_id: learn_id, type: this.detail.type, in_circle: in_circle}
+          name: 'videoDetail', query: {group_id: group_id, learn_id: learn_id, type: this.detail.type, in_circle: in_circle, courseNmae: this.detail.name}
         })
       }
     },
@@ -221,6 +219,7 @@ export default {
     },
     setConfig(params) {
       let shareInfo = this.shareInfo
+      let that = this
       wx.config({
         debug: false, // 开启调试模式,
         appId: params.appId, // 必填，企业号的唯一标识，此处填写企业号corpid
@@ -236,7 +235,7 @@ export default {
           link: shareInfo.url,
           imgUrl: shareInfo.cover,
           success: function(res) {
-            this.$toast.top('分享成功！')
+            that.$toast.top('分享成功！')
           },
         })
       //分享给朋友
@@ -246,7 +245,7 @@ export default {
           link: shareInfo.url,
           imgUrl: shareInfo.cover,
           success: function() {
-            this.$toast.top('分享成功！')
+            that.$toast.top('分享成功！')
           }
         })
     },
@@ -271,6 +270,11 @@ export default {
           this.$toast.top(res.msg)
         }
       })
+    }
+  },
+  filters: {
+    toMin(val) {
+      return parseInt(val/60) + '分钟'
     }
   },
   components: {

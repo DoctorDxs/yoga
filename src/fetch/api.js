@@ -438,7 +438,7 @@ export function changUserInfo(params) {
 
 // 获取系统消息
 export function getSysMsg(params) {
-  return fetch(`/api/notification/system`)
+  return fetch(`/api/notification/system?page=${params}`)
 }
 
 /**

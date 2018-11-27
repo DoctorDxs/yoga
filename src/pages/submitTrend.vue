@@ -15,26 +15,26 @@
         <img src="../assets/video_icon.png" alt="" class="video-icon"> 
       </div>
       <div class="add-img-box add-img" v-if='imgs.length != 0 && imgs.length < 9'>
-        <img src="../assets/issue_addphoto@3x.png" alt="" class="add-img">
-        <input type="file" @change="selectImg" class="input-img" name="img1" accept="image/*" ref="inputImg1">
+        <img src="../assets/issue_addphoto@3x.png" alt="" class="add-img" >
+        <input type="file" @change="selectImg($event)" class="input-img" name="img1" accept="image/*" ref="inputImg1">
       </div>
     </div>
     <div class="add-trend-btn">
       <div class="add-btns-box">
-        <div class="add-img-btn" @click='videoUrl === "" ?  "" : toast()'>
+        <div class="add-img-btn" @click='videoUrl === "" ?  "" : toast()' :style="videoUrl ? 'opacity: 0.5' : 'opacity: 1'">
           <img src="../assets/issue_photo_icon@3x.png" alt="">
           <span>图片</span>
-          <input type="file" @change="selectImg" class="input-img1" name="img2" accept="image/*" ref="inputImg2" v-if='videoUrl === ""'>
+          <input type="file" @change="imgs.length < 9 ? selectImg($event) : imgToast()" :disabled='videoUrl ? true : false' class="input-img1" name="img2" accept="image/*" ref="inputImg2" v-if='videoUrl === ""'>
         </div>
-        <div class="add-video-btn" @click='imgs.length === 0 ? "" : toast()'>
+        <div class="add-video-btn" @click='imgs.length === 0 ? "" : toast()' :style="imgs.length ? 'opacity: 0.5' : 'opacity: 1'">
           <img src="../assets/issue_phptp_icon@3x.png" alt="">
           <span>视频</span>
-          <input type="file" @change='selectVideo' class="input-img1" accept="video/*" ref="inputVideo" v-if='imgs.length == 0'>
+          <input type="file" @change='selectVideo' class="input-img1" accept="video/*" :disabled='imgs.length ? true : false' ref="inputVideo" v-if='imgs.length == 0'>
         </div>
       </div>
       <!-- 发问题有title就行 -->
       <div :class="[title !=='' ?  'can-submit' : '' , 'submit-trend-btn']"  @click="submitTrends" v-if='type == 2'>发表</div>
-      <div :class="[content !=='' ?  'can-submit' : '' , 'submit-trend-btn']"  @click="submitTrends" v-if='type == 1'>发表</div>
+      <div :class="[content !==''  ?  'can-submit' : '' , 'submit-trend-btn']"  @click="submitTrends" v-if='type == 1'>发表</div>
     </div>
     <div class="loading-bg" v-if='showLoading'>
       <loading></loading>
@@ -65,6 +65,12 @@ export default {
     const query = this.$route.query
     this.type = query.type
     this.id  = query.group_id
+    this.imgs = []
+    this.videoUrl = ''
+    this.showLoading = false
+    this.content = ''
+    this.title = ''
+    this.videoId = ''
     if (query.type == 1) {
       document.title = '发动态'; 
     } else if (query.type == 2) {
@@ -80,19 +86,27 @@ export default {
       })
     },
     selectImg(e) {
-      const inputFile = this.$refs.inputImg1 || this.$refs.inputImg2
-      if(inputFile.files[0].length !== 0){ 
+      const inputFile = e.target.files
+      const inputImg1 = this.$refs.inputImg1
+      const inputImg2 = this.$refs.inputImg2
+      if(inputFile.length){ 
         let data = new FormData();
-        data.append('file', inputFile.files[0]);
+        data.append('file', inputFile[0]);
         data.append('type', 6)
         this.showLoading = true
         postImg(data).then(res => {
           this.showLoading = false
+          if (inputImg1) {
+            inputImg1.value = '';
+          };
+          if (inputImg2) {
+            inputImg2.value = '';
+          };
           if (res.state == 200) {
             if (this.imgs.length < 10) {
               this.imgs.push(res.data[0])
+              
             }
-            inputFile.value = ''
           } else {
             this.$toast.top(res.msg)
           }
@@ -111,10 +125,8 @@ export default {
           error: function(result){//上传失败时的回调函数
             that.showLoading = false
             that.$toast.top('上传失败')
-              console.log(result)
           },
           finish: function(result){//上传成功时的回调函数
-          console.log(result)
             that.showLoading = false
             that.videoUrl = result.videoUrl
             that.videoId = result.fileId
@@ -125,6 +137,9 @@ export default {
     },
     toast() {
       this.$toast.top('图片或视频只能上传一种！')
+    },
+    imgToast() {
+      this.$toast.top('最多只能只能上传9张图片！')
     },
     deleteImg(url, index) {
       this.showLoading = true
@@ -153,7 +168,7 @@ export default {
     },
     submitTrends() {
       if (this.type == 1) {
-        if (this.content || this.imgs.length) {
+        if (this.content) {
           const params = {
             type: this.type,
             content:　this.content,
@@ -194,7 +209,6 @@ export default {
           this.$router.go(-1)
         } else {
           this.$toast.top(res.msg)
-          this.$router.go(-1)
         };
         let trendUpdate = JSON.parse(localStorage.getItem('trendUpdate'))
         trendUpdate.doWhat = 2
@@ -370,7 +384,6 @@ export default {
 
 .problem-title input {
   font-size: 32px;
-  line-height: 100px;
   font-weight: 600;
   color: #444C52;
   border: 0;

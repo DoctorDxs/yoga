@@ -52,6 +52,7 @@ export default {
             }
             $state.loaded();
           } else {
+            this.sysList = []
             $state.complete()
           }
           

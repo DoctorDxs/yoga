@@ -5,7 +5,7 @@
         
         <div class="camp-title">{{item.name}}</div>
         <div class="camp-info"><span>{{item.day_count}}</span> <span>{{item.subscribe_num}}人报名</span></div>
-        <div class="active-camp" :style="item.color ? 'color:' + item.color : ''">限时免费学习</div>
+        <div class="active-camp" :style="item.color ? 'color:' + item.color : ''">{{ item.font}}</div>
         <div class="camp-cover"><img :src="item.goods_cover" alt=""></div>
       </div>
       <!-- <infinite-loading @infinite="infiniteHandler">
@@ -52,9 +52,6 @@ export default {
 
 .camp-list-item {
   height: 310px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   margin-bottom: 20px;
   position: relative;
 }
@@ -64,7 +61,7 @@ export default {
 }
 
 .camp-title, .camp-info, .active-camp {
-  position: relative;
+  position: absolute;
   z-index: 1;
 }
 
@@ -72,24 +69,27 @@ export default {
   font-size: 32px;
   color: #444C52;
   font-weight: 600;
+  top: 80px;
 }
 
 .camp-info {
   font-size: 24px;
   color: #808C92;
   margin: 18px 0 38px;
+  top: 118px;
 }
 
 .active-camp {
-  width: 200px;
+  padding: 0 30px;
   height: 42px;
-  line-height: 42px;
+  line-height: 44px;
   text-align: center;
   border-radius: 42px;
   font-size: 28px;
   color: #fff;
   font-weight: 600;
   background: #B78FDA;
+  top: 190px;
 }
 
 .camp-cover {

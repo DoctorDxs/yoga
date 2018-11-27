@@ -43,12 +43,12 @@
           <img :src="item.video_cover" alt="" class="video-cover" v-show="videoIndex != index ">
           <img src="../assets/class_play_icon@3x.png" alt="" class="video-icon" @click.stop="playVideo('videoTime' +index ,index)" v-show="videoIndex != index"> 
         </div>
-        <div class="trend-problem-title" v-if='item.type == 1'>
+        <div class="trend-problem-title" v-if='item.type != 1'>
           <img src="../assets/circle_question_icon@3x.png" alt="">
           <div class="trend-problem-question">{{item.content}}</div>
         </div>
 
-         <div class="trend-problem-title" v-if='item.type != 1' @click.stop="linkCourse(item.group_id, item.group_type)">
+         <div class="trend-problem-title" v-if='item.type == 1' @click.stop="linkCourse(item.group_id, item.group_type)">
           <img :src="item.group_cover" alt="">
           <div class="course-desc">
             <div>{{item.group_name}}</div>
@@ -368,8 +368,12 @@ export default {
     background: #F4F6F9;
     width: 200px;
     height: 200px;
-    margin-right: 8px;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
+  }
+
+  .trend-img4 > div:nth-child(3n-1) {
+    margin-right: 5px;
+    margin-left: 5px;
   }
 
   .trend-img4 > div img {
@@ -389,7 +393,6 @@ export default {
     background: #F4F6F9;
     width: 200px;
     height: 200px;
-    margin-top: 6px;
   }
 
   .trend-img3 > div img {
@@ -484,24 +487,7 @@ export default {
     margin-left: 8px;
   }
 
-    .trend-img4 {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-  }
 
-  .trend-img4 > div {
-    background: #F4F6F9;
-    width: 200px;
-    height: 200px;
-    margin-right: 6px;
-    margin-bottom: 10px;
-  }
-
-  .trend-img4 > div img {
-    width: 200px;
-    height: 200px;
-  }
 
   
 .course-desc > div:nth-child(1) {

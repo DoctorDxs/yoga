@@ -445,9 +445,9 @@ export default {
         postImg(data).then(res => {
           this.showLoading = false
           if (res.state == 200) {
-            if (this.imgs.length < 10) {
-              this.imgs.push(res.data[0])
-            }
+            
+            this.imgs = res.data
+            
             inputFile.value = ''
           } else {
             this.$toast.top(res.msg)
@@ -560,6 +560,8 @@ export default {
             }
             this.comments = comments
           }
+        } else {
+          this.$toast.top(res.msg)
         }
       })
     },

@@ -219,7 +219,7 @@ export default {
 
     setConfig(params) {
       wx.config({
-        debug: true, // 开启调试模式,
+        debug: false, // 开启调试模式,
         appId: params.appId, // 必填，企业号的唯一标识，此处填写企业号corpid
         timestamp: params.timeStamp, // 必填，生成签名的时间戳
         nonceStr: params.nonceStr, // 必填，生成签名的随机串
@@ -347,7 +347,7 @@ export default {
   font-size: 30px;
   height: 100%;
   width: 480px;
-  color: rgb(68,77,82)
+  color: #ABB4BB;
 }
 
 .input-item input::-webkit-input-placeholder{

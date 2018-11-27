@@ -1,6 +1,6 @@
 <template>
   <div class="msgDetail-page">
-    <div class="trend-msg" v-for='(item, index) in msgList' :key='index' @click.stop="linkDetail(item.link_id, item.link_type)">
+    <div class="trend-msg" v-for='(item, index) in msgList' :key='index' @click.stop="linkDetail(item.link_id, item.link_type, index, item.id)">
       <div class="msg-type" >
         <div class="msg-title">
           <div class="msg-type-icon">
@@ -14,10 +14,11 @@
           </div>
         </div>
         <div>
-          <div class="msg-time" :style='item.is_read == "0" ? "color: #D9DEEC" : ""'>{{item.time_desc}}</div>
+          <div class="msg-time" :style='item.is_read == "1" ? "color: #D9DEEC" : ""'>{{item.time_desc}}</div>
         </div>
       </div>
     </div>
+    <div class="no-data-icon" v-if='!msgList.length'><img src="../assets/all_none@3x.png" alt="" ></div>
     <infinite-loading @infinite="infiniteHandler" >
       <div slot="no-more" class="no-more-data">没有更多了...</div>
       <div slot="no-results"> </div>
@@ -58,7 +59,8 @@ export default {
       })
     },
     // 跳转到详情
-    linkDetail(id, type, index) {
+    linkDetail(id, type, index, read_id) {
+      this.readMSG(read_id, index) 
       if(type == 'news') {
         this.$router.push({
           name: 'trendDetail', query: {id: id}
@@ -71,16 +73,19 @@ export default {
         this.$router.push({
           name: 'questionDetail', query: {id: id}
         })
-      };
-      this.updateData = false
-      this.readMSG(id, index) 
+      } else {
+        this.$toast.top('该动态已被删除！')
+      }
+      
     },
     readMSG(id, index) {
       msgRead({id: id}).then(res => {
         if (res.state == 200) {
           let msgList = this.msgList
-          msgList.is_read = '1'
+          msgList[index].is_read = '1'
           this.msgList = msgList
+        } else {
+          this.$toast.top(res.msg)
         }
       })
     },

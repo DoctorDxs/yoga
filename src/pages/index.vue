@@ -47,7 +47,7 @@
       <div @click="addClass"><img src="../assets/practice_add_icon@3x.png" alt=""><span>添加课程</span></div>
     </div>
     <infinite-loading @infinite="infiniteHandler">
-      <div slot="no-more" class="no-more-data">没有更多了...</div>
+      <div slot="no-more" class="no-more-data">{{myPracticeList.length > 9 ? '没有更多了...' : ''}}</div>
       <div slot="no-results"> </div>
     </infinite-loading>
     <nav-bar></nav-bar>
@@ -85,6 +85,9 @@ export default {
     } else {
       window.location.href = 'https://yoga.17link.cc/api/my/web_auth?page=https://yoga.17link.cc/dist/index.html' 
     }
+    
+  },
+  activated() {
     document.title = '练习';
   },
   mounted() {
@@ -271,7 +274,7 @@ export default {
 
   .user-login-name img {
     height: 32px;
-    width: 72px;
+    /* width: 72px; */
     margin-left: 16px;
   }
 

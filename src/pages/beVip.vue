@@ -51,7 +51,7 @@
           <div class="svip-subdesc">课程免费观看/折扣购买</div>
         </div>
       </div>
-      <div class="vip-limit-time" v-if='userInfo.vip_ended_at'>你的会员{{userInfo.vip_ended_at}}到期</div>
+      <div class="vip-limit-time" v-if='userInfo.vip_ended_at'>你的会员{{userInfo.vip_ended_at | limitTime}}到期</div>
       <div class="svip-bottom">
         <div class="select-drop" @click="showSvpiSelectModal">
           <div class="select-type">
@@ -83,7 +83,7 @@
           <div class="svip-subdesc">点亮会员标识</div>
         </div>
       </div>
-      <div class="vip-limit-time" v-if='userInfo.vip_ended_at'>你的会员{{userInfo.vip_ended_at}}到期</div>
+      <div class="vip-limit-time" v-if='userInfo.vip_ended_at'>你的会员{{userInfo.vip_ended_at | limitTime}}到期</div>
       <div class="svip-bottom">
         <div class="select-drop" @click="showVpiSelectModal">
           <div class="select-type">
@@ -231,11 +231,19 @@ export default {
             this.vipInfo = res.data
             this.selectPrice = res.data.price_year_discount
             this.selectOldPrice = res.data.price_year
-
           } else {
-            this.svipInfo = res.data
-            this.selectsPrice = res.data.price_year_discount
-            this.selectOldsPrice = res.data.price_year_discount
+            if (this.userInfo.status == 1 ) {
+              this.svipInfo = res.data
+              this.selectsPrice = res.data.upgrade_p_vip_price
+              this.selectOldsPrice = 0
+              this.svipType = 0
+              this.toSvip = true
+            } else {
+              this.svipInfo = res.data
+              this.selectsPrice = res.data.price_year_discount
+              this.selectOldsPrice = res.data.price_year
+            }
+            
           }
         }
       })
@@ -340,9 +348,17 @@ export default {
           this.$router.go(-1)
         }
       })
-      
     },
   },
+  filters: {
+    limitTime(value) {
+      let time = new Date(value.replace(/-/g, "/"))
+      let year = time.getFullYear()
+      let month = time.getMonth() + 1
+      let day = time.getDate()
+      return year + '年' + month + '月' + day + '日'
+    }
+  }
 }
 </script>
 

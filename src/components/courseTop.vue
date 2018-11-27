@@ -16,7 +16,7 @@
             <img :src="detail.goods_cover" alt="">
             <div class='course-desc'>
               <div>{{detail.name}}</div>
-              <div>课程</div>
+              <div>{{type == 1 ? '训练营' : '课程'}}</div>
             </div>
           </div>
           <div class="send-title">赠与伽人 共同成长</div>
@@ -86,7 +86,6 @@ export default {
       setTimeout(() => {
         getShareInfo(params).then(res => {
           if (res.state == 200) {
-            alert(JSON.stringify(res))
             this.shareInfo = res.data
             this.setConfig()
           }
@@ -142,6 +141,7 @@ export default {
       }
     },
     buyNow() {
+      console.log(this.detail)
       let params;
       if (this.detail.type == '2') {
         params = {
@@ -150,7 +150,7 @@ export default {
         }
       } else {
         params = {
-          phase_id: this.detail.phase_id,
+          phase_id: this.detail.now_phase_id,
           group_id: this.detail.id,
           is_web: 1
         }

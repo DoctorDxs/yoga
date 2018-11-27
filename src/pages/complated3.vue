@@ -83,7 +83,7 @@ export default {
     this.good_name = query.good_name
     this.type = query.type
     this.group_id = query.group_id
-    this.videoTime = videoTime
+    this.videoTime = query.videoTime
     let userInfo = localStorage.getItem("userInfo")
     if (userInfo) {
       userInfo = JSON.parse(userInfo)
