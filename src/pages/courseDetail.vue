@@ -1,5 +1,6 @@
 <template>
   <div class="course-detail-page">
+    <bg></bg>
     <course-top :detail='detail' ref='courseTop'></course-top>
     <div class="course-tab">
 
@@ -15,7 +16,7 @@
     <div class="tab-item-detail">
       <!-- 详情 -->
       <div v-if='tabIndex == 0'>
-        <div class="students-study" v-if='detail.circle && detail.circle.length'>
+        <div class="students-study">
           <div class="students-avatar">
             <img :src="item" alt="" v-for='(item, index) in detail.circle' :key='index'>
           </div>
@@ -50,7 +51,7 @@
       </div>
       <!-- 圈子 -->
       <div v-if='tabIndex == 2'>
-        <trend-list :evaluteList='evaluteList' @getTrend='getTrend'></trend-list>
+        <trend-list :evaluteList='evaluteList' @getTrend='getTrend' @updataTrends='updataTrends'></trend-list>
       </div>
     </div>
 
@@ -270,6 +271,10 @@ export default {
           this.$toast.top(res.msg)
         }
       })
+    },
+    updataTrends($state) {
+      this.page = 1
+      this.evaluteList = []
     }
   },
   filters: {
@@ -326,7 +331,6 @@ export default {
 
 .tab-item-detail {
   margin-top: 20px;
-  min-height: 400px;
 }
 
 .students-study {

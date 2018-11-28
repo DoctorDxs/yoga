@@ -1,6 +1,6 @@
 <template>
   <div class="setting-page">
-    
+    <bg></bg>
     <div class="set-item" @click="linkAccount">
       <div>帐号设置</div>
       <div><img src="../assets/class_next_icon@3x.png" alt=""></div>
@@ -44,7 +44,6 @@ export default {
     document.title = '设置';
   },
   mounted() {
-    document.getElementsByClassName('setting-page')[0].style.minHeight = window.innerHeight + 'px'
   },
   methods: {
     linkFeedback() {

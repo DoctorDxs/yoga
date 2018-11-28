@@ -1,5 +1,6 @@
 <template>
   <div class="accountSet-page">
+    <bg></bg>
     <div class="account-avatar" >
       <div>头像</div>
       <div><img :src="dataUrl" alt=""></div>
@@ -140,7 +141,6 @@ export default {
     };
   },
   mounted() {
-    document.getElementsByClassName('accountSet-page')[0].style.minHeight = window.innerHeight + 'px'
   },  
   methods: {
     linkBind() {

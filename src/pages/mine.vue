@@ -43,7 +43,7 @@
       <div class="line-left-border"></div>
       <div>我的动态</div>
     </div>
-    <trend-list :evaluteList='evaluteList' @getTrend='getTrend'></trend-list>
+    <trend-list :evaluteList='evaluteList' @getTrend='getTrend' @updataTrends='updataTrends'></trend-list>
     <nav-bar></nav-bar>
   </div>
      
@@ -103,13 +103,16 @@ export default {
             this.evaluteList.push(...lists)
             $state.loaded();
           } else {
-            this.sysList = []
             $state.complete()
           }
         } else {
           this.$toast.top(res.msg)
         }
       })
+    },
+    updataTrends($state) {
+      this.page = 1
+      this.evaluteList = []
     }
   },
   components: {

@@ -456,3 +456,8 @@ export function feedBack(params) {
 export function collectList(params) { 
   return fetch(`/api/my/fav?type=${params.type}&page=${params.page}`)
 }
+
+// 获取 关于的信息
+export function getAbout() {
+  return fetch(`/api/my/about`)
+}

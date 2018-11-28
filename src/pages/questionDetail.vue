@@ -1,12 +1,13 @@
 <template>
   <div class="trendDetail-page">
+    <bg></bg>
     <div class="trend-list" @click="commentUser">
       <div class="trend-avatar"><img :src="trendDetails.user_avatar" alt=""></div>
       <div class="trend-info">
         <div @click.stop="shareTips" class="share-btn"><img src="../assets/circle_share_nor_icon@3x.png" alt=""></div>
         <div class='trend-username'>{{trendDetails.username}} <span class="answers-tips">提了一个问题</span> </div>
         <div class="trend-time">{{trendDetails.time_desc}}</div>
-        <div class="trend-content">
+        <div class="trend-content" v-if="trendDetails.content">
           {{trendDetails.content}}
         </div>
         <div class="trend-desc" v-if='trendDetails.desc'>
@@ -25,9 +26,6 @@
         <div class="video-box" v-if='trendDetails.video_path'>
           <video 
             @ended="endVideo()"
-            x5-video-player-type="h5"
-            playsinline
-            webkit-playsinlin
             :src="trendDetails.video_path"
             ref='videoTime' v-show="!showPost">
           </video>
@@ -49,7 +47,7 @@
       <div>{{trendDetails.evaluate_sum ? trendDetails.evaluate_sum + '个回答' : '暂无回答'}}</div>
     </div>
 
-    <div class="evaluate-list">
+    <div class="evaluate-list" v-if='comments.length'>
       <div v-for='(item, index) in comments' :key='index' class="mar-boot">
         <div class="trend-user" @click.stop="item.is_mine ? linkAnswers(item.id,index) : replay(true ,item.id, item.username, item.index, item.id)">
           <div class="trend-user-avatar">
@@ -84,7 +82,7 @@
               <div v-for='(commentItem, commentIndex) in item.comments' :key='commentIndex'>
                 <span class="evaluate-user" @click.stop="replay(false ,commentItem.id, commentItem.username, item.index, item.id)">{{commentItem.username}}</span>
                 <span class="replay-text" v-if='commentItem.parent_username'> 回复 </span>
-                <span class="evaluate-user">{{commentItem.parent_username}}</span>:
+                <span class="evaluate-user" v-if='commentItem.parent_username'>{{commentItem.parent_username}}</span>:
                 <span class="evaluate-content" @click="commentItem.is_mine == '1' ? showModal(commentItem.id,commentIndex) : ''">{{commentItem.content}} </span>  
                 
                 <span class="look-img-btn" v-if='commentItem.img_paths.length > 0' @click.stop="previewImage({currentImg: commentItem.img_paths[0], currentImgLists: commentItem.img_paths})">查看图片</span>
@@ -192,17 +190,36 @@ export default {
     }
     
   },
+  mounted() {
+    this.addResize()
+  },
   methods: {
      infiniteHandler($state) {
       this.state = $state
       this.getData($state)
     },
-     playVideo() {
+    playVideo() {
       this.showPost = false
       this.$refs.videoTime.play()
+      this.addResize()
     },
-    endVideo() {
-      
+    // 监控shi'pin 全屏
+    addResize() {
+      window.addEventListener('resize', this.watchFullScreen, false)
+    },
+
+    watchFullScreen() {
+      if (!this.checkFull()) {
+        this.showPost = true
+        this.$refs.videoTime.pause()
+      } else {
+        window.removeEventListener('resize', this.watchFullScreen, false)
+      }
+    },
+    checkFull() {
+      let isFull = document.fullscreenEnabled || window.fullScreen || document.webkitIsFullScreen || document.msFullscreenEnabled;
+      if (isFull === undefined) isFull = false;
+      return isFull;
     },
     getData($state) {
       getSomeoneTrend({id:　this.id, page: this.page}).then(res => {
@@ -309,9 +326,6 @@ export default {
       addTrend(params).then(res => {
         if (res.state == 200) {
           this.$toast.top(res.msg)
-          // this.comments = []
-          // this.page = 1
-          // this.getData(this.state)
           this.trendId = res.data.id
           this.updataTrend(res.data)
           this.content = ''
@@ -328,13 +342,14 @@ export default {
           if (res.state == 200) {
             let data = res.data
             data.comments = []
-
-            
             // 添加一条新动态
             if(this.replayInput == 1) {
               this.comments.unshift(data)
+              let trendDetails = this.trendDetails.evaluate_sum
+              trendDetails.evaluate_sum = trendDetails.evaluate_sum - 0 + 1
+              this.trendDetails = trendDetails
               let trendUpdate = JSON.parse(localStorage.getItem('trendUpdate'))
-              trendUpdate.doWhat = 3
+              trendUpdate.doWhat = 2
               localStorage.setItem('trendUpdate', JSON.stringify(trendUpdate))
             } else {
               this.comments.splice(this.trendIndex, 1, data)
@@ -345,10 +360,6 @@ export default {
           }
         })
     },
-
-
-
-
     // 评论
     comment(params) {
       replayOrCommit(params).then(res => {
@@ -372,9 +383,7 @@ export default {
         postImg(data).then(res => {
           this.showLoading = false
           if (res.state == 200) {
-            
             this.imgs = res.data
-            
             inputFile.value = ''
           } else {
             this.$toast.top(res.msg)
@@ -412,7 +421,6 @@ export default {
 
     setConfig(params) {
       let shareInfo = this.shareInfo
-      
       wx.config({
         debug: false, 
         appId: params.appId, 
@@ -429,7 +437,6 @@ export default {
             'onMenuShareTimeline'
           ]
         });
-
         // 分享到盆友圈
         wx.onMenuShareTimeline({
           title: shareInfo.title,

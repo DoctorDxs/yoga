@@ -214,3 +214,192 @@ export default new Router({
     }
   }
 })
+
+
+
+
+// import Vue from 'vue'
+// import Router from 'vue-router'
+// import index from '@/pages/index'
+
+// Vue.use(Router)
+
+// export default new Router({
+//   routes: [
+//     {
+//       path: '/',
+//       name: 'index',
+//       component: index
+//     },
+//     {
+//       path: '/bindTel',
+//       name: 'bindTel',
+//       component: resolve => require(['@/pages/bindTel'],resolve)
+//     },
+//     {
+//       path: '/inputCode',
+//       name: 'inputCode',
+//       component: resolve => require(['@/pages/inputCode'],resolve)
+//     },
+//     {
+//       path: '/classroom',
+//       name: 'classroom',
+//       component: resolve => require(['@/pages/classroom'],resolve)
+//     },
+//     {
+//       path: '/courseDetail',
+//       name: 'courseDetail',
+//       component: resolve => require(['@/pages/courseDetail'],resolve)
+//     },
+//     {
+//       path: '/videoDetail',
+//       name: 'videoDetail',
+//       component: resolve => require(['@/pages/videoDetail'],resolve)
+//     },
+//     {
+//       path: '/complated1',
+//       name: 'complated1',
+//       component: resolve => require(['@/pages/complated1'],resolve)
+//     },
+//     {
+//       path: '/complated2',
+//       name: 'complated2',
+//       component: resolve => require(['@/pages/complated2'],resolve)
+//     },
+//     {
+//       path: '/complated3',
+//       name: 'complated3',
+//       component: resolve => require(['@/pages/complated3'],resolve)
+//     },
+//     {
+//       path: '/campDetail',
+//       name: 'campDetail',
+//       component: resolve => require(['@/pages/campDetail'],resolve)
+//     },
+//     {
+//       path: '/buyCourse',
+//       name: 'buyCourse',
+//       component: resolve => require(['@/pages/buyCourse'],resolve),
+//       meta: {requirePhone: true}
+//     },
+//     {
+//       path: '/selectType',
+//       name: 'selectType',
+//       component: resolve => require(['@/pages/selectType'],resolve)
+//     },
+//     {
+//       path: '/community',
+//       name: 'community',
+//       component: resolve => require(['@/pages/community'],resolve)
+//     },
+//     {
+//       path: '/trendDetail',
+//       name: 'trendDetail',
+//       component: resolve => require(['@/pages/trendDetail'],resolve)
+//     },
+//     {
+//       path: '/questionDetail',
+//       name: 'questionDetail',
+//       component: resolve => require(['@/pages/questionDetail'],resolve)
+//     },
+//     {
+//       path: '/moreEval',
+//       name: 'moreEval',
+//       component: resolve => require(['@/pages/moreEval'],resolve)
+//     },
+//     {
+//       path: '/answerDetail',
+//       name: 'answerDetail',
+//       component: resolve => require(['@/pages/answerDetail'],resolve)
+//     },
+//     {
+//       path: '/submitTrend',
+//       name: 'submitTrend',
+//       component: resolve => require(['@/pages/submitTrend'],resolve)
+//     },
+//     {
+//       path: '/mine',
+//       name: 'mine',
+//       component: resolve => require(['@/pages/mine'],resolve),
+//       meta: {requirePhone: true}
+//     },
+//     {
+//       path: '/mineMsg',
+//       name: 'mineMsg',
+//       component: resolve => require(['@/pages/mineMsg'],resolve),
+//     },
+//     {
+//       path: '/msgDetail',
+//       name: 'msgDetail',
+//       component: resolve => require(['@/pages/msgDetail'],resolve),
+//     },
+//     {
+//       path: '/sysMsgDetail',
+//       name: 'sysMsgDetail',
+//       component: resolve => require(['@/pages/sysMsgDetail'],resolve),
+//     },
+//     {
+//       path: '/collections',
+//       name: 'collections',
+//       component: resolve => require(['@/pages/collections'],resolve),
+//     },
+//     {
+//       path: '/giftRecord',
+//       name: 'giftRecord',
+//       component: resolve => require(['@/pages/giftRecord'],resolve),
+//     },
+//     {
+//       path: '/sendPage',
+//       name: 'sendPage',
+//       component: resolve => require(['@/pages/sendPage'],resolve),
+//     },
+//     {
+//       path: '/receive',
+//       name: 'receive',
+//       component: resolve => require(['@/pages/receive'],resolve),
+//     },
+//     {
+//       path: '/setting',
+//       name: 'setting',
+//       component: resolve => require(['@/pages/setting'],resolve),
+//     },
+//     {
+//       path: '/sysSetting',
+//       name: 'sysSetting',
+//       component: resolve => require(['@/pages/sysSetting'],resolve),
+//     },
+//     {
+//       path: '/feedback',
+//       name: 'feedback',
+//       component: resolve => require(['@/pages/feedback'],resolve),
+//     },
+//     {
+//       path: '/accountSet',
+//       name: 'accountSet',
+//       component: resolve => require(['@/pages/accountSet'],resolve),
+//     },
+//     {
+//       path: '/abouts',
+//       name: 'abouts',
+//       component: resolve => require(['@/pages/abouts'],resolve),
+//     },
+//     {
+//       path: '/bindAccount',
+//       name: 'bindAccount',
+//       component: resolve => require(['@/pages/bindAccount'],resolve),
+//     },
+//     {
+//       path: '/beVip',
+//       name: 'beVip',
+//       component: resolve => require(['@/pages/beVip'],resolve),
+//     }
+//   ],
+//   scrollBehavior (to, from, savedPosition) {
+//     if (savedPosition) {
+//       return savedPosition
+//     } else {
+//       return { x: 0, y: 0 }
+//     }
+//   }
+// })
+

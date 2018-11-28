@@ -1,6 +1,6 @@
 <template>
   <div class="trend-comp">
-    
+    <bg></bg>
     <div class="trend-list" v-for='(item, index) in evaluteList' :key='index' @click="linkDetail(item.type, item.id, item.group_type, index)">
       <div class="trend-avatar"><img :src="item.user_avatar" alt=""></div>
       <div class="trend-info">
@@ -38,6 +38,8 @@
           <video 
              @ended="endVideo()"
              :src="item.video_path"
+             x5-video-player-type="h5" 
+             x5-video-player-fullscreen="true"
              :ref='"videoTime"+index' v-show="videoIndex == index">
           </video>
           <img :src="item.video_cover" alt="" class="video-cover" v-show="videoIndex != index ">
@@ -120,7 +122,9 @@ export default {
       }, 1500)
     }
   },
-  
+  mounted() {
+    this.addResize()
+  },
   methods: {
     infiniteHandler($state) {
       this.state = $state
@@ -129,21 +133,21 @@ export default {
 
     updateTrend(trendUpdate) {
       const evaluteList = this.evaluteList
-      const id = trendUpdate.trendId
       const trendIndex = trendUpdate.trendIndex
       const doWhat = trendUpdate.doWhat
       if (doWhat == 1) {
+        const id = evaluteList[trendIndex].id
         updataTrend(id).then(res => {
           if (res.state == 200) {
             this.evaluteList.splice(trendIndex, 1, res.data)
+          } else {
+            this.evaluteList.splice(trendIndex, 1)
           }
         })
       } else if (doWhat == 2) {
-        this.evaluteList.splice(trendIndex, 1)
-      } else if (doWhat == 3) {
         this.$emit('updataTrends', this.$state)
+        localStorage.removeItem('trendUpdate')
       }
-      localStorage.removeItem('trendUpdate')
     },
 
 
@@ -166,7 +170,6 @@ export default {
       this.previewImages = params
       this.getSign()
     },
-
     getSign() {
       getSign(encodeURIComponent(location.href)).then(res => {
         if (res.state == 200) {
@@ -214,8 +217,8 @@ export default {
           name: 'answerDetail', query: {id: id, type: type, index: index}
         }) 
       };
-      // 0 未操作  1 更新某条数据  2 删除某条数据 3 刷新整个页面
-      localStorage.setItem('trendUpdate',JSON.stringify({trendIndex: index, doWhat: 0, trendId: id}))
+      // 0 未操作  1 更新某条数据  2删除某条数据 2 刷新整个页面
+      localStorage.setItem('trendUpdate',JSON.stringify({trendIndex: index, doWhat: 0}))
     },
     linkCourse(id, type) {
       if (type === '1') {
@@ -252,12 +255,34 @@ export default {
     playVideo(ele, index) {
       this.videoIndex = index
       this.showPost = false
+      this.addResize()
       this.$refs[ele][0].play()
+      this.currentVideo = this.$refs[ele][0]
     },
     endVideo() {
-
+      this.currentVideo.webkitExitFullScreen()
+      this.currentVideo.srcObject = new window.webkitMediaStream
+      this.showPost = true
     },
 
+    // 监控shi'pin 全屏
+    addResize() {
+      window.addEventListener('resize', this.watchFullScreen, false)
+    },
+
+    watchFullScreen() {
+      if (!this.checkFull()) {
+        this.showPost = true
+        this.currentVideo.pause()
+      } else {
+        window.removeEventListener('resize', this.watchFullScreen, false)
+      }
+    },
+    checkFull() {
+      let isFull = document.fullscreenEnabled || window.fullScreen || document.webkitIsFullScreen || document.msFullscreenEnabled;
+      if (isFull === undefined) isFull = false;
+      return isFull;
+    },
   },
   
   props: {

@@ -1,5 +1,6 @@
 <template>
   <div class="trendDetail-page">
+    <bg></bg>
     <div class="trend-list" @click="commentUser">
       <div class="trend-avatar"><img :src="trendDetails.user_avatar" alt=""></div>
       <div class="trend-info">
@@ -67,7 +68,7 @@
       <div>评论列表</div>
     </div>
 
-    <div class="evaluate-list">
+    <div class="evaluate-list" v-if='comments.length'>
       <div v-for='(item, index) in comments' :key='index' class="mar-boot">
         <div class="trend-user" @click.stop="item.is_mine == '1' ? showdelModal(item.id, index, item.id, 2) : replay(item.id, item.username,item.id, index)">
           <div class="trend-user-avatar">
@@ -101,8 +102,8 @@
             <div class="user-reply" v-if='item.comments.length > 0'>
               <div v-for='(commentItem, commentIndex) in item.comments' :key='commentIndex'>
                 <span class="evaluate-user" @click.stop="replay(commentItem.id, commentItem.username, item.id, index)">{{commentItem.username}}</span>
-                <span class="replay-text" v-if='commentItem.parent_name'> 回复 </span>
-                <span class="evaluate-user">{{commentItem.parent_name}}</span>:
+                <span class="replay-text" v-if='commentItem.parent_username'> 回复 </span>
+                <span class="evaluate-user" v-if='commentItem.parent_username'>{{commentItem.parent_username}}</span>:
                 <span class="evaluate-content" @click.stop="commentItem.is_mine == '1' ? showdelModal(commentItem.id, index, item.id, 3) : ''">{{commentItem.content}} </span>  
                 <span class="look-img-btn" v-if='commentItem.img_path.length > 0' @click.stop="previewImage({currentImg: commentItem.img_path[0], currentImgLists: commentItem.img_path})">查看图片</span>
               </div>
@@ -209,28 +210,47 @@ export default {
       }, 1500)
     }
   },
+  mounted() {
+    this.addResize()
+  },
   methods: {
     updateEval(evalUpdate) {
       const comments = this.evaluteList
-      const id = evalUpdate.commentId
       const evalIndex = evalUpdate.evalIndex
       const doWhat = evalUpdate.doWhat
       if (doWhat == 1) {
+        const id = comments[evalIndex].id
         this.evalId = id
         this.commentIndex = evalIndex
         this.replayInput = 2
         this.getupdata()
       } else if (doWhat == 2) {
         this.comments.splice(evalIndex, 1)
+        localStorage.removeItem('evalUpdate')
       }
-      localStorage.removeItem('evalUpdate')
     },
     playVideo() {
       this.showPost = false
       this.$refs.videoTime.play()
+      this.addResize()
     },
-    endVideo() {
-      
+    // 监控shi'pin 全屏
+    addResize() {
+      window.addEventListener('resize', this.watchFullScreen, false)
+    },
+
+    watchFullScreen() {
+      if (!this.checkFull()) {
+        this.showPost = true
+        this.$refs.videoTime.pause()
+      } else {
+        window.removeEventListener('resize', this.watchFullScreen, false)
+      }
+    },
+    checkFull() {
+      let isFull = document.fullscreenEnabled || window.fullScreen || document.webkitIsFullScreen || document.msFullscreenEnabled;
+      if (isFull === undefined) isFull = false;
+      return isFull;
     },
     infiniteHandler($state) {
       this.state = $state
@@ -266,7 +286,6 @@ export default {
             })
             this.page += 1;
             this.comments.push(...comments)
-            console.log(comments)
             $state.loaded();
           } else {
             $state.complete()
@@ -277,8 +296,6 @@ export default {
         }
       })
     },
-
-
     showdelModal(id,index, devalId, type) {
       // 删除 动态
       if (type == 1) {
@@ -318,7 +335,7 @@ export default {
           // 删除动态
           if (this.delType == 1) {
             let trendUpdate = JSON.parse(localStorage.getItem('trendUpdate'))
-            trendUpdate.doWhat = 2
+            trendUpdate.doWhat = 1
             localStorage.setItem('trendUpdate', JSON.stringify(trendUpdate))
             this.$router.go(-1)
           } else if (this.delType == 2) {
@@ -349,8 +366,6 @@ export default {
     hideModal() {
       this.modalShow = false
     },
-
-
     submitIdea() {
       if (this.content || this.imgs.length > 0) {
         let params;
@@ -585,7 +600,7 @@ export default {
       this.evalId = evalId
       this.content = ''
       this.imgs = []
-      this.$refs.commentInput.setAttribute('placeholder', `回复  ${username}`)
+      this.$refs.commentInput.setAttribute('placeholder', `回复  ${username + id}`)
     },
     commentUser() {
       this.replayInput = 1
@@ -599,7 +614,7 @@ export default {
         name: 'moreEval', query: {id: id, evalIndex: index}
       })
       // 0 未操作  对于评论来说（删除、和点赞） 1 更新某条数据   2 （新增）刷新整个页面
-      localStorage.setItem('evalUpdate',JSON.stringify({evalIndex: index, doWhat: 0, commentId: id}))
+      localStorage.setItem('evalUpdate',JSON.stringify({evalIndex: index, doWhat: 0}))
     },
     // 分享提示
     shareTips() {

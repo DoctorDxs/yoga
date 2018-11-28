@@ -1,5 +1,6 @@
 <template>
   <div class="sysMsg-page">
+    <bg></bg>
     <div v-for="(item, index) in sysList" :key='index' class="sysMsg-item">
       <div class="sys-avatar"><img :src="item.user_avatar" alt=""></div>
       <div class="msg-info-box">
@@ -12,7 +13,7 @@
     </div>
     <div class="no-data-icon" v-if='!sysList.length'><img src="../assets/all_none@3x.png" alt="" ></div>
     <infinite-loading @infinite="infiniteHandler">
-      <div slot="no-more" class="no-more-data">没有更多了...</div>
+      <div slot="no-more" class="no-more-data" v-if='sysList.length > 9'>没有更多了...</div>
       <div slot="no-results"> </div>
     </infinite-loading>
   </div>
@@ -33,11 +34,6 @@ export default {
   activated() {
     document.title = '系统消息';
   },
-  mounted() {
-    this.$nextTick(() => {
-      document.getElementsByClassName('sysMsg-page')[0].style.minHeight = window.innerHeight + 'px'
-    })
-  },
   methods: {
     getData($state) {
       getSysMsg(this.page).then(res => {
@@ -45,14 +41,9 @@ export default {
           const lists = res.data.data
           if (lists.length) {
             this.page += 1;
-            if (this.sysList.length && this.page == 1) {
-              return false
-            } else {
-              this.sysList.push(...lists)
-            }
+            this.sysList.push(...lists)
             $state.loaded();
           } else {
-            this.sysList = []
             $state.complete()
           }
           

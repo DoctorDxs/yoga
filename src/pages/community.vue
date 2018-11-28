@@ -1,5 +1,6 @@
 <template>
   <div class="community-page">
+    <bg></bg>
     <trend-list :evaluteList='evaluteList' @getTrend='getTrend' @updataTrends='updataTrends'></trend-list>
     <nav-bar></nav-bar>
   </div>
@@ -45,9 +46,8 @@ export default {
       })
     },
     updataTrends($state) {
-      this.evaluteList = []
       this.page = 1
-      this.getTrend($state)
+      this.evaluteList = []
     }
   },
   

@@ -1,5 +1,6 @@
 <template>
   <div class="moreEval-page">
+    <bg></bg>
     <div class="moreEval-list">
       <div class="trend-user" @click.stop="comment.is_mine == '1' ? showdelModal(comment.id, '', 1) : toComment(comment.id, comment.username)">
         <div class="trend-user-avatar">
@@ -74,15 +75,15 @@
             <div v-for='(imgTtem, imgIndex) in item.img_path' :key='imgIndex'><img :src="imgTtem" alt="" @click.stop="previewImage({currentImg: imgTtem, currentImgLists: item.img_path})"></div>
           </div>
           <div class="user-content">
-            <span v-if='item.parent_name' style="color: #5D7993;">{{item.username}}</span> 
-            <span class="replay-text" v-if='item.parent_name'> 回复 </span> 
-            <span v-if='item.parent_name' style="color: #5D7993;">{{item.parent_name}}</span> 
+            <span v-if='item.parent_username' style="color: #5D7993;">{{item.username}}</span> 
+            <span class="replay-text" v-if='item.parent_username'> 回复 </span> 
+            <span v-if='item.parent_username' style="color: #5D7993;">{{item.parent_username}}:</span> 
             <span>{{item.content}}</span>
           </div>
         </div>
       </div>
     </div>
-    <div class="no-data-icon" v-if='!replies.length'><img src="../assets/all_none@3x.png" alt="" ></div>
+    
     <div class="replay-input-box">
       <div class="replay-input">
         <input type="text" :placeholder="'回复 ' + comment.username" v-model.trim="content" ref='commentInput'>
@@ -111,6 +112,7 @@
       <div slot="no-more" class="no-more-data"> {{replies.length > 9 ? "没有更多了..." : ""}}</div>
       <div slot="no-results"> </div>
     </infinite-loading>
+    <div class="no-data-icon" v-if='!replies.length'><img src="../assets/all_none@3x.png" alt="" ></div>
   </div>
   
 </template>
@@ -134,6 +136,7 @@ export default {
     }
   },
   activated() {
+    document.title = '回复列表'
     const query = this.$route.query
     this.id = query.id
     this.type = query.type
@@ -142,7 +145,11 @@ export default {
     this.page = 1
     this.replies = []
     this.comment = {img_path: ''}
-    
+    if (this.type === 'answer') {
+      this.getData(`${this.id}?page=${this.page}&type=answer`)
+    } else {
+      this.getData(`${this.id}?page=${this.page}`)
+    }
   },
   mounted() {
     
@@ -379,11 +386,6 @@ export default {
     hideModal() {
       this.modalShow = false
     },
-
-
-
-
-
   }
   
 }

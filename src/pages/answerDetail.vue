@@ -1,5 +1,6 @@
 <template>
   <div class="answerDetail-page">
+    <bg></bg>
     <div class="trend-problem-title" @click='commentUser'>
       <img src="../assets/circle_question_icon@3x.png" alt="">
       <div class="trend-problem-question">
@@ -27,7 +28,7 @@
       </div>
       <div class="trend-user-content">
         <div class="user-content-box">
-          <div class="user-content">
+          <div class="user-content" v-if="detail.content">
             {{detail.content}}
           </div>
           <div class="trend-img1" v-if='detail.img_paths.length == 1 || detail.img_paths.length == 2'>
@@ -45,9 +46,6 @@
           <div class="video-box" v-if='detail.video_path'>
             <video 
               @ended="endVideo()"
-              x5-video-player-type="h5"
-              playsinline
-              webkit-playsinlin
               :src="detail.video_path"
               ref='videoTime' v-show="!showPost">
             </video>
@@ -59,7 +57,7 @@
             <div v-for='(item, index) in detail.comments' :key='index'>
               <span class="evaluate-user" @click="replay(item.id, item.username)">{{item.username}}</span>
               <span class="replay-text" v-if='item.parent_username'> 回复 </span>
-              <span class="evaluate-user">{{item.parent_username}}</span>:
+              <span class="evaluate-user" v-if='item.parent_username'>{{item.parent_username}}</span>:
               <span class="evaluate-content" @click="item.is_mine == '1' ? showModal(item.id, false, index) : ''">{{item.content}} </span>  
               <span class="look-img-btn" v-if='item.img_path.length > 0' @click.stop="previewImage({currentImg: item.img_path[0], currentImgLists: item.img_path})">查看图片</span>
             </div>
@@ -139,22 +137,49 @@ export default {
     this.type = query.type
     this.group_type = query.group_type
     this.id = query.id
+    this.content = ''
+    this.imgs = []
+    this.answerData = []
+    this.problem = {}
+    this.detail = {
+      img_paths: ''
+    }
+    this.comment_id = ''
+    this.deleteId = ''
+    this.showPost =true
+    
     if (query.index !== undefined || query.index !== null) {
       this.trendUpdataIndex = query.index
     };
     this.getData()
   },
   mounted() {
-    // document.getElementsByClassName('answerDetail-page')[0].style.minHeight = window.innerHeight + 'px'
+     this.addResize()
   },
 
   methods: {
     playVideo() {
       this.showPost = false
       this.$refs.videoTime.play()
+      this.addResize()
     },
-    endVideo() {
-      
+    // 监控shi'pin 全屏
+    addResize() {
+      window.addEventListener('resize', this.watchFullScreen, false)
+    },
+
+    watchFullScreen() {
+      if (!this.checkFull()) {
+        this.showPost = true
+        this.$refs.videoTime.pause()
+      } else {
+        window.removeEventListener('resize', this.watchFullScreen, false)
+      }
+    },
+    checkFull() {
+      let isFull = document.fullscreenEnabled || window.fullScreen || document.webkitIsFullScreen || document.msFullscreenEnabled;
+      if (isFull === undefined) isFull = false;
+      return isFull;
     },
     showModal(id,deleteAnswer, index) {
       this.modalShow = true
@@ -377,7 +402,6 @@ export default {
         }
       })
     },
-    
     lookAllcomment(id) {
       this.$router.push({
         name: 'moreEval', query: {id: id, type: 'answer'}

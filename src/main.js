@@ -10,6 +10,7 @@ import InfiniteLoading from 'vue-infinite-loading';
 import Toast from './plugins/toast/index';
 import loading from './plugins/loading/index';
 import modal from './plugins/modal/index';
+import bg from './plugins/bg/index';
 
 import './plugins/toast/index.css';
 import 'mint-ui/lib/style.css'
@@ -18,6 +19,7 @@ Vue.use(Mint);
 
 
 Vue.use(InfiniteLoading)
+Vue.use(bg)
 Vue.use(loading)
 Vue.use(modal)
 Vue.use(AwesomePicker);

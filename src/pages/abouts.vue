@@ -1,40 +1,62 @@
 <template>
   <div class="abouts-page">
+    <bg></bg>
     <div class="about-logo">
        
-      <div><img src="http://img2.touxiang.cn/file/20180308/8eefd445e3718259d0044314a4289060.jpg" alt=""></div>
-      <div>轻伽瑜伽</div>
-      <div>v.1.0.0</div>
+      <div><img :src="aboutData.logo" alt=""></div>
+      <div>{{aboutData.name}}</div>
+      <div>{{aboutData.android_version}}</div>
 
     </div>
-    <div class="other-items">
+    <div class="other-items" @click="showCodeModal">
       <div class="other-item">
         <div>公众帐号</div>
         <img src="../assets/class_next_icon@3x.png" alt="">
       </div>
     </div>
 
+    <div class="modal-bg" v-show="showModal" @click="hideModal">
+      <div class="modal-box" @click.stop="stopFather"><img :src="aboutData.qr_code" alt=""></div>
+    </div>
   </div>
      
 </template>
 
 <script>
-
+import {getAbout} from '../fetch/api.js'
 export default {
   name: 'abouts',
   data () {
     return {
-      
+      aboutData: {},
+      showModal: false
     }
   },
   activated() {
     document.title = '关于';
+    this.getData()
   },
   mounted() {
     document.getElementsByClassName('abouts-page')[0].style.minHeight = window.innerHeight + 'px'
   },
   methods: {
-    
+    getData() {
+      getAbout().then(res => {
+        if (res.state == 200) {
+          this.aboutData = res.data
+        }
+      })
+    },
+    showCodeModal() {
+      this.showModal = true
+    },
+    hideModal() {
+      this.showModal = false
+    },
+    stopFather() {
+      return false
+    }
+
   },
   components: {
     
@@ -98,6 +120,31 @@ export default {
 .other-item img {
   width: 18px;
   height: 30px;
+}
+
+.modal-bg {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0, .5);
+  top: 0;
+  left: 0;
+}
+
+.modal-box {
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  margin: auto;
+}
+
+.modal-box img {
+  width: 400px;
+  height: 400px;
 }
 
 

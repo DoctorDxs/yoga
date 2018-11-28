@@ -15,12 +15,12 @@
     <div class="tab-item-detail">
       <!-- 详情 -->
       <div v-if='tabIndex == 0'>
-        <div class="students-study" v-if='detail.circle && detail.circle.length'>
+        <div class="students-study">
           <div class="students-avatar" >
             <img :src="item" alt="" v-for='(item, index) in detail.circle' :key='index'>
           </div>
           <div class="course-detail-info">
-            <div>{{detail.now_phase.started_at}}开课</div>
+            <div>{{in_circle != '1' ? detail.now_phase.started_at + '开课' : startclass ? '已开课' : detail.now_phase.started_at + '开课'}}</div>
             <div>累计{{detail.now_phase.subscribe_num}}人报名</div>
           </div>
         </div>
@@ -60,7 +60,7 @@
       </div>
       <!-- 圈子 -->
       <div v-if='tabIndex == 2'>
-        <trend-list :evaluteList='evaluteList' @getTrend='getTrend'></trend-list>
+        <trend-list :evaluteList='evaluteList' @getTrend='getTrend' @updataTrends='updataTrends'></trend-list>
       </div>
     </div>
     <!-- 圈外 -->
@@ -219,6 +219,7 @@ export default {
     },
     linkAddTrend(type) {
       this.$router.push({name: 'submitTrend', query: {type: type, group_id: this.id}})
+      localStorage.setItem('trendUpdate',JSON.stringify({trendIndex: null, doWhat: 0, trendId: null}))
     },
     linkVideo(group_id, learn_id, can_see, try_see, in_circle) {
       // 课程未购买 锁着状态点击提示“您还未购买该课程”
@@ -229,6 +230,7 @@ export default {
           this.$router.push({
             name: 'videoDetail', query: {group_id: group_id, learn_id: learn_id, type: this.detail.type, in_circle: in_circle, courseNmae: this.detail.name}
           })
+          
         } else {
           this.$toast.top('您还未购买该训练营')
         }
@@ -392,6 +394,10 @@ export default {
           this.$toast.top(res.msg)
         }
       })
+    },
+    updataTrends($state) {
+      this.page = 1
+      this.evaluteList = []
     }
   },
   components: {

@@ -5,7 +5,7 @@
         
         <div class="camp-title">{{item.name}}</div>
         <div class="camp-info"><span>{{item.day_count}}</span> <span>{{item.subscribe_num}}人报名</span></div>
-        <div class="active-camp" :style="item.color ? 'color:' + item.color : ''">{{ item.font}}</div>
+        <div class="active-camp" :style="item.color ? 'background:' + item.color : ''" v-if='item.font'>{{ item.font}}</div>
         <div class="camp-cover"><img :src="item.goods_cover" alt=""></div>
       </div>
       <!-- <infinite-loading @infinite="infiniteHandler">

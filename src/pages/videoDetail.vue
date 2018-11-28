@@ -1,5 +1,6 @@
 <template>
   <div class="course-detail-page">
+    <bg></bg>
     <div class="video-box">
       <video controls
              @ended="endVideo()"
@@ -24,7 +25,7 @@
         </div>
       </div>
     </div>
-    <div class="trend-list-box"><trend-list :evaluteList='evaluteList' @getTrend='getTrend'></trend-list></div>
+    <div class="trend-list-box"><trend-list :evaluteList='evaluteList' @getTrend='getTrend' @updataTrends='updataTrends'></trend-list></div>
     <div class="course-is-buy">
       <div class="write-trend" @click="linkAddTrend(1)">
         <div><img src="../assets/class_issue@3x.png" alt=""></div>
@@ -79,14 +80,15 @@ export default {
     }
     this.getVideo()
   },
+  mounted() {
+    this.addResize()
+  },
 
   methods: {
     linkAddTrend(type) {
       if (this.in_circle == 1) {
         this.$router.push({name: 'submitTrend', query: {type: type, group_id: this.group_id}})
-        let trendUpdate = JSON.parse(localStorage.getItem('trendUpdate'))
-        trendUpdate.doWhat = 2
-        localStorage.setItem('trendUpdate', JSON.stringify(trendUpdate))
+        localStorage.setItem('trendUpdate',JSON.stringify({trendIndex: null, doWhat: 0, trendId: null}))
       } else {
         if (this.type == '2') {
           this.$toast.top('您还未购买该课程')
@@ -96,9 +98,28 @@ export default {
       }
       
     },
+    // 监控shi'pin 全屏
+    addResize() {
+      window.addEventListener('resize', this.watchFullScreen, false)
+    },
+
+    watchFullScreen() {
+      if (!this.checkFull()) {
+        this.showPost = true
+        this.$refs.videoTime.pause()
+      } else {
+        window.removeEventListener('resize', this.watchFullScreen, false)
+      }
+    },
+    checkFull() {
+      let isFull = document.fullscreenEnabled || window.fullScreen || document.webkitIsFullScreen || document.msFullscreenEnabled;
+      if (isFull === undefined) isFull = false;
+      return isFull;
+    },
     playVideo() {
       this.showPost = false
       this.$refs.videoTime.play()
+      this.addResize()
     },
     getVideo() {
       getVideoDetail(this.group_id, this.learn_id).then(res => {
@@ -139,7 +160,10 @@ export default {
       })
     },
     
-    
+    updataTrends($state) {
+      this.page = 1
+      this.evaluteList = []
+    }
   },
   components: {
     trendList
@@ -225,7 +249,6 @@ body {
 
 .trend-list-box {
   margin-top: 20px;
-  height: 500px;
 }
 
 .course-is-buy {

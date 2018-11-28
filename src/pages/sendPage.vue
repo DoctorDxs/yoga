@@ -4,8 +4,16 @@
       <img src="../assets/class_gift_bg01@3x.png" alt="" class="bg-middle">
       <img src="../assets/class_gift_bg02@3x.png" alt="" class="bg-bottom">
       <div class="content-box">
-        <div class="sender-info"><div><img :src="sendDetail.user_avatar" alt="">
-          <span class='sender-name'>{{sendDetail.username}}</span><span class="sender-text">赠送给你</span></div></div>
+        <div class="sender-info" v-if='sendDetail.is_received != "1"'><div>
+          <img :src="sendDetail.user_avatar" alt="" >
+          <span class='sender-name' >{{sendDetail.username}}</span>
+          <span class="sender-text">赠送给你</span>
+        </div></div>
+        <div class="sender-info" v-if='sendDetail.is_received != "1"'><div>
+          <img :src="sendDetail.user_avatar" alt="" v-if='is_mine != "1"'>
+          <span class='sender-name' v-if='is_mine != "1"'>{{sendDetail.username}}</span><span class="sender-text" v-if='is_mine != "1"'>赠送给你</span>
+          <span class='sender-name' v-if='sendDetail.is_mine == "1"'>你赠送给{{sendDetail.received_username}}的{{sendDetail.group_type}}已被领取</span>
+        </div></div>
         <div class="gift-detail">
           <img :src="sendDetail.group_cover" alt="">
           <div class="course-desc">
@@ -16,17 +24,10 @@
         <div class="course-price"><span>价值</span><span>￥{{sendDetail.price}}</span></div>
 
         <div class="get-course-btn" @click="receiveNow" v-if='sendDetail.is_received == "0"'>立即领取</div>
-        <div class="get-course-btn" @click="lookDetail" v-if='sendDetail.is_received == "1"'>已领取，查看详情</div>
-        <div class="get-limit" v-if='sendDetail.limit_time'>请在{{sendDetail.limit_time}} 前领取</div>
+        <div class="get-course-btn" @click="lookDetail" v-if='sendDetail.is_received == "1" &&　sendDetail.is_mine != "1"'>已领取，查看详情</div>
+        <div class="get-limit" v-if='sendDetail.limit_time && sendDetail.is_received != "1"'>请在{{sendDetail.limit_time}} 前领取</div>
       </div>
     </div>
-    <modal 
-      title="提示" 
-      content='自己不能领取自己的赠品，快让您的好友领取吧！'
-      :showCancle='showCancle' 
-      @on-confirm='confirm'
-      v-show='showModal'>
-    </modal>
   </div>
      
 </template>
@@ -38,8 +39,6 @@ export default {
   data () {
     return {
       sendDetail: {},
-      showModal: false,
-      showCancle: false,
       id: ''
     }
   },
@@ -56,6 +55,7 @@ export default {
   methods: {
     getData() {
       getSendInfo(this.id).then(res => {
+        // alert(JSON.stringify(res))
         if (res.state == 200) {
           this.sendDetail = res.data
         } else {
@@ -64,13 +64,32 @@ export default {
       })
     },
     receiveNow() {
-      // if (this.sendDetail.is_mine == '1') {
-      //   this.showModal = true
-      // } else {
-        this.$router.push({
-          name: 'receive',query: {id: this.id, group_name: this.sendDetail.group_name, group_type: this.sendDetail.group_type, goods_cover: this.sendDetail.goods_cover}
-        })
-      // }
+      if (this.sendDetail.limit_time) {
+        if (this.sendDetail.is_mine == '1') {
+          alert('自己不能领取自己的赠品，快让您的好友领取吧！')
+        } else {
+          if (this.sendDetail.is_buy == '1') {
+            alert('您已拥有此课程不能领取该赠品！')
+          } else {
+            this.$router.push({
+              name: 'receive',query: {id: this.id, group_name: this.sendDetail.group_name, group_type: this.sendDetail.group_type, goods_cover: this.sendDetail.goods_cover}
+            })
+          }
+        }
+      } else {
+        if (this.sendDetail.is_mine == '1') {
+          alert('自己不能领取自己的赠品，快让您的好友领取吧！')
+        } else {
+          if (this.sendDetail.is_buy == '1') {
+            alert('您已拥有此课程不能领取该赠品！')
+          } else {
+            this.$router.push({
+              name: 'receive',query: {id: this.id, group_name: this.sendDetail.group_name, group_type: this.sendDetail.group_type, goods_cover: this.sendDetail.goods_cover}
+            })
+          }
+        }
+      }
+      
       
     },
 

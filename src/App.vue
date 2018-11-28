@@ -47,7 +47,7 @@ img {
 
 body, html {
   overflow-x: hidden;
-  background: #fff;
+  /* background: #fff; */
 }
 
 #app {
@@ -64,7 +64,14 @@ body, html {
 .mint-swipe-indicator {
   width: 16px!important;
   height: 16px!important;
-  margin: 8px 20px!important;
+  margin: 8px 15px!important;
+  background: #fefefe!important;
+  opacity: 1!important;
+}
+
+.mint-swipe-indicators .is-active {
+  background: #ffffff!important;
+  opacity: 1!important;
 }
 
  .no-more-data {

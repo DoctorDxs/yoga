@@ -67,6 +67,7 @@ export default {
       this.$router.push({
         name: 'complated2', query: {group_id: this.group_id, learn_id: this.learn_id, feel: this.selectIndex + 1, good_name: this.good_name, type: this.type,videoTime: this.videoTime, courseNmae: this.courseNmae}
       })
+      localStorage.setItem('trendUpdate',JSON.stringify({trendIndex: null, doWhat: 0, trendId: null}))
     }
   },
   components: {

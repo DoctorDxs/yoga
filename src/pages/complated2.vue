@@ -74,6 +74,9 @@ export default {
         addTrend(params).then(res => {
           if (res.state == 200) {
             this.$toast.top(res.msg)
+            let trendUpdate = JSON.parse(localStorage.getItem('trendUpdate'))
+            trendUpdate.doWhat = 2
+            localStorage.setItem('trendUpdate', JSON.stringify(trendUpdate))
             this.$router.push({
               name: 'complated3', query: {good_name: this.good_name,group_id: this.group_id, type: this.type,videoTime:this.videoTime}
             })

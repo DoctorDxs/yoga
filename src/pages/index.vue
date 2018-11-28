@@ -1,5 +1,6 @@
 <template>
   <div class="index-page">
+    <bg></bg>
     <div class="index-user-info">
       <img :src="userInfo.avatar ? userInfo.avatar : defaultAvatar" alt="" class="user-avatar">
       <div class="user-login">
@@ -35,6 +36,10 @@
         </div>
         <div class="delete-class"><img src="../assets/practice_del@3x.png" alt="" :data-index="index" @click="deleteItem"></div>
       </div>
+      <infinite-loading @infinite="infiniteHandler">
+        <div slot="no-more" class="no-more-data">{{myPracticeList.length > 9 ? '没有更多了...' : ''}}</div>
+        <div slot="no-results"> </div>
+      </infinite-loading>
     </div>
     
 
@@ -46,10 +51,7 @@
     <div class="add-class">
       <div @click="addClass"><img src="../assets/practice_add_icon@3x.png" alt=""><span>添加课程</span></div>
     </div>
-    <infinite-loading @infinite="infiniteHandler">
-      <div slot="no-more" class="no-more-data">{{myPracticeList.length > 9 ? '没有更多了...' : ''}}</div>
-      <div slot="no-results"> </div>
-    </infinite-loading>
+    
     <nav-bar></nav-bar>
   </div>
      
@@ -91,9 +93,6 @@ export default {
     document.title = '练习';
   },
   mounted() {
-    this.$nextTick(() => {
-      this.setWindowH()
-    })
   },
   methods: {
     getUserInfo() {
@@ -137,8 +136,6 @@ export default {
         } else {
           this.$toast.top(res.msg)
         }
-        this.setWindowH()
-
       })
 
     },
@@ -213,9 +210,6 @@ export default {
       this.restSlide();
       // 删除
       this.myPracticeList.splice(index,1);
-    },
-    setWindowH() {
-      document.getElementsByClassName('index-page')[0].style.minHeight = window.innerHeight - 100 + 'px'
     },
     addClass() {
       this.$router.push({
