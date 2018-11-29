@@ -142,7 +142,7 @@ export default {
               canvas.height = videoCover.videoHeight * scale;
               canvas.getContext('2d').drawImage(videoCover, 0, 0, canvas.width, canvas.height);
               const src = canvas.toDataURL("image/png");
-  alert(src)
+              alert(src)
             }
               
             that.$toast.top('上传成功')
