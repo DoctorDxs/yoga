@@ -2,7 +2,7 @@
   <div class="course-detail-page">
     <bg></bg>
     <div class="video-box">
-      <video controls
+      <video
              @ended="endVideo()"
              :src="videoInfo.url"
              ref='videoTime' v-show="!showPost">
