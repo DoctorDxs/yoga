@@ -131,8 +131,11 @@ export default {
             that.showLoading = false
             that.videoUrl = result.videoUrl
             that.videoId = result.fileId
-            const videoCover =  document.getElementById("videoCover")
-            videoCover.addEventListener('loadeddata',captureImage, false)
+            setTimeout(() => {
+              videoCover =  document.getElementById("videoCover")
+
+              videoCover.addEventListener('loadeddata',captureImage, false)
+            }, 1500)
             var captureImage = function() {
               var canvas = document.createElement("canvas");
               canvas.width = videoCover.videoWidth * scale;
