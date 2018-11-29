@@ -136,9 +136,15 @@ export default {
       const trendIndex = trendUpdate.trendIndex
       const doWhat = trendUpdate.doWhat
       if (doWhat == 1) {
-        const id = evaluteList[trendIndex].id
+        let id;
+        if (evaluteList[trendIndex]) {
+          id = evaluteList[trendIndex].id
+        }
         updataTrend(id).then(res => {
           if (res.state == 200) {
+            if (res.data.img_paths) {
+              res.data.img_paths = res.data.img_paths.split(',')
+            }
             this.evaluteList.splice(trendIndex, 1, res.data)
           } else {
             this.evaluteList.splice(trendIndex, 1)
@@ -302,7 +308,6 @@ export default {
     padding: 30px 20px 20px;
     background: #fff;
     border-top: 1px solid #E1E2E4;
-    /* border-bottom: 1px solid #E1E2E4; */
     display: flex;
     flex-direction: row;
   }

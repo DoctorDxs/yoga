@@ -1,5 +1,6 @@
 <template>
   <div class="classroom-page">
+    <bg style="background: #fff"></bg>
     <div class="ads-banner">
       <mt-swipe :auto="2000">
         <mt-swipe-item  v-for='(item, index) in banner' :key='index'>

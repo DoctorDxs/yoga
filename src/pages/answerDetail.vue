@@ -17,7 +17,7 @@
           </div>
           <div class="trend-pub-time">
             <div>{{detail.username}} <span class="answer-make">回答了一个问题</span></div>
-            <div>{{detail.time_desc}}</div>
+            <div>{{detail.content}}</div>
           </div>
         </div>
         <div class="support-icon" @click.stop='suportComment(detail.id)'>
@@ -128,9 +128,6 @@ export default {
       showPost: true
     }
   },
-  created() {
-    
-  },
   activated() {
     document.title = '回答详情';
     const query = this.$route.query
@@ -208,7 +205,7 @@ export default {
           if (this.deleteAnswer) {
             // 删除动态 回答
             let trendUpdate = JSON.parse(localStorage.getItem('trendUpdate'))
-            trendUpdate.doWhat = 2
+            trendUpdate.doWhat = 1
             localStorage.setItem('trendUpdate', JSON.stringify(trendUpdate))
             this.$router.go(-1)
           };
@@ -381,13 +378,17 @@ export default {
           news_id: id,
           is_thumb: 0,
         }
-        localStorage.setItem('trendUpdate', JSON.stringify({trendUpdataIndex: this.trendUpdataIndex, 'donwTrend': 1}))
+        let trendUpdate = JSON.parse(localStorage.getItem('trendUpdate'))
+        trendUpdate.doWhat = 1
+        localStorage.setItem('trendUpdate', JSON.stringify(trendUpdate))
       } else {
         params = {
           news_id: id,
           is_thumb: 1,
         }
-        localStorage.setItem('trendUpdate', JSON.stringify({trendUpdataIndex: this.trendUpdataIndex, 'donwTrend': 2}))
+        let trendUpdate = JSON.parse(localStorage.getItem('trendUpdate'))
+        trendUpdate.doWhat = 1
+        localStorage.setItem('trendUpdate', JSON.stringify(trendUpdate))
       }
       addSuport(params).then(res => {
         if (res.state == 200) {
@@ -517,7 +518,7 @@ export default {
 .trend-user-avatar > div img {
   width: 70px;
   height: 70px;
-  background: #F0F2F7;
+  background: #F4F6F9;
   border-radius: 50%;
 }
 
@@ -608,7 +609,7 @@ export default {
   border: 0;
   outline: medium;
   border-radius: 33px;
-  background: #F0F2F7;
+  background: #F4F6F9;
   font-size: 30px;
   color: #444D52;
   text-indent: 17px;
@@ -634,7 +635,7 @@ export default {
   color: #818C92;
   font-size: 28px;
   border-radius: 33px;
-  background: #F0F2F7;
+  background: #F4F6F9;
   position: relative;
   z-index: 7777;
 }
@@ -678,7 +679,7 @@ export default {
 }
 
 .modal-box {
-  background: #F0F2F7;
+  background: #F4F6F9;
   position: absolute;
   bottom: 0;
   left: 0;
@@ -726,7 +727,7 @@ export default {
 }
 
 .modal-box {
-  background: #F0F2F7;
+  background: #F4F6F9;
   position: absolute;
   bottom: 0;
   left: 0;

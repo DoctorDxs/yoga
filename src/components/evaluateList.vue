@@ -112,7 +112,7 @@ export default {
 .trend-user-avatar > div img {
   width: 70px;
   height: 70px;
-  background: #F0F2F7;
+  background: #F4F6F9;
   border-radius: 50%;
 }
 

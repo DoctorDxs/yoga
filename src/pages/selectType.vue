@@ -108,14 +108,14 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .selectType-page {
-  background: #F0F2F7;
+  background: #F4F6F9;
   padding-top: 20px;
 }
 
 .select-item {
   background: #fff;
   height: 120px;
-  border-bottom: 1px solid #f0f2f7;
+  border-bottom: 1px solid #F4F6F9;
   font-size: 30px;
   color: #444C52;
   display: flex;

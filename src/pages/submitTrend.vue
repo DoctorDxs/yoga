@@ -11,7 +11,7 @@
       </div>
       <div class="trend-imgs-box" v-if='videoUrl !== ""'>
         <img src="../assets/issue_del_icon@3x.png" alt="" class="del-trend-imgs" @click="deleteVideo(videoUrl)">
-        <video :src="videoUrl" class="trend-img-item"></video>
+        <video :src="videoUrl" class="trend-img-item" preload="meta" ref='videoCover'></video>
         <img src="../assets/video_icon.png" alt="" class="video-icon"> 
       </div>
       <div class="add-img-box add-img" v-if='imgs.length != 0 && imgs.length < 9'>
@@ -115,6 +115,8 @@ export default {
     },
     selectVideo(e) {
       const inputFile = this.$refs.inputVideo
+      const videoCover = this.$refs.videoCover
+      const scale = 0.8;
       const that = this
       const video_file = this.$refs.inputVideo.files[0]
       if(this.$refs.inputVideo.files[0].length !== 0){ 
@@ -130,7 +132,19 @@ export default {
             that.showLoading = false
             that.videoUrl = result.videoUrl
             that.videoId = result.fileId
+            videoCover.addEventListener('loadeddata',captureImage)
+            var captureImage = function() {
+              var canvas = document.createElement("canvas");
+              canvas.width = videoCover.videoWidth * scale;
+              canvas.height = videoCover.videoHeight * scale;
+              canvas.getContext('2d').drawImage(videoCover, 0, 0, canvas.width, canvas.height);
+              const src = canvas.toDataURL("image/png");
+  alert(src)
+            }
+              
             that.$toast.top('上传成功')
+
+
           }
         }) 
       }

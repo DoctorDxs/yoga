@@ -51,7 +51,7 @@
           <div class="svip-subdesc">课程免费观看/折扣购买</div>
         </div>
       </div>
-      <div class="vip-limit-time" v-if='userInfo.vip_ended_at'>你的会员{{userInfo.vip_ended_at | limitTime}}到期</div>
+      <div class="vip-limit-time" v-if='userInfo.vip_ended_at'>你的私教会员{{userInfo.vip_ended_at | limitTime}}到期</div>
       <div class="svip-bottom">
         <div class="select-drop" @click="showSvpiSelectModal">
           <div class="select-type">

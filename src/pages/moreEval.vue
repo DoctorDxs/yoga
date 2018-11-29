@@ -253,6 +253,8 @@ export default {
             }
             this.replies = replies
           }
+        } else {
+          this.$toast.top(res.msg)
         }
       })
     },
@@ -284,6 +286,8 @@ export default {
             evalUpdate.doWhat = 1
             localStorage.setItem('evalUpdate', JSON.stringify(evalUpdate))
 
+          } else {
+            this.$toast.top(res.msg)
           }
         })
       } else {
@@ -440,7 +444,7 @@ body {
 .trend-user-avatar > div img {
   width: 70px;
   height: 70px;
-  background: #F0F2F7;
+  background: #F4F6F9;
   border-radius: 50%;
 }
 
@@ -599,7 +603,7 @@ body {
   border: 0;
   outline: medium;
   border-radius: 33px;
-  background: #F0F2F7;
+  background: #F4F6F9;
   font-size: 30px;
   color: #444D52;
   text-indent: 17px;
@@ -617,7 +621,7 @@ body {
   color: #818C92;
   font-size: 28px;
   border-radius: 33px;
-  background: #F0F2F7;
+  background: #F4F6F9;
   position: relative;
   z-index: 7777;
 }
@@ -688,7 +692,7 @@ body {
 }
 
 .modal-box {
-  background: #F0F2F7;
+  background: #F4F6F9;
   position: absolute;
   bottom: 0;
   left: 0;

@@ -66,7 +66,7 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .sysMsg-page {
-  background: #F0F2F7;
+  background: #F4F6F9;
   padding: 40px 30px;
 }
 

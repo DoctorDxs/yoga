@@ -65,7 +65,7 @@ body, html {
   width: 16px!important;
   height: 16px!important;
   margin: 8px 15px!important;
-  background: #fefefe!important;
+  background: #999999!important;
   opacity: 1!important;
 }
 

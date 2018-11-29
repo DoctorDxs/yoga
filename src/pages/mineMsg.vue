@@ -125,7 +125,7 @@ export default {
 <style scoped>
 
 .mineMsg-page {
-  background: #F0F2F7;
+  background: #F4F6F9;
   padding-top: 20px;
 }
 

@@ -34,7 +34,7 @@
           <div class="course-item-cover">
             <div class="course-item-left">
               <img :src='item.cover' alt="">
-              <div class="course-sort" v-if='item.is_try_free != 1'>{{index > 9 ? index : '0' + index}}</div>
+              <div class="course-sort" v-if='item.is_try_free != 1'>{{ trySee == 1 ? ( index > 9 ? index  : '0' + index ) : ( index > 9 ? index - 0 + 1  : '0' + index - 0 + 1)}}</div>
             </div>
             <div class="course-item-info">
               <div>{{item.name}}</div>
@@ -123,7 +123,8 @@ export default {
       showCancle: false,
       modalContent: '请点击窗口右上角分享给好友或分享到朋友圈',
       showModal: false,
-      page: 1
+      page: 1,
+      trySee: 0,
     }
   },
   
@@ -194,6 +195,11 @@ export default {
           document.title = res.data.name;
           this.detail = res.data
           this.$refs.courseTop.commonShare(res.data); 
+          if (res.data.videos.length) {
+            if (res.data.videos[0].is_try_free == '1') {
+              this.trySee = 1
+            }
+          }
           if (this.receive_id ) {
             this.$refs.courseTop.giftShare(this.receive_id); 
             this.receive_id = ''
@@ -236,7 +242,6 @@ export default {
           link: shareInfo.url,
           imgUrl: shareInfo.cover,
           success: function(res) {
-            that.$toast.top('分享成功！')
           },
         })
       //分享给朋友
@@ -246,7 +251,6 @@ export default {
           link: shareInfo.url,
           imgUrl: shareInfo.cover,
           success: function() {
-            that.$toast.top('分享成功！')
           }
         })
     },
@@ -294,7 +298,7 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .course-detail-page {
-  background: #F0F2F7;
+  background: #F4F6F9;
   padding-bottom: 120px;
   position: relative;
   height: 100%;
@@ -355,7 +359,7 @@ export default {
   border-radius: 50%;
   margin-left: -40px;
   border: 4px solid #fff;
-  background: #F0F2F7;
+  background: #F4F6F9;
 }
 
 .course-detail-info {
@@ -413,7 +417,7 @@ export default {
   position: relative;
   width: 180px;
   height: 120px;
-  background: #F0F2F7;
+  background: #F4F6F9;
 }
 
 .course-sort {
@@ -529,7 +533,7 @@ export default {
 
 .border-line {
   background: #C7CCD1;
-  width: 2px;
+  width: 3px;
   height: 60px;
 }
 

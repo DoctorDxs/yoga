@@ -11,6 +11,7 @@ import Toast from './plugins/toast/index';
 import loading from './plugins/loading/index';
 import modal from './plugins/modal/index';
 import bg from './plugins/bg/index';
+import backhome from './plugins/backhome/index';
 
 import './plugins/toast/index.css';
 import 'mint-ui/lib/style.css'
@@ -19,6 +20,7 @@ Vue.use(Mint);
 
 
 Vue.use(InfiniteLoading)
+Vue.use(backhome)
 Vue.use(bg)
 Vue.use(loading)
 Vue.use(modal)
@@ -40,7 +42,7 @@ router.beforeEach((to, from, next) => {
         userInfo = JSON.parse(userInfo)
       };
       // 判断是否存在   phone
-      if (userInfo.mobile) { // 判断当前的token是否存在
+      if (userInfo.mobile) { // phone
           next();
       }else {
           next('/bindTel')

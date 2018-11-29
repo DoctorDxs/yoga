@@ -176,10 +176,10 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 body {
-   background: #F0F2F7;
+   background: #F4F6F9;
 }
 .course-detail-page {
-  background: #F0F2F7;
+  background: #F4F6F9;
   padding-bottom: 120px;
   position: relative;
 }
@@ -281,7 +281,7 @@ body {
 
 .border-line {
   background: #C7CCD1;
-  width: 2px;
+  width: 3px;
   height: 60px;
 }
 

@@ -327,7 +327,7 @@ export default {
 .buy-course-page {
   font-size: 30px;
   color: #444C52;
-  background: #F0F2F7;
+  background: #F4F6F9;
 }
 
 .input-item {
@@ -447,7 +447,7 @@ export default {
 .input-box-2 > div input {
   width: 570px;
   height: 66px;
-  background: #F0F2F7;
+  background: #F4F6F9;
   border: 0;
   outline: medium;
   border-radius: 33px;
@@ -457,7 +457,7 @@ export default {
 }
 
 .input-box-2 > div div {
-  background: #F0F2F7;
+  background: #F4F6F9;
   height: 66px;
   width: 120px;
   border-radius: 33px;

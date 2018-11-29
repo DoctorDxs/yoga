@@ -47,7 +47,7 @@
             <div @click.stop='suportComment(trendDetails.id, 1)'>
               <img src="../assets/circle_like_nor_icon@3x.png" alt="" v-if='trendDetails.is_thumb === "0"'>
               <img src="../assets/circle_like_pre_icon@3x.png" alt="" v-if='trendDetails.is_thumb === "1"'>
-              <div class="num" :style="trendDetails.is_thumb == '1' ? '' : 'color: #D4D9DD;'">{{trendDetails.thumbs}}</div>
+              <div class="num" :style="trendDetails.is_thumb == '1' ? 'color: red' : 'color: #D4D9DD;'">{{trendDetails.thumbs}}</div>
             </div>
             <div>
               <img src="../assets/circle_comment_nor_icon@3x.png" alt="">
@@ -189,6 +189,8 @@ export default {
         this.group_type = query.group_type
         this.id = query.id
         this.page = 1
+        this.content = ''
+        this.imgs = []
         this.comments = []
         this.trendDetails = {
           img_path: []
@@ -199,6 +201,13 @@ export default {
       this.type = query.type
       this.group_type = query.group_type
       this.id = query.id
+      this.page = 1
+      this.comments = []
+      this.content = ''
+      this.imgs = []
+      this.trendDetails = {
+        img_path: []
+      }
     }
     document.title = '动态详情'
 
@@ -342,7 +351,7 @@ export default {
             // 删一条评论 本页面 评论数 -1 评论列表中删除
             let trendDetails = this.trendDetails
             this.comments.splice(this.deleteEvalIndex, 1)
-            trendDetails.evaluate_sum = trendDetails.evaluate_sum - 0 +1
+            trendDetails.evaluate_sum = trendDetails.evaluate_sum - 0  - 1
             this.trendDetails = trendDetails
 
             let trendUpdate = JSON.parse(localStorage.getItem('trendUpdate'))
@@ -679,7 +688,7 @@ body {
   border: 0;
   outline: medium;
   border-radius: 33px;
-  background: #F0F2F7;
+  background: #F4F6F9;
   font-size: 30px;
   color: #444D52;
   text-indent: 17px;
@@ -699,7 +708,7 @@ body {
   color: #818C92;
   font-size: 28px;
   border-radius: 33px;
-  background: #F0F2F7;
+  background: #F4F6F9;
   position: relative;
   z-index: 7777;
 }
@@ -743,7 +752,7 @@ body {
 }
 
 .modal-box {
-  background: #F0F2F7;
+  background: #F4F6F9;
   position: absolute;
   bottom: 0;
   left: 0;
@@ -1060,7 +1069,7 @@ body {
 .trend-user-avatar > div img {
   width: 70px;
   height: 70px;
-  background: #F0F2F7;
+  background: #F4F6F9;
   border-radius: 50%;
 }
 

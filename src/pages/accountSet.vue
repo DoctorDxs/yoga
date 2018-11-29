@@ -206,7 +206,6 @@ export default {
     },
 
     postUserInfo(key,val) {
-      console.log(key,val)
       const params = {
         field: key,
         value: val
@@ -222,8 +221,23 @@ export default {
     },
 
     confirm(key,val) {
-      this.inputBlur()
-      this.postUserInfo(key,val)
+      if (!val) {
+        return false
+        this.$toast.top('提交内容不能为空')
+      } else {
+        if (key === 'wechat_num' ) {
+          if (/^[a-zA-Z]([-_a-zA-Z0-9]{5,19})+$/.test(val)) {
+            this.postUserInfo(key,val)
+            this.inputBlur()
+          } else {
+            this.$toast.top('请输入正确的微信号')
+            this.wx = ''
+          }
+        } else {
+          this.inputBlur()
+          this.postUserInfo(key,val)
+        }
+      }
     },
     selectImg(e) {
       let file = e.target.files[0];
@@ -378,7 +392,7 @@ export default {
 .input-box > div input {
   width: 570px;
   height: 66px;
-  background: #F0F2F7;
+  background: #F4F6F9;
   border: 0;
   outline: medium;
   border-radius: 33px;
@@ -388,7 +402,7 @@ export default {
 }
 
 .input-box > div div {
-  background: #F0F2F7;
+  background: #F4F6F9;
   height: 66px;
   width: 120px;
   border-radius: 33px;

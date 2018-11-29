@@ -5,7 +5,7 @@
 
       <div class="course-tab-box">
         <div :class="index == tabIndex ? 'active-color' : '' " v-for='(item, index) in tabItems' :key='index' @click='switchTabbar(index)'>
-          <div>{{item}} {{index == 1 ? '(' + 6 + ')' : ''}}</div>
+          <div>{{item}} {{index == 1 ? '(' + detail.video_count + ')' : ''}}</div>
           <div :class="index == tabIndex ? 'tab-bottom-border-show' : 'tab-bottom-border-hide'"></div>
         </div>
       </div>
@@ -43,11 +43,11 @@
           <div class="course-item-cover">
             <div class="course-item-left">
               <img :src='item.cover' alt="">
-              <div class="course-sort" v-if='item.is_try_free != 1'>{{index > 9 ? index : '0' + index}}</div>
+              <div class="course-sort" v-if='item.is_try_free != 1'>DAY{{ trySee == 1 ? index  :  index + 1}}</div>
             </div>
             <div class="course-item-info">
               <div>{{item.name}}</div>
-              <div>{{item.length_time}}</div>
+              <div>{{item.length_time | toMin}}</div>
             </div>
           </div>
           <div >
@@ -77,7 +77,7 @@
       <div class="add-to-practice" style='background: #C7CCD1' @click="hasEnd" v-if="timeEnd">报名结束</div>
     </div>
 
-    <div class="course-no-buy" v-if='detail.in_circle == "-1" && startclass'>
+    <div class="course-no-buy" v-if='detail.in_circle == "-1"'>
       <div class="consult-course" @click="showConsult">
         <div><img src="../assets/class_consult@3x.png" alt=""></div>
         <div>咨询</div>
@@ -89,7 +89,7 @@
       <div class="add-to-practice"  @click="beSvip">成为私教会员</div>
     </div>
 
-    <div class="course-no-buy" v-if='detail.in_circle == "1" && !startclass'>
+    <div class="course-no-buy" v-if='(detail.in_circle == "1" && !startclass) || (detail.in_circle == "1"  && userInfo.status != 2 )'>
       <div class="consult-course" @click="showConsult">
         <div><img src="../assets/class_consult@3x.png" alt=""></div>
         <div>咨询</div>
@@ -102,7 +102,7 @@
     </div>
 
 
-    <div class="course-is-buy" v-if='detail.in_circle == "1"  && startclass'>
+    <div class="course-is-buy" v-if='(detail.in_circle == "1"  && startclass) || (detail.in_circle == "1"  && userInfo.status == 2 )'>
       <div class="write-trend" @click="linkAddTrend(1)">
         <div><img src="../assets/class_issue@3x.png" alt=""></div>
         <div>写动态</div>
@@ -115,16 +115,14 @@
     </div>
 
     
-    <div class="add-time" v-if='!timeEnd'>
+    <div class="add-time" v-if='!timeEnd && detail.in_circle != "1"'>
       <div>
         <div>距报名截止 还剩{{leftTime}}</div>
         <div>已有{{detail.now_phase.subscribe_num}}人报名</div>
       </div>
     </div>
     <div class="add-time" v-if='detail.in_circle == "-1" '>
-      <div>
         你购买过该训练营,成为私教会员可以继续观看
-      </div>
     </div>
     <modal 
       title="提示" 
@@ -163,6 +161,7 @@ export default {
         now_phase: {},
         excellences: []
       },
+      trySee: 0,
       tabItems: ['详情','课表','圈子'],
       tabIndex: 0,
       id: '',
@@ -281,7 +280,11 @@ export default {
           document.title = res.data.name
           let startclass = res.data.now_phase.started_at.replace(/-/g, "/")
           let endclass = res.data.now_phase.ended_at.replace(/-/g, "/")
-          
+          if (res.data.videos.length) {
+            if (res.data.videos[0].is_try_free == '1') {
+              this.trySee = 1
+            }
+          }
           // 判断是否开课  是否 结课
           let startclassDiffer = new Date(startclass).getTime() - new Date().getTime()
           let endclassDiffer = new Date(endclass).getTime() - new Date().getTime()
@@ -359,7 +362,6 @@ export default {
           link: shareInfo.url,
           imgUrl: shareInfo.cover,
           success: function(res) {
-            this.$toast.top('分享成功！')
           },
         })
       //分享给朋友
@@ -369,7 +371,6 @@ export default {
           link: shareInfo.url,
           imgUrl: shareInfo.cover,
           success: function() {
-            this.$toast.top('分享成功！')
           }
         })
     },
@@ -395,9 +396,15 @@ export default {
         }
       })
     },
+    
     updataTrends($state) {
       this.page = 1
       this.evaluteList = []
+    }
+  },
+  filters: {
+    toMin(val) {
+      return parseInt(val/60) + '分钟'
     }
   },
   components: {
@@ -410,7 +417,7 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .course-detail-page {
-  background: #F0F2F7;
+  background: #F4F6F9;
   padding-bottom: 160px;
   position: relative;
 }
@@ -529,7 +536,7 @@ export default {
   position: relative;
   width: 180px;
   height: 120px;
-  background: #F0F2F7;
+  background: #F4F6F9;
 }
 
 .course-sort {
@@ -644,7 +651,7 @@ export default {
 
 .border-line {
   background: #C7CCD1;
-  width: 2px;
+  width: 3px;
   height: 60px;
 }
 

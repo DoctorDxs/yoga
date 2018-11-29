@@ -306,7 +306,7 @@ export default {
 .input-box > div input {
   width: 570px;
   height: 66px;
-  background: #F0F2F7;
+  background: #F4F6F9;
   border: 0;
   outline: medium;
   border-radius: 33px;
@@ -316,7 +316,7 @@ export default {
 }
 
 .input-box > div div {
-  background: #F0F2F7;
+  background: #F4F6F9;
   height: 66px;
   width: 120px;
   border-radius: 33px;

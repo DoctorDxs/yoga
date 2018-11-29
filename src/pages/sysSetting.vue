@@ -1,6 +1,6 @@
 <template>
   <div class="setting-page">
-    
+    <bg></bg>
     <div class="set-item">
       <div>课程提醒</div>
       <div @click="changeCourse">
@@ -46,7 +46,6 @@ export default {
     this.getData()
   },
   mounted() {
-    document.getElementsByClassName('setting-page')[0].style.minHeight = window.innerHeight + 'px'
   },
   methods: {
     // 课程
@@ -117,7 +116,6 @@ export default {
 }
 
 .set-item img {
-  width: 104px;
   height: 64px;
 }
 

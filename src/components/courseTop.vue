@@ -175,7 +175,6 @@ export default {
           link: shareInfo.url,
           imgUrl: shareInfo.cover,
           success: function(res) {
-            that.$toast.top('分享成功！')
           },
         })
       //分享给朋友
@@ -185,7 +184,6 @@ export default {
           link: shareInfo.url,
           imgUrl: shareInfo.cover,
           success: function() {
-            that.$toast.top('分享成功！')
           }
         })
     },
