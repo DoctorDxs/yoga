@@ -311,7 +311,6 @@ export default {
   .no-practice-img {
     width: 294px;
     height: 207px; 
-    background: #fff;
     padding: 10px;
     margin-top: 40px;
   }

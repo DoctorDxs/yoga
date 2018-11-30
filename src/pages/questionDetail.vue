@@ -1,6 +1,8 @@
 <template>
   <div class="trendDetail-page">
     <bg></bg>
+    <backhome></backhome>
+
     <div class="trend-list" @click="commentUser">
       <div class="trend-avatar"><img :src="trendDetails.user_avatar" alt=""></div>
       <div class="trend-info">
@@ -25,6 +27,8 @@
         </div>
         <div class="video-box" v-if='trendDetails.video_path'>
           <video 
+            x5-video-player-type="h5" 
+            x5-video-player-fullscreen="true"
             @ended="endVideo()"
             :src="trendDetails.video_path"
             ref='videoTime' v-show="!showPost">
@@ -246,6 +250,10 @@ export default {
       this.$refs.videoTime.play()
       this.addResize()
     },
+    endVideo() {
+      this.showPost = true
+      this.$refs.videoTime.pause()
+    },
     // 监控shi'pin 全屏
     addResize() {
       window.addEventListener('resize', this.watchFullScreen, false)
@@ -253,6 +261,8 @@ export default {
 
     watchFullScreen() {
       if (!this.checkFull()) {
+        alert(3333333)
+
         this.showPost = true
         this.$refs.videoTime.pause()
       } else {
@@ -260,6 +270,7 @@ export default {
       }
     },
     checkFull() {
+      alert(1212)
       let isFull = document.fullscreenEnabled || window.fullScreen || document.webkitIsFullScreen || document.msFullscreenEnabled;
       if (isFull === undefined) isFull = false;
       return isFull;

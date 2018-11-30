@@ -119,7 +119,7 @@ export default {
     this.courseName = query.name
     this.price  = query.price
     this.type = query.type
-    this.vip_discount = query.vip_discount
+    this.vip_discount = query.vip_discount/10
     this.now_phase_id = query.now_phase_id
     document.title = '课程购买';
     let userInfo = localStorage.getItem("userInfo")
@@ -286,12 +286,11 @@ export default {
     this.price  = query.price
     this.type = query.type
     this.now_phase_id = query.now_phase_id
-    this.vip_discount = query.vip_discount
+    this.vip_discount = query.vip_discount/10
     document.title = '课程购买';
     let vip = JSON.parse(localStorage.getItem('vip')) 
-    console.log(vip == false)
     if (vip) {
-      this.price_discount = (this.vip_discount * 0.01 * this.price).toFixed(2) + ''
+      this.price_discount = (this.vip_discount * 0.1 * this.price).toFixed(2) + ''
       this.vip = true
       if (this.vip_discount == '0') {
         if (this.type == 2) {
@@ -381,7 +380,6 @@ export default {
 }
 
 .input-box img {
-  width: 14px;
   height: 28px;
 }
 

@@ -5,7 +5,7 @@
         
         <div class="camp-title">{{item.name}}</div>
         <div class="camp-info"><span>{{item.day_count}}</span> <span>{{item.subscribe_num}}人报名</span></div>
-        <div class="active-camp" :style="item.color ? 'background:' + item.color : ''" v-if='item.font'>{{ item.font}}</div>
+        <div class="active-camp" :style="item.color ? 'background:' + item.color : ''" v-if='item.font && item.color'>{{ item.font}}</div>
         <div class="camp-cover"><img :src="item.goods_cover" alt=""></div>
       </div>
       <!-- <infinite-loading @infinite="infiniteHandler">
@@ -13,7 +13,6 @@
         <div slot="no-results"> </div>
       </infinite-loading> -->
     </div>
-    <div class="no-data-icon" v-if='!currentList.length'><img src="../assets/all_none@3x.png" alt="" ></div>
   </div>
 </template>
 

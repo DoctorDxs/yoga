@@ -1,6 +1,8 @@
 <template>
   <div class="moreEval-page">
     <bg></bg>
+    <backhome></backhome>
+
     <div class="moreEval-list">
       <div class="trend-user" @click.stop="comment.is_mine == '1' ? showdelModal(comment.id, '', 1) : toComment(comment.id, comment.username)">
         <div class="trend-user-avatar">

@@ -1,6 +1,8 @@
 <template>
   <div class="course-detail-page">
     <bg></bg>
+    <backhome></backhome>
+
     <course-top :detail='detail' ref='courseTop'></course-top>
     <div class="course-tab">
 
@@ -34,7 +36,8 @@
           <div class="course-item-cover">
             <div class="course-item-left">
               <img :src='item.cover' alt="">
-              <div class="course-sort" v-if='item.is_try_free != 1'>{{ trySee == 1 ? ( index > 9 ? index  : '0' + index ) : ( index > 9 ? index - 0 + 1  : '0' + index - 0 + 1)}}</div>
+              <div class="course-sort" v-if='item.is_try_free != 1 && trySee == 1 '>{{ index > 9 ? index  : '0' + index }}</div>
+              <div class="course-sort" v-if='item.is_try_free != 1 && trySee != 1 '>{{ index > 9 ? index - 0 + 1  : '0' + (index - 0 + 1)}}</div>
             </div>
             <div class="course-item-info">
               <div>{{item.name}}</div>
@@ -198,7 +201,11 @@ export default {
           if (res.data.videos.length) {
             if (res.data.videos[0].is_try_free == '1') {
               this.trySee = 1
+            } else {
+              this.trySee = 0
             }
+          } else {
+            this.trySee = 0
           }
           if (this.receive_id ) {
             this.$refs.courseTop.giftShare(this.receive_id); 

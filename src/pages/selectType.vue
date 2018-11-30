@@ -28,7 +28,7 @@
           <img src="../assets/class_select_pre@3x.png" alt="" v-if='selectIndex == 1'>
         </div>
       </div>
-      <div class="select-item" @click="selectThis(2)" v-if='vip_discount != 100'>
+      <div class="select-item" @click="selectThis(2)" v-if='vip_discount != 10'>
         <div class="s-vip">
           <div>私教会员{{vip_discount == '0' ? '免费' : vip_discount}}折</div>
           <div class="s-vip-icon" v-if='userInfo.status != 2' @click.stop="linkBevip">成为会员享受专属折扣</div>

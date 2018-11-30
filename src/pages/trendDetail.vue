@@ -1,6 +1,8 @@
 <template>
   <div class="trendDetail-page">
     <bg></bg>
+    <backhome></backhome>
+
     <div class="trend-list" @click="commentUser">
       <div class="trend-avatar"><img :src="trendDetails.user_avatar" alt=""></div>
       <div class="trend-info">
@@ -242,6 +244,10 @@ export default {
       this.showPost = false
       this.$refs.videoTime.play()
       this.addResize()
+    },
+    endVideo() {
+      this.showPost = true
+      this.$refs.videoTime.pause()
     },
     // 监控shi'pin 全屏
     addResize() {

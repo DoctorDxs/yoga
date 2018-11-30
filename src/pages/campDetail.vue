@@ -1,5 +1,7 @@
 <template>
   <div class="course-detail-page">
+    <backhome></backhome>
+
     <course-top :detail='detail' ref='courseTop'></course-top>
     <div class="course-tab">
 
@@ -9,9 +11,7 @@
           <div :class="index == tabIndex ? 'tab-bottom-border-show' : 'tab-bottom-border-hide'"></div>
         </div>
       </div>
-
     </div>
-
     <div class="tab-item-detail">
       <!-- 详情 -->
       <div v-if='tabIndex == 0'>
@@ -29,8 +29,8 @@
           <div class="swiper-box">
               <mt-swipe :auto="0">
                 <mt-swipe-item  v-for='item in detail.excellences' :key='item' class="goods-students-avatar">
-                  <img src="http://tx.haiqq.com/uploads/allimg/150402/16094151D-13.jpg" alt="">
-                  <div class="student-name">用户名</div>
+                  <img :src="item.avatar" alt="">
+                  <div class="student-name">{{item.username}}</div>
                 </mt-swipe-item>
               </mt-swipe>
           </div>
@@ -283,7 +283,11 @@ export default {
           if (res.data.videos.length) {
             if (res.data.videos[0].is_try_free == '1') {
               this.trySee = 1
+            } else {
+              this.trySee = 0
             }
+          } else {
+            this.trySee = 0
           }
           // 判断是否开课  是否 结课
           let startclassDiffer = new Date(startclass).getTime() - new Date().getTime()

@@ -15,6 +15,8 @@
       </div>
     </div>
     <component :is="currentView" :currentList='currentList'></component>
+    <div class="no-data-icon" v-if='!currentList.length'><img src="../assets/all_none@3x.png" alt="" ></div>
+
     <nav-bar></nav-bar>
   </div>
 </template>

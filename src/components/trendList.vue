@@ -45,9 +45,14 @@
           <img :src="item.video_cover" alt="" class="video-cover" v-show="videoIndex != index ">
           <img src="../assets/class_play_icon@3x.png" alt="" class="video-icon" @click.stop="playVideo('videoTime' +index ,index)" v-show="videoIndex != index"> 
         </div>
-        <div class="trend-problem-title" v-if='item.type != 1'>
+        <div class="trend-problem-title" v-if='item.type == 2'>
           <img src="../assets/circle_question_icon@3x.png" alt="">
           <div class="trend-problem-question">{{item.content}}</div>
+        </div>
+
+        <div class="trend-problem-title" v-if='item.type == 3'>
+          <img src="../assets/circle_question_icon@3x.png" alt="">
+          <div class="trend-problem-question">{{item.reply_content}}</div>
         </div>
 
          <div class="trend-problem-title" v-if='item.type == 1' @click.stop="linkCourse(item.group_id, item.group_type)">
@@ -62,7 +67,7 @@
             <div @click.stop='suportTrend(item.id, item.is_thumb, index)'>
               <img src="../assets/circle_like_nor_icon@3x.png" alt="" v-if='item.is_thumb === "0"'>
               <img src="../assets/circle_like_pre_icon@3x.png" alt="" v-if='item.is_thumb === "1"'>
-              <div class="num" :style="item.is_thumb == '1' ? '' : 'color: #D4D9DD;'">{{item.thumbs}}</div>
+              <div class="num" :style="item.is_thumb == '1' ? 'color: red' : 'color: #D4D9DD;'">{{item.thumbs}}</div>
             </div>
             <div>
               <img src="../assets/circle_comment_nor_icon@3x.png" alt="">
@@ -103,7 +108,6 @@ export default {
     return {
       previewImages: {},
       showModal: false,
-      showPost: true,
       videoIndex: null,
     }
   },
@@ -123,7 +127,6 @@ export default {
     }
   },
   mounted() {
-    this.addResize()
   },
   methods: {
     infiniteHandler($state) {
@@ -260,35 +263,26 @@ export default {
     },
     playVideo(ele, index) {
       this.videoIndex = index
-      this.showPost = false
-      this.addResize()
-      this.$refs[ele][0].play()
       this.currentVideo = this.$refs[ele][0]
+      this.$refs[ele][0].play()
+      this.watchFullScreen()
+      console.log(this.currentVideo)
+
     },
     endVideo() {
       this.currentVideo.webkitExitFullScreen()
-      this.currentVideo.srcObject = new window.webkitMediaStream
-      this.showPost = true
+      this.videoIndex = null
     },
 
-    // 监控shi'pin 全屏
-    addResize() {
-      window.addEventListener('resize', this.watchFullScreen, false)
-    },
+    
 
     watchFullScreen() {
-      if (!this.checkFull()) {
-        this.showPost = true
-        this.currentVideo.pause()
-      } else {
-        window.removeEventListener('resize', this.watchFullScreen, false)
-      }
+      alert(this.currentVideo)
+      this.currentVideo.addEventListener("x5videoexitfullscreen", function(){
+        this.videoIndex = null
+    })
     },
-    checkFull() {
-      let isFull = document.fullscreenEnabled || window.fullScreen || document.webkitIsFullScreen || document.msFullscreenEnabled;
-      if (isFull === undefined) isFull = false;
-      return isFull;
-    },
+    
   },
   
   props: {

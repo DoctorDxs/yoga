@@ -2,12 +2,16 @@
   <div class="course-detail-page">
     <bg></bg>
     <div class="video-box">
-      <video
+      <video controls='controls'
              @ended="endVideo()"
              :src="videoInfo.url"
+             x5-video-player-type="h5" 
+             x5-video-player-fullscreen="true" 
+             preload="auto"
+             x5-video-orientation="landscape|portrait"
              ref='videoTime' v-show="!showPost">
       </video>
-      <img :src="videoInfo.good_cover" alt="" class="video-cover" v-show="showPost">
+      <img :src="videoInfo.good_cover" alt="" class="video-cover" v-show="showPost" style="width: 100%;">
       <img src="../assets/class_play_icon@3x.png" alt="" class="video-icon" @click="playVideo" v-show="showPost">
     </div>
 
@@ -53,6 +57,7 @@ export default {
       videoInfo: {learns_avatar: []},
       evaluteList: [],
       showPost: true,
+      showPlayIcon: true,
       page: 1
     }
   },
@@ -70,6 +75,7 @@ export default {
         this.page = 1
         this.evaluteList = []
         this.showPost = true
+        this.showPlayIcon = true
         this.getTrend(this.state)
       }
     } else {
@@ -81,7 +87,6 @@ export default {
     this.getVideo()
   },
   mounted() {
-    this.addResize()
   },
 
   methods: {
@@ -96,31 +101,18 @@ export default {
           this.$toast.top('您还未购买该训练营')
         }
       }
-      
     },
-    // 监控shi'pin 全屏
-    addResize() {
-      window.addEventListener('resize', this.watchFullScreen, false)
-    },
-
-    watchFullScreen() {
-      if (!this.checkFull()) {
-        this.showPost = true
-        this.$refs.videoTime.pause()
-      } else {
-        window.removeEventListener('resize', this.watchFullScreen, false)
-      }
-    },
-    checkFull() {
-      let isFull = document.fullscreenEnabled || window.fullScreen || document.webkitIsFullScreen || document.msFullscreenEnabled;
-      if (isFull === undefined) isFull = false;
-      return isFull;
-    },
+    
     playVideo() {
       this.showPost = false
       this.$refs.videoTime.play()
-      this.addResize()
     },
+     endVideo() {
+      this.$refs.videoTime.webkitExitFullScreen()
+      this.showPost = true
+      this.$router.push({name: 'complated1', query: {group_id: this.group_id, learn_id: this.learn_id, good_name: this.videoInfo.good_name, type: this.type, videoTime: this.$refs.videoTime.duration, courseNmae: this.courseNmae}})
+    },
+
     getVideo() {
       getVideoDetail(this.group_id, this.learn_id).then(res => {
         if (res.state == 200) {
@@ -129,12 +121,7 @@ export default {
         }
       })
     },
-    endVideo() {
-      this.$refs.videoTime.webkitExitFullScreen()
-      this.$refs.videoTime.srcObject = new window.webkitMediaStream
-      this.showPost = true
-      this.$router.push({name: 'complated1', query: {group_id: this.group_id, learn_id: this.learn_id, good_name: this.videoInfo.good_name, type: this.type, videoTime: this.$refs.videoTime.duration, courseNmae: this.courseNmae}})
-    },
+   
 
 
     getTrend($state) {
@@ -188,6 +175,7 @@ body {
   width: 100%;
   height: 422px;
   position: relative;
+  overflow: hidden;
 }
 
 .video-cover {

@@ -1,5 +1,6 @@
 <template>
   <div class="send-page">
+    <backhome></backhome>
     <div class="gift-send-box">
       <img src="../assets/class_gift_bg01@3x.png" alt="" class="bg-middle">
       <img src="../assets/class_gift_bg02@3x.png" alt="" class="bg-bottom">
@@ -9,7 +10,7 @@
           <span class='sender-name' >{{sendDetail.username}}</span>
           <span class="sender-text">赠送给你</span>
         </div></div>
-        <div class="sender-info" v-if='sendDetail.is_received != "1"'><div>
+        <div class="sender-info" v-if='sendDetail.is_received == "1"'><div>
           <img :src="sendDetail.user_avatar" alt="" v-if='is_mine != "1"'>
           <span class='sender-name' v-if='is_mine != "1"'>{{sendDetail.username}}</span><span class="sender-text" v-if='is_mine != "1"'>赠送给你</span>
           <span class='sender-name' v-if='sendDetail.is_mine == "1"'>你赠送给{{sendDetail.received_username}}的{{sendDetail.group_type}}已被领取</span>
@@ -64,18 +65,25 @@ export default {
       })
     },
     receiveNow() {
+      const limit_time = new Date(this.sendDetail.limit_time.replace(/-/g, "/")) 
+      let differ = new Date() - limit_time
       if (this.sendDetail.limit_time) {
-        if (this.sendDetail.is_mine == '1') {
-          alert('自己不能领取自己的赠品，快让您的好友领取吧！')
-        } else {
-          if (this.sendDetail.is_buy == '1') {
-            alert('您已拥有此课程不能领取该赠品！')
+        if (differ > 0) {
+          if (this.sendDetail.is_mine == '1') {
+            alert('自己不能领取自己的赠品，快让您的好友领取吧！')
           } else {
-            this.$router.push({
-              name: 'receive',query: {id: this.id, group_name: this.sendDetail.group_name, group_type: this.sendDetail.group_type, goods_cover: this.sendDetail.goods_cover}
-            })
-          }
+            if (this.sendDetail.is_buy == '1') {
+              alert('您已拥有此课程不能领取该赠品！')
+            } else {
+              this.$router.push({
+                name: 'receive',query: {id: this.id, group_name: this.sendDetail.group_name, group_type: this.sendDetail.group_type, goods_cover: this.sendDetail.goods_cover}
+              })
+            }
+          } 
+        } else {
+          this.$toast.top('您领取的课程不在领取时间范围内！')
         }
+        
       } else {
         if (this.sendDetail.is_mine == '1') {
           alert('自己不能领取自己的赠品，快让您的好友领取吧！')

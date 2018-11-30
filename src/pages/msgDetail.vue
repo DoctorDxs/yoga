@@ -1,5 +1,7 @@
 <template>
   <div class="msgDetail-page">
+    <backhome></backhome>
+
     <div class="trend-msg" v-for='(item, index) in msgList' :key='index' @click.stop="linkDetail(item.link_id, item.link_type, index, item.id)">
       <div class="msg-type" >
         <div class="msg-title">
@@ -20,7 +22,7 @@
     </div>
     <div class="no-data-icon" v-if='!msgList.length'><img src="../assets/all_none@3x.png" alt="" ></div>
     <infinite-loading @infinite="infiniteHandler" >
-      <div slot="no-more" class="no-more-data">没有更多了...</div>
+      <div slot="no-more" class="no-more-data" v-show='msgList.length > 9'>没有更多了...</div>
       <div slot="no-results"> </div>
     </infinite-loading>
   </div>

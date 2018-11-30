@@ -24,7 +24,6 @@
       </div>
       <div class="camp-cover"><img src="../assets/bg-img.png" alt=""></div>
     </div> -->
-    <div class="no-data-icon"><img src="../assets/all_none@3x.png" alt="" ></div>
   </div>
 </template>
 

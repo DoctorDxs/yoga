@@ -1,7 +1,7 @@
 <template>
   <div class="accountSet-page">
+    <backhome></backhome>
     <div class="account-avatar">
-      
       <div class="gift-detail">
         <img :src="group_cover" alt="">
         <div class="course-desc">
@@ -9,7 +9,6 @@
           <div>{{group_type}}</div>
         </div>
       </div>
-      
     </div>
     <div class="account-info-item">
       <div>姓名</div>

@@ -13,7 +13,7 @@
     </div>
     <div class="no-data-icon" v-if='!sysList.length'><img src="../assets/all_none@3x.png" alt="" ></div>
     <infinite-loading @infinite="infiniteHandler">
-      <div slot="no-more" class="no-more-data" v-if='sysList.length > 9'>没有更多了...</div>
+      <div slot="no-more" class="no-more-data" v-show='sysList.length > 9'>没有更多了...</div>
       <div slot="no-results"> </div>
     </infinite-loading>
   </div>

@@ -1,6 +1,8 @@
 <template>
   <div class="answerDetail-page">
     <bg></bg>
+    <backhome></backhome>
+
     <div class="trend-problem-title" @click='commentUser'>
       <img src="../assets/circle_question_icon@3x.png" alt="">
       <div class="trend-problem-question">
@@ -45,6 +47,8 @@
           </div>
           <div class="video-box" v-if='detail.video_path'>
             <video 
+              x5-video-player-type="h5" 
+              x5-video-player-fullscreen="true"
               @ended="endVideo()"
               :src="detail.video_path"
               ref='videoTime' v-show="!showPost">
@@ -151,28 +155,19 @@ export default {
     this.getData()
   },
   mounted() {
-     this.addResize()
   },
 
   methods: {
     playVideo() {
       this.showPost = false
       this.$refs.videoTime.play()
-      this.addResize()
+      this.watchFullScreen()
+    },
+    endVideo() {
+      this.showPost = true
+      this.$refs.videoTime.pause()
     },
     // 监控shi'pin 全屏
-    addResize() {
-      window.addEventListener('resize', this.watchFullScreen, false)
-    },
-
-    watchFullScreen() {
-      if (!this.checkFull()) {
-        this.showPost = true
-        this.$refs.videoTime.pause()
-      } else {
-        window.removeEventListener('resize', this.watchFullScreen, false)
-      }
-    },
     checkFull() {
       let isFull = document.fullscreenEnabled || window.fullScreen || document.webkitIsFullScreen || document.msFullscreenEnabled;
       if (isFull === undefined) isFull = false;
@@ -186,7 +181,6 @@ export default {
     },
     deleteEval() {
       this.modalShow = false
-      // this.showModal1 = true
       this.confirm()
     },
     confirm() {

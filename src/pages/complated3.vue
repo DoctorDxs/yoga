@@ -210,7 +210,9 @@ export default {
           this.canvasImg = res.data.image.content
           this.mottoText = res.data.string.content
           this.getShareInfo()
-          this.createImg()
+          setTimeout(() => {
+            this.createImg()
+          }, 100)
         } else {
           this.$toast.top(res.msg)
         }
