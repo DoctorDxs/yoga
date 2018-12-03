@@ -31,6 +31,9 @@
             x5-video-player-fullscreen="true"
             @ended="endVideo()"
             :src="trendDetails.video_path"
+            @pause='pauseVideo'
+            preload="auto"
+            onclick="return false"
             ref='videoTime' v-show="!showPost">
           </video>
           <img :src="trendDetails.video_cover" alt="" class="video-cover" v-show="showPost">
@@ -211,9 +214,6 @@ export default {
     }
     
   },
-  mounted() {
-    this.addResize()
-  },
   methods: {
     updateTrend(trendUpdate) {
       const comments = this.comments
@@ -225,7 +225,6 @@ export default {
           id = comments[trendIndex].id
         }
         updataTrend(id).then(res => {
-          
           if (res.state == 200) {
             if (res.data.img_path) {
               res.data.img_path = res.data.img_path.split(',')
@@ -235,10 +234,7 @@ export default {
             this.comments.splice(trendIndex, 1)
           }
         })
-      } else if (doWhat == 2) {
-        this.$emit('updataTrends', this.$state)
-        localStorage.removeItem('trendUpdate')
-      }
+      } 
     },
 
      infiniteHandler($state) {
@@ -248,33 +244,16 @@ export default {
     playVideo() {
       this.showPost = false
       this.$refs.videoTime.play()
-      this.addResize()
     },
     endVideo() {
       this.showPost = true
-      this.$refs.videoTime.pause()
+      this.$refs.videoTime.webkitExitFullScreen()
     },
-    // 监控shi'pin 全屏
-    addResize() {
-      window.addEventListener('resize', this.watchFullScreen, false)
+    pauseVideo() {
+      this.showPost = true
     },
-
-    watchFullScreen() {
-      if (!this.checkFull()) {
-        alert(3333333)
-
-        this.showPost = true
-        this.$refs.videoTime.pause()
-      } else {
-        window.removeEventListener('resize', this.watchFullScreen, false)
-      }
-    },
-    checkFull() {
-      alert(1212)
-      let isFull = document.fullscreenEnabled || window.fullScreen || document.webkitIsFullScreen || document.msFullscreenEnabled;
-      if (isFull === undefined) isFull = false;
-      return isFull;
-    },
+    
+    
     getData($state) {
       getSomeoneTrend({id:　this.id, page: this.page}).then(res => {
         if(res.state == 200) {

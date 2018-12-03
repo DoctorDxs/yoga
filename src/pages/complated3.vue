@@ -4,27 +4,30 @@
       <div class="content-box">
         <div class="complate-title">发布成功</div>
         <div class="complate-time">把动态分享给更多小伙伴吧</div>
-        <div class="canvs-img" id='downCavas' v-if='showImg'>
-          <img :src="canvasImg" alt="">
+        <div class="canvs-img" id='downCavas' v-show='showImg'>
+          <img :src="canvasImg" alt="" >
           <div class="contribulite-text">恭喜你完成了</div>
           <div class="course-title">{{good_name}}</div>
           <div class="motto-text">“{{mottoText}}”</div>
-          <div class="my-info">
-            <div><img :src="userInfo.avatar" alt=""></div>
-            <div>
-              <div class="username">{{userInfo.username}}</div>
-              <div class="complate-time2">{{sendTime}}</div>
+          <div class="bottome-tips">
+            <div class="my-info">
+              <div><img :src="userInfo.avatar" alt=""></div>
+              <div>
+                <div class="username">{{userInfo.username}}</div>
+                <div class="complate-time2">{{sendTime}}</div>
+              </div>
+            </div>
+            <div class="this-port">
+              <div>本次运动</div>
+              <div>
+                <span class="study-time">{{videoTime}}</span>
+                <span class="time-unit">min</span>
+              </div>
             </div>
           </div>
-          <div class="this-port">
-            <div>本次运动</div>
-            <div>
-              <span class="study-time">{{videoTime}}</span>
-              <span class="time-unit">min</span>
-            </div>
-          </div>
+          
         </div>
-        <div class="canvs-img" v-if='!showImg'>
+        <div class="canvs-img" v-show='!showImg'>
           <img :src="imgUrl" alt="">
         </div>
         <div class="change-btn" @click="changeImg">换一换</div>
@@ -83,7 +86,7 @@ export default {
     this.good_name = query.good_name
     this.type = query.type
     this.group_id = query.group_id
-    this.videoTime = query.videoTime
+    this.videoTime = (query.videoTime/60 - 0).toFixed(2)
     let userInfo = localStorage.getItem("userInfo")
     if (userInfo) {
       userInfo = JSON.parse(userInfo)
@@ -207,12 +210,13 @@ export default {
     getData() {
       shareImg().then(res => {
         if (res.state == 200) {
+          this.showImg =  true
           this.canvasImg = res.data.image.content
           this.mottoText = res.data.string.content
           this.getShareInfo()
           setTimeout(() => {
             this.createImg()
-          }, 100)
+          }, 500)
         } else {
           this.$toast.top(res.msg)
         }
@@ -307,10 +311,19 @@ export default {
   width: 610px;
 }
 
+.bottome-tips {
+  background: rgba(0,0,0,.2);
+   width:610px;
+   position:absolute;
+   bottom: 0;
+   display: flex;
+   padding: 10px 20px;
+   justify-content: space-between;
+   align-items: center;
+}
+
 .my-info {
   display: flex;
-  bottom: 40px;
-  left: 40px;
 }
 
 .my-info img {
@@ -328,10 +341,7 @@ export default {
   font-size: 20px;
 }
 
-.this-port {
-  right: 40px;
-  bottom: 40px;
-}
+
 
 .this-port > div:nth-child(1) {
   font-size: 20px;

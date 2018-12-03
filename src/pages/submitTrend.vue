@@ -1,5 +1,6 @@
 <template>
   <div class="submitTrend-page">
+    <span>{{posterCover}}</span>
     <div class="problem-title" v-if='type == 2'><input type="text" v-model.trim="title" placeholder="请输入您的问题，以问号结束"></div>
     <div class="submit-trend-wrap">
       <textarea class="trend-text-input" :placeholder="type == 1 ? '请输入你的动态' : ''" v-model.trim="content"></textarea>
@@ -11,8 +12,18 @@
       </div>
       <div class="trend-imgs-box" v-if='videoUrl !== ""'>
         <img src="../assets/issue_del_icon@3x.png" alt="" class="del-trend-imgs" @click="deleteVideo(videoUrl)">
-        <video :src="videoUrl" class="trend-img-item" preload="auto" id='videoCover' x5-video-player-type="h5" x5-video-player-fullscreen="true" ></video>
-        <img src="../assets/video_icon.png" alt="" class="video-icon"> 
+        <video :src="videoUrl" 
+               class="trend-img-item" 
+               preload="auto" 
+               x5-video-player-type="h5" 
+               x5-video-player-fullscreen="true"
+               @ended="endVideo()"
+               ref="videoTime"
+              @pause='pauseVideo'
+              v-show="!showPost"></video>
+        <video :src="videoSrc" id='videoCover' style="display: none;" class="trend-img-item" ></video>
+        <img :src="posterCover" alt="" v-show='showPost' class="video-poster">
+        <img src="../assets/video_icon.png" alt="" class="video-icon" v-show='showPost' @click.stop="playVideo"> 
       </div>
       <div class="add-img-box add-img" v-if='imgs.length != 0 && imgs.length < 9'>
         <img src="../assets/issue_addphoto@3x.png" alt="" class="add-img" >
@@ -55,7 +66,9 @@ export default {
       content: '',
       id: '',
       title: '',
-      videoId: ''
+      videoId: '',
+      showPost: true,
+      posterCover: ''
     }
   },
   mounted() {
@@ -78,6 +91,19 @@ export default {
     };
   },
   methods: {
+
+    playVideo() {
+      this.showPost = false
+      this.$refs.videoTime.play()
+    },
+    
+    endVideo() {
+      this.showPost = true
+      this.$refs.videoTime.webkitExitFullScreen()
+    },
+    pauseVideo() {
+      this.showPost = true
+    },
     getSignature(callback) {
       getTecSign().then(result => {
         if (result.state == 200) {
@@ -113,11 +139,22 @@ export default {
         })
       }
     },
+    getUrl(file) {
+      var url = null; 
+      if (window.createObjcectURL != undefined) { 
+          url = window.createOjcectURL(file); 
+      } else if (window.URL != undefined) { 
+          url = window.URL.createObjectURL(file); 
+      } else if (window.webkitURL != undefined) { 
+          url = window.webkitURL.createObjectURL(file); 
+      } 
+      return url; 
+    },
     selectVideo(e) {
       const inputFile = this.$refs.inputVideo
-      const scale = 0.8;
       const that = this
       const video_file = this.$refs.inputVideo.files[0]
+      this.videoSrc = this.getUrl(video_file)
       if(this.$refs.inputVideo.files[0].length !== 0){ 
         this.showLoading = true
         qcVideo.ugcUploader.start({
@@ -131,29 +168,55 @@ export default {
             that.showLoading = false
             that.videoUrl = result.videoUrl
             that.videoId = result.fileId
-            let videoCover;
-            setTimeout(() => {
-              videoCover =  document.getElementById("videoCover")
-              videoCover.addEventListener('loadeddata',captureImage, false)
-            }, 100)
-            var captureImage = function() {
-              var canvas = document.createElement("canvas");
-              canvas.width = videoCover.videoWidth * scale;
-              canvas.height = videoCover.videoHeight * scale;
-              canvas.getContext('2d').drawImage(videoCover, 0, 0, canvas.width, canvas.height);
-              let poster = canvas.toDataURL("image/png")
-              videoCover.setAttribute("poster", poster)
-              console.log(poster)
-              // that.videoCover = src
-            }
-              
             that.$toast.top('上传成功')
-
-
+            
+           that.watchLoaded()
+            
           }
         }) 
       }
+      setTimeout(() => {
+        this.showLoading = false
+      }, 60 * 1000)
     },
+
+    watchLoaded() {
+      let that = this
+      const scale = 0.8;
+      let videoCover =  document.getElementById('videoCover')
+      console.log(videoCover)
+      if(videoCover) {
+        function captureImage() {
+          var canvas = document.createElement("canvas");
+          canvas.width = videoCover.videoWidth * scale;
+          canvas.height = videoCover.videoHeight * scale;
+          canvas.getContext('2d').drawImage(videoCover, 0, 0, canvas.width, canvas.height);
+          let poster = canvas.toDataURL("image/png")
+          that.posterCover = URL.createObjectURL(that.base64ToBolb(poster))
+          console.log(that.posterCover)
+        }
+        captureImage()
+        that.showPost = true
+      } else {
+        setTimeout(() => {
+          this.watchLoaded()
+        },1000)
+      }
+    },
+
+
+    base64ToBolb(dataurl) {
+      var arr = dataurl.split(','),
+            mime = arr[0].match(/:(.*?);/)[1],
+            bstr = atob(arr[1]),
+            n = bstr.length,
+            u8arr = new Uint8Array(n);
+        while (n--) {
+            u8arr[n] = bstr.charCodeAt(n);
+        }
+        return new Blob([u8arr], { type: mime });
+    },
+
     toast() {
       this.$toast.top('图片或视频只能上传一种！')
     },
@@ -171,6 +234,9 @@ export default {
           this.$toast.top(res.msg)
         }
       })
+      setTimeout(() => {
+        this.showLoading = false
+      }, 60 * 1000)
     },
     deleteVideo(url) {
       this.showLoading = true
@@ -182,8 +248,10 @@ export default {
         } else {
           this.$toast.top(res.msg)
         }
-        
       })
+      setTimeout(() => {
+        this.showLoading = false
+      }, 60 * 1000)
     },
     submitTrends() {
       if (this.type == 1) {
@@ -289,6 +357,11 @@ export default {
 }
 
 .trend-img-item {
+  width: 116px;
+  height: 116px;
+}
+
+.video-poster {
   width: 116px;
   height: 116px;
 }

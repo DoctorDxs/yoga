@@ -160,7 +160,7 @@ export default {
         this.$toast.top('您还未购买该课程')
       } else {
         this.$router.push({
-          name: 'videoDetail', query: {group_id: group_id, learn_id: learn_id, type: this.detail.type, in_circle: in_circle, courseNmae: this.detail.name}
+          name: 'videoDetail', query: {group_id: group_id, learn_id: learn_id, type: this.detail.type, in_circle: in_circle, courseNmae: this.detail.name, count: this.detail.video_count}
         })
       }
     },

@@ -119,7 +119,7 @@ export default {
     this.courseName = query.name
     this.price  = query.price
     this.type = query.type
-    this.vip_discount = query.vip_discount/10
+    this.vip_discount = query.vip_discount ? query.vip_discount/10 : 0
     this.now_phase_id = query.now_phase_id
     document.title = '课程购买';
     let userInfo = localStorage.getItem("userInfo")
@@ -228,7 +228,11 @@ export default {
       });
       wx.error(function(res){
       });
-      this.wxPay(params)
+      if (this.price_discount || price ) {
+        this.wxPay(params)
+      } else {
+        this.$toast.top('已加入练习')
+      }
     },
 
     wxPay(params) {

@@ -20,7 +20,7 @@
             <img :src="item" alt="" v-for='(item, index) in detail.circle' :key='index'>
           </div>
           <div class="course-detail-info">
-            <div>{{in_circle != '1' ? detail.now_phase.started_at + '开课' : startclass ? '已开课' : detail.now_phase.started_at + '开课'}}</div>
+            <div>{{in_circle != '1' && startclass ? '已开课' : detail.now_phase.started_at + '开课'}}</div>
             <div>累计{{detail.now_phase.subscribe_num}}人报名</div>
           </div>
         </div>
@@ -227,7 +227,7 @@ export default {
       if (in_circle == 0) {
         if (try_see == '1') {
           this.$router.push({
-            name: 'videoDetail', query: {group_id: group_id, learn_id: learn_id, type: this.detail.type, in_circle: in_circle, courseNmae: this.detail.name}
+            name: 'videoDetail', query: {group_id: group_id, learn_id: learn_id, type: this.detail.type, in_circle: in_circle, courseNmae: this.detail.name, count: this.detail.video_count}
           })
           
         } else {

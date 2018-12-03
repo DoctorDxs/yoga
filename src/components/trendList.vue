@@ -40,7 +40,10 @@
              :src="item.video_path"
              x5-video-player-type="h5" 
              x5-video-player-fullscreen="true"
-             :ref='"videoTime"+index' v-show="videoIndex == index">
+             @pause='pauseVideo'
+             preload="auto"
+             onclick="return false"
+             :ref='"videoTime"+index' v-show="videoIndex == index" :class="'videoTime'+index">
           </video>
           <img :src="item.video_cover" alt="" class="video-cover" v-show="videoIndex != index ">
           <img src="../assets/class_play_icon@3x.png" alt="" class="video-icon" @click.stop="playVideo('videoTime' +index ,index)" v-show="videoIndex != index"> 
@@ -265,23 +268,16 @@ export default {
       this.videoIndex = index
       this.currentVideo = this.$refs[ele][0]
       this.$refs[ele][0].play()
-      this.watchFullScreen()
-      console.log(this.currentVideo)
-
     },
     endVideo() {
       this.currentVideo.webkitExitFullScreen()
-      this.videoIndex = null
     },
+
+    pauseVideo() {
+      this.videoIndex = null
+    }
 
     
-
-    watchFullScreen() {
-      alert(this.currentVideo)
-      this.currentVideo.addEventListener("x5videoexitfullscreen", function(){
-        this.videoIndex = null
-    })
-    },
     
   },
   

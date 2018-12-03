@@ -15,16 +15,20 @@
       <img src="../assets/class_play_icon@3x.png" alt="" class="video-icon" @click="playVideo" v-show="showPost">
     </div>
 
-    <div class="tab-item-detail" v-if='videoInfo.learns_avatar.length > 0'>
+    <div class="tab-item-detail">
       <!-- 详情 -->
       <div>
         <div class="students-study">
           <div class="students-avatar">
             <img :src="item" alt="" v-for='(item, index) in videoInfo.learns_avatar' :key='index'>
           </div>
-          <div class="course-detail-info">
-            <div>DAY{{videoInfo.learn_id - 0 + 1}}</div>
+          <div class="course-detail-info" v-if='type == 1'>
+            <div>DAY{{videoInfo.k}}</div>
             <div>{{videoInfo.learn_count - 0 + 1}}次练习</div>
+          </div>
+          <div class="course-detail-info" v-if='type == 2'>
+            <div>{{videoInfo.k+ '/' +count}}</div>
+            <div>{{videoInfo.learn_count - 0}}次练习</div>
           </div>
         </div>
       </div>
@@ -64,6 +68,7 @@ export default {
   activated() {
     const query = this.$route.query
     this.courseNmae = query.courseNmae
+    this.count = query.count
     if (this.type && this.learn_id ) {
       if (this.learn_id == query.learn_id) {
         return false

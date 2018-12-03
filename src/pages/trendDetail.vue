@@ -26,6 +26,9 @@
             x5-video-player-type="h5"
             playsinline
             webkit-playsinlin
+            @pause='pauseVideo'
+            preload="auto"
+            onclick="return false"
             :src="trendDetails.video_path"
             ref='videoTime' v-show="!showPost">
           </video>
@@ -177,7 +180,8 @@ export default {
       replayInput: 1,
       page: 1,
       showModal: false,
-      modalShow: false
+      modalShow: false,
+      showPost: true
     }
   },
   activated() {
@@ -243,29 +247,13 @@ export default {
     playVideo() {
       this.showPost = false
       this.$refs.videoTime.play()
-      this.addResize()
     },
     endVideo() {
       this.showPost = true
-      this.$refs.videoTime.pause()
+      this.$refs.videoTime.webkitExitFullScreen()
     },
-    // 监控shi'pin 全屏
-    addResize() {
-      window.addEventListener('resize', this.watchFullScreen, false)
-    },
-
-    watchFullScreen() {
-      if (!this.checkFull()) {
-        this.showPost = true
-        this.$refs.videoTime.pause()
-      } else {
-        window.removeEventListener('resize', this.watchFullScreen, false)
-      }
-    },
-    checkFull() {
-      let isFull = document.fullscreenEnabled || window.fullScreen || document.webkitIsFullScreen || document.msFullscreenEnabled;
-      if (isFull === undefined) isFull = false;
-      return isFull;
+    pauseVideo() {
+      this.showPost = true
     },
     infiniteHandler($state) {
       this.state = $state

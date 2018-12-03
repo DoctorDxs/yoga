@@ -50,6 +50,9 @@
               x5-video-player-type="h5" 
               x5-video-player-fullscreen="true"
               @ended="endVideo()"
+              @pause='pauseVideo'
+              preload="auto"
+              onclick="return false"
               :src="detail.video_path"
               ref='videoTime' v-show="!showPost">
             </video>
@@ -161,17 +164,14 @@ export default {
     playVideo() {
       this.showPost = false
       this.$refs.videoTime.play()
-      this.watchFullScreen()
     },
+    
     endVideo() {
       this.showPost = true
-      this.$refs.videoTime.pause()
+      this.$refs.videoTime.webkitExitFullScreen()
     },
-    // 监控shi'pin 全屏
-    checkFull() {
-      let isFull = document.fullscreenEnabled || window.fullScreen || document.webkitIsFullScreen || document.msFullscreenEnabled;
-      if (isFull === undefined) isFull = false;
-      return isFull;
+    pauseVideo() {
+      this.showPost = true
     },
     showModal(id,deleteAnswer, index) {
       this.modalShow = true

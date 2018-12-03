@@ -108,6 +108,9 @@ export default {
   font-size: 36px;
   color: #2F343C;
   text-align: center;
+  overflow: hidden;
+  text-overflow:ellipsis;
+  white-space: nowrap;
 }
 
 .complate-time {

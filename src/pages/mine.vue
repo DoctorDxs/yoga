@@ -193,6 +193,10 @@ export default {
   color: #fff;
   margin-top: 9px;
   margin-left: 28px;
+  overflow: hidden;
+  text-overflow:ellipsis;
+  white-space: nowrap;
+
 }
 
 .mine-setting {
