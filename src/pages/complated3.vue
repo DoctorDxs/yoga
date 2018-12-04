@@ -185,7 +185,7 @@ export default {
       canvas.height = (height+offsetTop)*scaleBy;
       context.scale(scaleBy,scaleBy);
       var opts = {
-        allowTaint:true,//允许加载跨域的图片
+        useCORS: true,//允许加载跨域的图片
         tainttest:true, //检测每张图片都已经加载完成
         scale:scaleBy, // 添加的scale 参数
         canvas:canvas, //自定义 canvas
@@ -313,11 +313,11 @@ export default {
 
 .bottome-tips {
   background: rgba(0,0,0,.2);
-   width:610px;
+   width: 610px;
    position:absolute;
    bottom: 0;
    display: flex;
-   padding: 10px 20px;
+   padding: 10px 40px;
    justify-content: space-between;
    align-items: center;
 }

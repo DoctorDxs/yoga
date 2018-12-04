@@ -184,13 +184,12 @@ export default {
                 item.img_path = []
               }
             })
-            if(this.page == 1) {
+            if(this.page == 1 &&　this.replies.length) {
               this.replies = replies
             } else {
+              this.page += 1;
               this.replies.push(...replies)
             }
-            this.page += 1;
-
             this.state.loaded();
           } else {
             this.state.complete()
@@ -271,11 +270,6 @@ export default {
         
         replayOrCommit(params).then(res => {
           if (res.state == 200) {
-            if (this.type === 'answer') {
-              this.getData(`${this.id}?page=${this.page}&type=answer`)
-            } else {
-              this.getData(`${this.id}?page=${this.page}`)
-            }
             this.content = ''
             this.imgs = []
             this.page = 1
@@ -287,7 +281,11 @@ export default {
             let evalUpdate = JSON.parse(localStorage.getItem('evalUpdate'))
             evalUpdate.doWhat = 1
             localStorage.setItem('evalUpdate', JSON.stringify(evalUpdate))
-
+            let comment = this.comment
+            comment.evaluate_sum = comment.evaluate_sum - 0 +1
+            this.comment = comment
+            alert(comment.evaluate_sum)
+            document.title = '共' + comment.evaluate_sum + '条回复'
           } else {
             this.$toast.top(res.msg)
           }
@@ -382,6 +380,11 @@ export default {
             let evalUpdate = JSON.parse(localStorage.getItem('evalUpdate'))
             evalUpdate.doWhat = 1
             localStorage.setItem('evalUpdate', JSON.stringify(evalUpdate))
+            let comment = this.comment
+            comment.evaluate_sum = comment.evaluate_sum - 1
+            this.comment = comment
+            alert(comment.evaluate_sum)
+            document.title = '共' + comment.evaluate_sum + '条回复'
           }
         } else {
            this.$toast.top(res.msg)

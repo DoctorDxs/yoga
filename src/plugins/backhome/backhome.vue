@@ -28,13 +28,13 @@ export default {
   z-index: 9999999;
   display: flex;
   align-items: center;
-  bottom: 421px;
+  /* 421 */
+  bottom: 360px;
   left: 0;
   border-radius: 0 35px 35px 0;
 }
 
 .backhome img {
-  width: 36px;
   height: 36px;
   margin-right: 10px;
   margin-left: 20px;

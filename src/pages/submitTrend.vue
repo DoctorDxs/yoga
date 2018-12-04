@@ -1,6 +1,6 @@
 <template>
   <div class="submitTrend-page">
-    <span>{{posterCover}}</span>
+    {{posterCover}}
     <div class="problem-title" v-if='type == 2'><input type="text" v-model.trim="title" placeholder="请输入您的问题，以问号结束"></div>
     <div class="submit-trend-wrap">
       <textarea class="trend-text-input" :placeholder="type == 1 ? '请输入你的动态' : ''" v-model.trim="content"></textarea>
@@ -15,14 +15,13 @@
         <video :src="videoUrl" 
                class="trend-img-item" 
                preload="auto" 
-               x5-video-player-type="h5" 
-               x5-video-player-fullscreen="true"
                @ended="endVideo()"
+               crossorigin="*"
                ref="videoTime"
               @pause='pauseVideo'
+              id='video'
               v-show="!showPost"></video>
-        <video :src="videoSrc" id='videoCover' style="display: none;" class="trend-img-item" ></video>
-        <img :src="posterCover" alt="" v-show='showPost' class="video-poster">
+        <img :src="posterCover" alt="" v-show='showPost' class="video-poster" >
         <img src="../assets/video_icon.png" alt="" class="video-icon" v-show='showPost' @click.stop="playVideo"> 
       </div>
       <div class="add-img-box add-img" v-if='imgs.length != 0 && imgs.length < 9'>
@@ -55,6 +54,33 @@
 
 <script>
 import { postImg, deleteImg, deleteVideo, addTrend, getTecSign } from '../fetch/api'
+// 获取原视频   宽高
+function getVideoDimensionsOf(url){
+	return new Promise(function(resolve){
+		// create the video element
+		let video = document.createElement('video');
+
+		// place a listener on it
+		video.addEventListener( "loadeddata", function () {
+			// retrieve dimensions
+			let height = this.videoHeight;
+			let width = this.videoWidth;
+			// send back result
+			resolve({
+				height : height,
+        width : width,
+        video: video
+			});
+		}, false );
+
+		// start download meta-datas
+    video.src = url;
+	});
+}
+
+
+
+
 export default {
   name: 'submitTrend',
   data () {
@@ -131,7 +157,6 @@ export default {
           if (res.state == 200) {
             if (this.imgs.length < 10) {
               this.imgs.push(res.data[0])
-              
             }
           } else {
             this.$toast.top(res.msg)
@@ -169,9 +194,7 @@ export default {
             that.videoUrl = result.videoUrl
             that.videoId = result.fileId
             that.$toast.top('上传成功')
-            
-           that.watchLoaded()
-            
+            that.getVideoCover(result.videoUrl)
           }
         }) 
       }
@@ -179,43 +202,32 @@ export default {
         this.showLoading = false
       }, 60 * 1000)
     },
-
-    watchLoaded() {
+    getVideoCover(url) {
       let that = this
-      const scale = 0.8;
-      let videoCover =  document.getElementById('videoCover')
-      console.log(videoCover)
-      if(videoCover) {
-        function captureImage() {
+      let video = document.getElementById('video')
+      if (video) {
+        getVideoDimensionsOf(url).then(function(dimensions){
           var canvas = document.createElement("canvas");
-          canvas.width = videoCover.videoWidth * scale;
-          canvas.height = videoCover.videoHeight * scale;
-          canvas.getContext('2d').drawImage(videoCover, 0, 0, canvas.width, canvas.height);
-          let poster = canvas.toDataURL("image/png")
-          that.posterCover = URL.createObjectURL(that.base64ToBolb(poster))
-          console.log(that.posterCover)
-        }
-        captureImage()
-        that.showPost = true
+          canvas.width = 720;
+          canvas.height = 405;
+          alert(dimensions.width)
+          alert(dimensions.height)
+          canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+          let src = canvas.toDataURL("image/png");
+          that.posterCover = src
+        });
       } else {
         setTimeout(() => {
-          this.watchLoaded()
-        },1000)
+          this.getVideoCover(this.videoUrl)
+        }, 1000);
       }
+      
     },
 
 
-    base64ToBolb(dataurl) {
-      var arr = dataurl.split(','),
-            mime = arr[0].match(/:(.*?);/)[1],
-            bstr = atob(arr[1]),
-            n = bstr.length,
-            u8arr = new Uint8Array(n);
-        while (n--) {
-            u8arr[n] = bstr.charCodeAt(n);
-        }
-        return new Blob([u8arr], { type: mime });
-    },
+
+
+    
 
     toast() {
       this.$toast.top('图片或视频只能上传一种！')
@@ -364,6 +376,7 @@ export default {
 .video-poster {
   width: 116px;
   height: 116px;
+  background: rgba(0,0,0,.4)
 }
 
 .del-trend-imgs {
@@ -442,7 +455,7 @@ export default {
   background: #E1E2E4;
   color: #1E1E1E;
   text-align: center;
-  line-height: 66px;
+  line-height: 68px;
   border-radius: 33px;
   font-size: 28px;
 }

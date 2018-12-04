@@ -11,4 +11,28 @@ function GetRequest() {
   return theRequest;
 };
 
-export default GetRequest
+
+
+function getVideoDimensionsOf(url){
+	return new Promise(function(resolve){
+		// create the video element
+		let video = document.createElement('video');
+
+		// place a listener on it
+		video.addEventListener( "loadedmetadata", function () {
+			// retrieve dimensions
+			let height = this.videoHeight;
+			let width = this.videoWidth;
+			// send back result
+			resolve({
+				height : height,
+				width : width
+			});
+		}, false );
+
+		// start download meta-datas
+		video.src = url;
+	});
+}
+
+export default {GetRequest,getVideoDimensionsOf}

@@ -11,7 +11,7 @@
               <img src="../assets/vip_nor_icon@3x.png" alt="" v-if='userInfo.status === "1"'>
               <img src="../assets/vip_supper_icon@3x.png" alt="" v-if='userInfo.status === "2"'>
             </div>
-            <div class="mine-user-sign">{{userInfo.desc}}</div>
+            <div class="mine-user-sign">{{userInfo.desc}}ggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg</div>
           </div>
         </div>
         <div class="buy-vip-btn" @click="linkVip">成为会员</div>
@@ -193,10 +193,10 @@ export default {
   color: #fff;
   margin-top: 9px;
   margin-left: 28px;
+  width: 300px;
   overflow: hidden;
   text-overflow:ellipsis;
   white-space: nowrap;
-
 }
 
 .mine-setting {

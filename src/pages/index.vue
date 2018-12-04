@@ -78,6 +78,7 @@ export default {
   },
   created() {
     const queryUrl = GetRequest()
+    alert(queryUrl)
     if(queryUrl.api_token) {
      localStorage.setItem('api_token', queryUrl.api_token)
     };
