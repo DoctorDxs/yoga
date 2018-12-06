@@ -51,7 +51,7 @@ export default {
 
 .camp-list-item {
   height: 310px;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
   position: relative;
 }
 
@@ -65,10 +65,10 @@ export default {
 }
 
 .camp-title {
-  font-size: 32px;
+  font-size: 38px;
   color: #444C52;
   font-weight: 600;
-  top: 80px;
+  top: 70px;
 }
 
 .camp-info {
@@ -88,7 +88,7 @@ export default {
   color: #fff;
   font-weight: 600;
   background: #B78FDA;
-  top: 190px;
+  top: 200px;
 }
 
 .camp-cover {

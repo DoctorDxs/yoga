@@ -27,12 +27,10 @@
         <div class="good-students" v-if='detail.excellences.length > 0'>
           <div class="good-student-title"><span class="v-line-border"></span><span>昨日优秀学员</span></div>
           <div class="swiper-box">
-              <mt-swipe :auto="0">
-                <mt-swipe-item  v-for='item in detail.excellences' :key='item' class="goods-students-avatar">
-                  <img :src="item.avatar" alt="">
-                  <div class="student-name">{{item.username}}</div>
-                </mt-swipe-item>
-              </mt-swipe>
+            <div  v-for='item in detail.excellences' :key='item' class="goods-students-avatar">
+              <img :src="item.avatar" alt="">
+              <div class="student-name">{{item.username}}</div>
+            </div>
           </div>
         </div>
         <div class="course-des-detail" v-html='detail.desc'></div>
@@ -137,7 +135,7 @@
     <div class="consult-modal-bg" v-if="showConsultModal" @click="hideConsult">
       <div class="consult-modal">
         <div class="modal-title">添加客服微信</div>
-        <div class="modal-desc">亲爱的伽人，请添加轻伽瑜伽客服微信，获取专属服务</div>
+        <div class="modal-desc">亲爱的伽人，请添加轻瑜伽客服微信，获取专属服务</div>
         <div hidden><input type="text" v-model="wxCode"></div> 
         <div class="modal-content">{{wxCode}}</div>
         <div class="copy-btn" v-clipboard:copy="wxCode"
@@ -677,7 +675,9 @@ export default {
 
 .swiper-box {
   width: 750px;
-  overflow: hidden;
+  overflow-x: scroll;
+  display: flex;
+  align-items: center;
 }
 
 .v-line-border {
@@ -691,6 +691,7 @@ export default {
 .goods-students-avatar {
   margin-left: 30px;
   width: 110px!important;
+  flex-shrink: 0;
 }
 
 .goods-students-avatar img {

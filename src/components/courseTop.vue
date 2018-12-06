@@ -99,7 +99,11 @@ export default {
       this.detail = detail
     },
     snedBtn() {
-      this.showSendModal = true
+      if (this.detail.price == 0) {
+        alert('免费课程不能赠送')
+      } else {
+        this.showSendModal = true
+      }
     },
     hideSendModal() {
       this.showSendModal = false

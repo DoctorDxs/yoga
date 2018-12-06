@@ -11,7 +11,7 @@
               <img src="../assets/vip_nor_icon@3x.png" alt="" v-if='userInfo.status === "1"'>
               <img src="../assets/vip_supper_icon@3x.png" alt="" v-if='userInfo.status === "2"'>
             </div>
-            <div class="mine-user-sign">{{userInfo.desc}}ggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg</div>
+            <div class="mine-user-sign">{{userInfo.desc}}</div>
           </div>
         </div>
         <div class="buy-vip-btn" @click="linkVip">成为会员</div>

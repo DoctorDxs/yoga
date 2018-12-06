@@ -23,11 +23,11 @@
 
 <script>
 import navBar from '@/components/navBar'
-import course from '@/components/course'
+import course from '@/components/course2'
 import camp from '@/components/camp'
 import underline from '@/components/underline'
 import articleList from '@/components/articleList'
-import { getArticleList, getCourseList, getBanner, getArticleUrl } from '../fetch/api'
+import { getArticleList, getCourseList, getBanner, getArticleUrl, getClass } from '../fetch/api'
 import bots1 from '../assets/all_lunbo01@3x.png'
 import bots2 from '../assets/all_lunbo02@3x.png'
 export default {
@@ -39,6 +39,7 @@ export default {
       currentView: 'components0',
       articleList: [],
       courseList: [],
+      underlineList: [],
       campList: [],
       currentList: [],
       bots1: bots1,
@@ -69,7 +70,7 @@ export default {
       } else if (index == 1) {
         this.currentList = this.campList
       } else if (index == 2) {
-        return false
+        this.currentList = this.underlineList
       } else if (index == 3) {
         this.currentList = this.articleList
       }
@@ -88,7 +89,7 @@ export default {
     getData(index) {
       // 当相应的tab存在数据时不刷新数据
       if (index == 0 && this.courseList.length == 0) {
-        this.getCourseList(2)
+        this.getClass()
       } else if (index == 1 && this.campList.length == 0) {
         this.getCourseList(1)
       } else if (index == 2) {
@@ -115,7 +116,6 @@ export default {
       })
     },
     bannerLink(type, url) {
-      console.log(type, url)
       if (type == '1' ) {
         this.$router.push({
           name: 'campDetail', query: {id: url}
@@ -137,6 +137,17 @@ export default {
       getArticleUrl(id).then(res => {
         if (res.state == 200) {
           window.location.href = res.data.information.url
+        }
+      })
+    },
+
+    getClass() {
+      getClass(this.page1).then(res => {
+        if (res.state == 200) {
+          this.courseList = res.data.data
+          this.currentList = this.courseList
+        } else {
+          this.$toast.top(res.msg)
         }
       })
     }

@@ -40,7 +40,9 @@ export const fetch = (url, options) => {
           window.location.href = 'https://yoga.17link.cc/api/my/web_auth?page=https://yoga.17link.cc/dist/index.html' 
         } else if (response.status == 200) {
           resolve(response.data);
-        } 
+        } else if (response.data.state == 402) {
+          router.push({name:　'bindTel'})
+        }
       }, err => {
         reject(err);
       })

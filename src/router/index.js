@@ -45,6 +45,8 @@ const index = () => import(/* webpackChunkName: 'index' */ '@/pages/index')
 
 const classroom = () => import(/* webpackChunkName: 'classroom' */ '@/pages/classroom')
 
+const classify = () => import(/* webpackChunkName: 'classify' */ '@/pages/classify')
+
 const courseDetail = () => import(/* webpackChunkName: 'courseDetail' */ '@/pages/courseDetail')
 
 const videoDetail = () => import(/* webpackChunkName: 'videoDetail' */ '@/pages/videoDetail')
@@ -126,6 +128,11 @@ export default new Router({
       path: '/classroom',
       name: 'classroom',
       component: classroom
+    },
+    {
+      path: '/classify',
+      name: 'classify',
+      component: classify
     },
     {
       path: '/courseDetail',

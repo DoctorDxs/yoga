@@ -94,7 +94,7 @@
     <div class="consult-modal-bg" v-if="showConsultModal" @click="hideConsult">
       <div class="consult-modal">
         <div class="modal-title">添加客服微信</div>
-        <div class="modal-desc">亲爱的伽人，请添加轻伽瑜伽客服微信，获取专属服务</div>
+        <div class="modal-desc">亲爱的伽人，请添加轻瑜伽客服微信，获取专属服务</div>
         <div hidden><input type="text" v-model="wxCode"></div> 
         <div class="modal-content">{{wxCode}}</div>
         <div class="copy-btn" v-clipboard:copy="wxCode"

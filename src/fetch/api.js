@@ -148,10 +148,7 @@ export function getSomeoneTrend(params) {
   return fetch(`/api/circle/detail/${params.id}?page=${params.page}`)
 }
 
-// 评论后更新数据
-export function getUpdate(params) {
-  return fetch(`/api/circle/single?${params}`)
-}
+
 
 // 获取自己的动态
 export function myTrend(params) { 
@@ -163,11 +160,16 @@ export function getSomeOneAnswer(params) {
   return fetch(`/api/circle/answer/${params}?page=${1}`)
 }
 
-
+// 更新动态
 export function updataTrend(params) {
   return fetch(`/api/circle/news_single?news_id=${params}`)
 }
 
+
+// 评论后更新数据
+export function updateEval(params) {
+  return fetch(`/api/circle/single?${params}`)
+}
 
 
 /**
@@ -460,4 +462,14 @@ export function collectList(params) {
 // 获取 关于的信息
 export function getAbout() {
   return fetch(`/api/my/about`)
+}
+
+
+export function getClass (params) {
+  return fetch(`/api/lesson/lesson?page=${params}`)
+}
+
+
+export function getMoreCourse (params) {
+  return fetch(`/api/lesson/index?page=${params.page}&type=2&category_id=${params.id}`)
 }

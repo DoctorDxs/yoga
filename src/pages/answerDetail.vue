@@ -206,7 +206,8 @@ export default {
           this.deleteAnswer = false
           this.getData()
         } else {
-           this.$toast.top(res.msg)
+          this.$toast.top(res.msg)
+          this.$router.go(-1)
         }
       })
     },

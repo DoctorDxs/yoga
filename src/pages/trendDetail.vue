@@ -4,23 +4,27 @@
     <backhome></backhome>
 
     <div class="trend-list" @click="commentUser">
-      <div class="trend-avatar"><img :src="trendDetails.user_avatar" alt=""></div>
+      <div class="trend-avatar"><img :src="detail.user_avatar" alt=""></div>
       <div class="trend-info">
-        <div class='trend-username'>{{trendDetails.username}}</div>
-        <div class="trend-time">{{trendDetails.time_desc}}</div>
+        <div class='trend-username'>{{detail.username}}</div>
+        <div class="trend-time">{{detail.time_desc}}</div>
         <div class="trend-content">
-          {{trendDetails.content}}
+          {{detail.content}}
         </div>
-        <div class="trend-img1" v-if='trendDetails.img_path.length == 1 || trendDetails.img_path.length == 2'>
-          <div v-for='(imgTtem, imgIndex) in trendDetails.img_path' :key='imgIndex'><img :src="imgTtem" alt="" @click.stop="previewImage({currentImg: imgTtem, currentImgLists: trendDetails.img_path})"></div>
+        <div v-if='detail.img_paths'>
+
+          <div class="trend-img1" v-if='detail.img_paths.length == 1 || detail.img_paths.length == 2'>
+            <div v-for='(imgTtem, imgIndex) in detail.img_paths' :key='imgIndex'><img :src="imgTtem" alt="" @click.stop="previewImage({currentImg: imgTtem, currentImgLists: detail.img_paths})"></div>
+          </div>
+          <div class="trend-img2" v-if='detail.img_paths.length == 3'>
+            <div v-for='(imgTtem, imgIndex) in detail.img_paths' :key='imgIndex'><img :src="imgTtem" alt="" @click.stop="previewImage({currentImg: imgTtem, currentImgLists: detail.img_paths})"></div>
+          </div>
+          <div class="trend-img3" v-if='detail.img_paths.length == 4'>
+            <div v-for='(imgTtem, imgIndex) in detail.img_paths' :key='imgIndex'><img :src="imgTtem" alt="" @click.stop="previewImage({currentImg: imgTtem, currentImgLists: detail.img_paths})"></div>
+          </div>
         </div>
-        <div class="trend-img2" v-if='trendDetails.img_path.length == 3'>
-          <div v-for='(imgTtem, imgIndex) in trendDetails.img_path' :key='imgIndex'><img :src="imgTtem" alt="" @click.stop="previewImage({currentImg: imgTtem, currentImgLists: trendDetails.img_path})"></div>
-        </div>
-        <div class="trend-img3" v-if='trendDetails.img_path.length == 4'>
-          <div v-for='(imgTtem, imgIndex) in trendDetails.img_path' :key='imgIndex'><img :src="imgTtem" alt="" @click.stop="previewImage({currentImg: imgTtem, currentImgLists: trendDetails.img_path})"></div>
-        </div>
-        <div class="video-box" v-if='trendDetails.video_path'>
+
+        <div class="video-box" v-if='detail.video_path'>
           <video 
             @ended="endVideo()"
             x5-video-player-type="h5"
@@ -29,41 +33,41 @@
             @pause='pauseVideo'
             preload="auto"
             onclick="return false"
-            :src="trendDetails.video_path"
+            :src="detail.video_path"
             ref='videoTime' v-show="!showPost">
           </video>
-          <img :src="trendDetails.video_cover" alt="" class="video-cover" v-show="showPost">
+          <img :src="detail.video_cover" alt="" class="video-cover" v-show="showPost">
           <img src="../assets/class_play_icon@3x.png" alt="" class="video-icon" @click.stop="playVideo" v-show="showPost"> 
         </div>
-        <div class="trend-problem-title" v-if='trendDetails.type == 2'>
+        <div class="trend-problem-title" v-if='detail.type == 2'>
           <img src="../assets/circle_question_icon@3x.png" alt="">
-          <div class="trend-problem-question">{{trendDetails.content}}</div>
+          <div class="trend-problem-question">{{detail.content}}</div>
         </div>
 
-         <div class="trend-problem-title" @click.stop="linkCourse(trendDetails.group_id, trendDetails.group_type)">
-          <img :src="trendDetails.group_cover" alt="">
+         <div class="trend-problem-title" @click.stop="linkCourse(detail.group_id, detail.group_type)">
+          <img :src="detail.group_cover" alt="">
           <div class="course-desc">
-            <div>{{trendDetails.group_name}}</div>
-            <div>{{trendDetails.group_subscribe}} 人练习</div>
+            <div>{{detail.group_name}}</div>
+            <div>{{detail.group_subscribe}} 人练习</div>
           </div>
         </div>
         <div class="trend-meat">
           <div class="trend-meat-left">
-            <div @click.stop='suportComment(trendDetails.id, 1)'>
-              <img src="../assets/circle_like_nor_icon@3x.png" alt="" v-if='trendDetails.is_thumb === "0"'>
-              <img src="../assets/circle_like_pre_icon@3x.png" alt="" v-if='trendDetails.is_thumb === "1"'>
-              <div class="num" :style="trendDetails.is_thumb == '1' ? 'color: red' : 'color: #D4D9DD;'">{{trendDetails.thumbs}}</div>
+            <div @click.stop='suportComment(detail.id, 1)'>
+              <img src="../assets/circle_like_nor_icon@3x.png" alt="" v-if='detail.is_thumb === "0"'>
+              <img src="../assets/circle_like_pre_icon@3x.png" alt="" v-if='detail.is_thumb === "1"'>
+              <div class="num" :style="detail.is_thumb == '1' ? 'color: red' : 'color: #D4D9DD;'">{{detail.thumbs}}</div>
             </div>
             <div>
               <img src="../assets/circle_comment_nor_icon@3x.png" alt="">
-              <div class="num">{{trendDetails.evaluate_sum}}</div>
+              <div class="num">{{detail.evaluate_sum}}</div>
             </div>
             <div @click.stop="shareTips">
               <img src="../assets/circle_share_nor_icon@3x.png" alt="">
               <div class="num">分享</div>
             </div>
           </div>
-          <div class="trend-more" v-if='trendDetails.is_mine == "1"' @click.stop="showdelModal(trendDetails.id, '', '', 1)"><img src="../assets/circle_more_del_icon@3x.png" alt=""></div>
+          <div class="trend-more" v-if='detail.is_mine == "1"' @click.stop="showdelModal(detail.id, '', '', 1)"><img src="../assets/circle_more_del_icon@3x.png" alt=""></div>
         </div>
       </div>
     </div>
@@ -95,14 +99,16 @@
             <div class="user-content">
               {{item.content}}
             </div>
-            <div class="trend-img1" v-if='item.img_path.length == 1 || item.img_path.length == 2'>
-              <div v-for='(imgTtem, imgIndex) in item.img_path' :key='imgIndex'><img :src="imgTtem" alt="" @click.stop="previewImage({currentImg: imgTtem, currentImgLists:item.img_path})"></div>
-            </div>
-            <div class="trend-img2" v-if='item.img_path.length == 3'>
-              <div v-for='(imgTtem, imgIndex) in item.img_path' :key='imgIndex'><img :src="imgTtem" alt="" @click.stop="previewImage({currentImg: imgTtem, currentImgLists:item.img_path})"></div>
-            </div>
-            <div class="trend-img3" v-if='item.img_path.length == 4'>
-              <div v-for='(imgTtem, imgIndex) in item.img_path' :key='imgIndex'><img :src="imgTtem" alt="" @click.stop="previewImage({currentImg: imgTtem, currentImgLists:item.img_path})"></div>
+            <div v-if='item.img_path'>
+              <div class="trend-img1" v-if='item.img_path.length == 1 || item.img_path.length == 2'>
+                <div v-for='(imgTtem, imgIndex) in item.img_path' :key='imgIndex'><img :src="imgTtem" alt="" @click.stop="previewImage({currentImg: imgTtem, currentImgLists:item.img_path})"></div>
+              </div>
+              <div class="trend-img2" v-if='item.img_path.length == 3'>
+                <div v-for='(imgTtem, imgIndex) in item.img_path' :key='imgIndex'><img :src="imgTtem" alt="" @click.stop="previewImage({currentImg: imgTtem, currentImgLists:item.img_path})"></div>
+              </div>
+              <div class="trend-img3" v-if='item.img_path.length == 4'>
+                <div v-for='(imgTtem, imgIndex) in item.img_path' :key='imgIndex'><img :src="imgTtem" alt="" @click.stop="previewImage({currentImg: imgTtem, currentImgLists:item.img_path})"></div>
+              </div>
             </div>
             <div class="user-reply" v-if='item.comments.length > 0'>
               <div v-for='(commentItem, commentIndex) in item.comments' :key='commentIndex'>
@@ -163,7 +169,8 @@
 </template>
 
 <script>
-import { getSomeoneTrend, replayOrCommit, postImg, deleteImg, getSign, addSuport, getUpdate, delEval} from '../fetch/api.js'
+import { getSomeoneTrend, replayOrCommit, postImg, deleteImg, getSign, addSuport, delEval, updataTrendOne} from '../fetch/api.js'
+import {updateEvalOne, updataDetailTrend, updateDetailEval}  from '../utils/updata.js'
 export default {
   name: 'trendDetail',
   data () {
@@ -171,8 +178,8 @@ export default {
       group_type: '',
       type: '',
       id: '',
-      trendDetails: {
-        img_path: []
+      detail: {
+        img_paths: []
       },
       comments: [],
       content: '',
@@ -189,7 +196,12 @@ export default {
     this.trendIndex = query.index
     if (this.id && query.id ) {
       if (this.id == query.id) {
-        return false
+        updataDetailTrend(this.id, data => {
+          this.detail = data
+        })
+        updateEvalOne(this.comments, data => {
+          this.comments = data
+        })
       } else {
         this.type = query.type
         this.group_type = query.group_type
@@ -198,7 +210,7 @@ export default {
         this.content = ''
         this.imgs = []
         this.comments = []
-        this.trendDetails = {
+        this.detail = {
           img_path: []
         }
         this.getData(this.state)
@@ -211,39 +223,15 @@ export default {
       this.comments = []
       this.content = ''
       this.imgs = []
-      this.trendDetails = {
+      this.detail = {
         img_path: []
       }
     }
     document.title = '动态详情'
-
-    let evalUpdate = localStorage.getItem("evalUpdate")
-    if (evalUpdate) {
-      evalUpdate = JSON.parse(evalUpdate)
-      setTimeout(() => {
-        this.updateEval(evalUpdate)
-      }, 1500)
-    }
   },
   mounted() {
-    this.addResize()
   },
   methods: {
-    updateEval(evalUpdate) {
-      const comments = this.evaluteList
-      const evalIndex = evalUpdate.evalIndex
-      const doWhat = evalUpdate.doWhat
-      if (doWhat == 1) {
-        const id = comments[evalIndex].id
-        this.evalId = id
-        this.commentIndex = evalIndex
-        this.replayInput = 2
-        this.getupdata()
-      } else if (doWhat == 2) {
-        this.comments.splice(evalIndex, 1)
-        localStorage.removeItem('evalUpdate')
-      }
-    },
     playVideo() {
       this.showPost = false
       this.$refs.videoTime.play()
@@ -262,12 +250,12 @@ export default {
     getData($state) {
       getSomeoneTrend({id: this.id, page: this.page}).then(res => {
         if(res.state == 200) {
-          let trendDetails = res.data.detail
+          let detail = res.data.detail
           let  comments;
-          if (trendDetails.img_path) {
-            trendDetails.img_path = detail.img_path.split(',')
+          if (detail.img_paths) {
+            detail.img_paths = detail.img_paths.split(',')
           } else {
-            trendDetails.img_path = []
+            detail.img_paths = []
           }
           comments = res.data.comments.data
           if (comments.length > 0) {
@@ -277,12 +265,11 @@ export default {
               } else {
                 item.img_path = []
               }
+              
               if (item.comments.length > 0) {
                 item.comments.forEach(item2 => {
                   if (item2.img_path) {
                     item2.img_path = item2.img_path.split(',')
-                  } else {
-                    item2.img_path = []
                   }
                 })
               }
@@ -293,7 +280,7 @@ export default {
           } else {
             $state.complete()
           }
-          this.trendDetails = trendDetails
+          this.detail = detail
         } else {
           this.$toast.top(res.msg)
         }
@@ -343,20 +330,17 @@ export default {
             this.$router.go(-1)
           } else if (this.delType == 2) {
             // 删一条评论 本页面 评论数 -1 评论列表中删除
-            let trendDetails = this.trendDetails
-            this.comments.splice(this.deleteEvalIndex, 1)
-            trendDetails.evaluate_sum = trendDetails.evaluate_sum - 0  - 1
-            this.trendDetails = trendDetails
-
+            updateDetailEval('comment_id=' + this.deleteEvalId, data => {
+              this.comments.splice(this.deleteEvalIndex,1)
+            })
             let trendUpdate = JSON.parse(localStorage.getItem('trendUpdate'))
             trendUpdate.doWhat = 1
             localStorage.setItem('trendUpdate', JSON.stringify(trendUpdate))
           } else if (this.delType == 3) {
-            this.replayInput = 2
-            this.evalId = this.deleteEvalId
-            this.getupdata('', 3)
+            updateDetailEval('comment_id=' + this.deleteEvalId, data => {
+              this.comments.splice(this.deleteEvalIndex, 1, data)
+            })
           }
-          
         } else {
            this.$toast.top(res.msg)
         }
@@ -371,22 +355,16 @@ export default {
     },
     submitIdea() {
       if (this.content || this.imgs.length > 0) {
-        let params;
+        let params = {
+          content: this.content,
+          img_path: this.imgs.length > 0 ? this.imgs.join(',') : '',
+        }
         if (this.replayInput == 1) {
           // 对动态进行评论
-          params = {
-            content: this.content,
-            news_id: this.id,
-            img_path: this.imgs.length > 0 ? this.imgs.join(',') : ''
-          }
-          
+          params.news_id = this.id
         } else if (this.replayInput == 2) {
           // 对评论进行回复
-          params = {
-            content: this.content,
-            img_path: this.imgs.length > 0 ? this.imgs.join(',') : '',
-            comment_id: this.comment_id
-          }
+          params.comment_id = this.comment_id
         }
         this.comment(params)
       } else {
@@ -395,63 +373,32 @@ export default {
     },
     // 评论
     comment(params) {
-      let trendDetails = this.trendDetails
+      // let detail = this.detail
       replayOrCommit(params).then(res => {
         if (res.state == 200) {
           this.content = ''
           this.imgs = ''
+          let data = res.data
+          let params = data.name + '=' + data.id
           if (this.replayInput == 1) {
-            trendDetails.evaluate_sum = trendDetails.evaluate_sum - 0 +1
-            this.trendDetails = trendDetails
+            updataDetailTrend(this.id, data => {
+              this.detail = data
+            })
+            updateDetailEval(params, data => {
+              this.comments.unshift(data)
+            })
             let trendUpdate = JSON.parse(localStorage.getItem('trendUpdate'))
             trendUpdate.doWhat = 1
             localStorage.setItem('trendUpdate', JSON.stringify(trendUpdate))
-          };
-          this.getupdata(res.data)
+          } else {
+            updateDetailEval('comment_id=' + this.evalId, data => {
+              this.comments.splice(this.commentIndex,1,data)
+            })
+          }
         } else {
           this.$toast.top(res.msg)
         }
       })
-    },
-
-    // 获取某一条评论
-    getupdata(data, delType) {
-      let api;
-      if (this.replayInput == 1) {
-        api = `news_id=${this.id}&comment_id=${data.id}`
-      } else {
-        api = `news_id=${this.id}&comment_id=${this.evalId}`
-      }
-      
-      getUpdate(api).then(res => {
-        if(res.state == 200) {
-          let data = res.data
-          if (data.img_path) {
-            data.img_path = data.img_path.split(',')
-          } else {
-            data.img_path = []
-          };
-          if (data.comments.length > 0) {
-            data.comments.forEach( item => {
-              if (item.img_path) {
-                item.img_path = item.img_path.split(',')
-              } else {
-                item.img_path = []
-              }
-            })
-          };
-
-          if (delType == 3) {
-            // 删除一条回复
-            this.comments.splice(this.deleteEvalIndex, 1, data);
-          } else {
-            // 增加一条评论
-            if (this.replayInput == 1) this.comments.unshift(data);
-            // 修改一条评论
-            if (this.replayInput == 2) this.comments.splice(this.commentIndex, 1, data);
-          }
-        }
-      }) 
     },
     selectImg(e) {
       const inputFile = this.$refs.inputImg1
@@ -524,10 +471,10 @@ export default {
     },
     // 点赞
     suportComment(id, type, index, is_thumb) {
-      let trendDetails = this.trendDetails
+      let detail = this.detail
       let params;
       if (type == 1) {
-        if (trendDetails.is_thumb == '1') {
+        if (detail.is_thumb == '1') {
           params = {
             news_id: id,
             is_thumb: 0,
@@ -555,28 +502,17 @@ export default {
       addSuport(params).then(res => {
         if (res.state == 200) {
           if (type == 1) {
-            if (trendDetails.is_thumb == '1') {
-              trendDetails.thumbs =  trendDetails.thumbs - 1 + ''
-              trendDetails.is_thumb =  '0'
-              
-            } else {
-              trendDetails.thumbs =  trendDetails.thumbs - 0 + 1 + ''
-              trendDetails.is_thumb =  '1'
-            }
+            updataDetailTrend(this.id, data => {
+              this.detail = data
+            })
             let trendUpdate = JSON.parse(localStorage.getItem('trendUpdate'))
             trendUpdate.doWhat = 1
             localStorage.setItem('trendUpdate', JSON.stringify(trendUpdate))
-           this.trendDetails = trendDetails
           } else {
             let comments = this.comments
-            if (is_thumb == 1) {
-              comments[index].is_thumb = '0'
-              comments[index].thumbs = comments[index].thumbs - 1 + ''
-            } else {
-              comments[index].is_thumb = '1'
-              comments[index].thumbs = comments[index].thumbs - 0 + 1 + ''
-            }
-            this.comments = comments
+            updateDetailEval('comment_id=' + comments[index].id, data => {
+              this.comments.splice(this.commentIndex,1,data)
+            })
           }
         } else {
           this.$toast.top(res.msg)
@@ -603,7 +539,7 @@ export default {
       this.evalId = evalId
       this.content = ''
       this.imgs = []
-      this.$refs.commentInput.setAttribute('placeholder', `回复  ${username + id}`)
+      this.$refs.commentInput.setAttribute('placeholder', `回复  ${username}`)
     },
     commentUser() {
       this.replayInput = 1
@@ -617,7 +553,7 @@ export default {
         name: 'moreEval', query: {id: id, evalIndex: index}
       })
       // 0 未操作  对于评论来说（删除、和点赞） 1 更新某条数据   2 （新增）刷新整个页面
-      localStorage.setItem('evalUpdate',JSON.stringify({evalIndex: index, doWhat: 0}))
+      localStorage.setItem('evalUpdate', JSON.stringify({evalIndex: index, doWhat: 0}))
     },
     // 分享提示
     shareTips() {

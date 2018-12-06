@@ -76,7 +76,7 @@ export default {
               alert('您已拥有此课程不能领取该赠品！')
             } else {
               this.$router.push({
-                name: 'receive',query: {id: this.id, group_name: this.sendDetail.group_name, group_type: this.sendDetail.group_type, goods_cover: this.sendDetail.goods_cover}
+                name: 'receive',query: {id: this.id, group_name: this.sendDetail.group_name, group_type: this.sendDetail.group_type, group_cover: this.sendDetail.group_cover}
               })
             }
           } 

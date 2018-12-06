@@ -371,7 +371,7 @@ export default {
           if (this.delType == 1) {
             // 删除整条评论   上一页删除相应的评论
             let evalUpdate = JSON.parse(localStorage.getItem('evalUpdate'))
-            evalUpdate.doWhat = 2
+            evalUpdate.doWhat = 1
             localStorage.setItem('evalUpdate', JSON.stringify(evalUpdate))
             this.$router.go(-1)
           } else {
