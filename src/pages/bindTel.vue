@@ -32,7 +32,6 @@ export default {
   data () {
     return {
       mobile: '',
-      type: 1,
       canGetCode: false,
       code: '',
       canBind: false,
@@ -43,6 +42,13 @@ export default {
   },
   activated() {
     document.title = '绑定手机号'
+    this.mobile = ''
+    this.canGetCode = false
+    this.code = ''
+    this.canBind = false
+    this.showModal = false
+    this.limiteTime = 60
+    this.codeBtnText = '获取验证码'
   },
 
   watch: {
@@ -104,15 +110,6 @@ export default {
           },1000)
       }
     },
-    sedCode() {
-      sedCode({type: this.type, mobile: this.mobile}).then(res => {
-        if (res.state == 200) {
-          this.$toast.top('短信验证码已发')
-        } else {
-          this.$toast.top(res.data.msg)
-        }
-      })
-    },
     selectThis(params) {
       this.showModal = false
       if (params == 1) {
@@ -126,7 +123,13 @@ export default {
     },
     bindTel() {
       // 绑定完后  重新设置用户信息
-      checkCode({mobile: this.mobile, captcha: this.code})
+      checkCode({mobile: this.mobile, captcha: this.code}).then(res => {
+        if (res.state == 200) {
+          this.$toast.top('操作成功')
+        } else {
+          this.$toast.top(res.msg)
+        }
+      })
       this.getUserInfo()
     },
     getUserInfo() {
