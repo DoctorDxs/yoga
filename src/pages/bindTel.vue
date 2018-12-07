@@ -126,11 +126,12 @@ export default {
       checkCode({mobile: this.mobile, captcha: this.code}).then(res => {
         if (res.state == 200) {
           this.$toast.top('操作成功')
+          this.getUserInfo()
         } else {
           this.$toast.top(res.msg)
         }
       })
-      this.getUserInfo()
+      
     },
     getUserInfo() {
       getUser().then(res => {
