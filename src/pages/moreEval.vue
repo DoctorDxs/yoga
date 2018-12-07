@@ -131,27 +131,38 @@ export default {
       replies: [],
       imgs: [],
       content: '',
-      page: 1,
+      page: 0,
       type: false,
       comment_id: '',
-      modalShow:　false
+      modalShow:　false,
+      infiniteId: +new Date(),
     }
   },
   activated() {
     document.title = '回复列表'
     const query = this.$route.query
-    this.id = query.id
-    this.type = query.type
-    this.comment_id = query.id
-    this.evalIndex = this.evalIndex
-    this.page = 1
-    this.replies = []
-    this.comment = {img_path: ''}
-    if (this.type === 'answer') {
-      this.getData(`${this.id}?page=${this.page}&type=answer`)
+    if (this.id) {
+      if (this.id != query.id) {
+         console.log(0)
+        this.id = query.id
+        this.type = query.type
+        this.comment_id = query.id
+        this.evalIndex = query.evalIndex
+        this.page = 0
+        this.replies = []
+        this.infiniteId += 1
+      } 
     } else {
-      this.getData(`${this.id}?page=${this.page}`)
+      this.id = query.id
+      this.type = query.type
+      this.comment_id = query.id
+      this.evalIndex = query.evalIndex
+      this.page = 0
+      this.replies = []
+      this.comment = {img_path: ''}
     }
+    
+    
   },
   mounted() {
     
@@ -159,13 +170,14 @@ export default {
   methods: {
     infiniteHandler($state) {
       this.state = $state
+      this.page += 1
       if (this.type === 'answer') {
-        this.getData(`${this.id}?page=${this.page}&type=answer`)
+        this.getData(`${this.id}?page=${this.page}&type=answer`, $state)
       } else {
-        this.getData(`${this.id}?page=${this.page}`)
+        this.getData(`${this.id}?page=${this.page}`, $state)
       }
     },
-    getData(params) {
+    getData(params, $state) {
       getComments(params).then(res => {
         if (res.state == 200) {
           let comment = res.data.comment
@@ -184,15 +196,12 @@ export default {
                 item.img_path = []
               }
             })
-            if(this.page == 1 &&　this.replies.length) {
-              this.replies = replies
-            } else {
-              this.page += 1;
-              this.replies.push(...replies)
-            }
-            this.state.loaded();
+            
+            this.replies.push(...replies)
+            
+            $state.loaded();
           } else {
-            this.state.complete()
+            $state.complete()
           }
           this.comment = comment
         } else {
@@ -274,9 +283,9 @@ export default {
             this.imgs = []
             this.page = 1
             if (this.type === 'answer') {
-              this.getData(`${this.id}?page=${this.page}&type=answer`)
+              this.getData(`${this.id}?page=${this.page}&type=answer`, this.state)
             } else {
-              this.getData(`${this.id}?page=${this.page}`)
+              this.getData(`${this.id}?page=${this.page}`, this.state)
             }
             let evalUpdate = JSON.parse(localStorage.getItem('evalUpdate'))
             evalUpdate.doWhat = 1
@@ -383,7 +392,6 @@ export default {
             let comment = this.comment
             comment.evaluate_sum = comment.evaluate_sum - 1
             this.comment = comment
-            alert(comment.evaluate_sum)
             document.title = '共' + comment.evaluate_sum + '条回复'
           }
         } else {

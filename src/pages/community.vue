@@ -16,7 +16,7 @@ export default {
   data () {
     return {
       evaluteList: [],
-      page: 1
+      page: 0
     }
   },
   activated() {
@@ -25,7 +25,7 @@ export default {
   },
   methods: {
     getTrend($state) {
-      getTrend(this.page).then(res => {
+      getTrend(this.page + 1).then(res => {
         if (res.state == 200) {
           let lists = res.data.data
           if (lists.length) {
@@ -46,7 +46,7 @@ export default {
       })
     },
     updataTrends($state) {
-      this.page = 1
+      this.page = 0
       this.evaluteList = []
     }
   },

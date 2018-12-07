@@ -4,14 +4,14 @@ import { updataTrend,  updateEval} from '../fetch/api.js'
 
 
 // 只传news_id  这是关于列表的处理
-export function updataTrendOne(trendList) {
+export function updataTrendOne(trendList, callback) {
   let trendUpdate = localStorage.getItem("trendUpdate")
   if (trendUpdate) {
     trendUpdate = JSON.parse(trendUpdate)
     const index = trendUpdate.trendIndex
     const doWhat = trendUpdate.doWhat
     if (doWhat == 2) {
-      return true
+      callback(true) 
     } else if (doWhat == 1){
       if (trendList[index]) {
         let id = trendList[index].id
@@ -23,17 +23,16 @@ export function updataTrendOne(trendList) {
             } else {
               data.img_paths = []
             }
-            
-            this.evaluteList.splice(trendIndex, 1, res.data)
+            trendList.splice(index, 1, res.data)
           } else {
-            this.evaluteList.splice(trendIndex, 1)
+            trendList.splice(index, 1)
           }
         })
       } else {
-        return false
+        callback(false) 
       }
     } else {
-      return false
+      callback(false) 
     }
   }
 }
@@ -63,12 +62,12 @@ export function updateEvalOne(evalList, callback) {
   let evalUpdate = localStorage.getItem("evalUpdate")
   if (evalUpdate) {
     evalUpdate = JSON.parse(evalUpdate)
-    const index = trendUpdate.evalIndex
-    const doWhat = trendUpdate.doWhat
+    const index = evalUpdate.evalIndex
+    const doWhat = evalUpdate.doWhat
     if (doWhat == 1){
       if (evalList[index]) {
         let id = evalList[index].id
-          updateEval(id).then(res => {
+          updateEval('comment_id=' + id).then(res => {
             if (res.state == 200) {
               let data = res.data
               if (data.img_paths) {
@@ -76,9 +75,9 @@ export function updateEvalOne(evalList, callback) {
               } else {
                 data.img_paths = []
               }
-              this.evalList.splice(index, 1, data)
+              evalList.splice(index, 1, data)
             } else {
-              this.evalList.splice(index, 1)
+              evalList.splice(index, 1)
             }
             callback(evalList) 
         })

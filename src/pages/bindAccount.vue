@@ -1,13 +1,17 @@
 <template>
   <div class="bindAccount-page">
-    
+    <bg></bg>
     <div class="account-info-item" @click="changeTEL">
       <div>手机号码</div>
       <div class="item-detail"><span>{{phone ? phone : '未绑定'}}</span><img src="../assets/class_next_icon@3x.png" alt=""></div>
     </div>
     <div class="account-info-item" >
       <div>微信</div>
-      <div class="item-detail"><span>已绑定</span></div>
+      <div class="item-detail"><span>已绑定</span><img src="../assets/class_next_icon@3x.png" alt=""></div>
+    </div>
+    <div class="account-info-item" style="margin-top: 20px;" @click="linkEditPawd">
+      <div>{{has_set_password == 1 ? "修改密码" : "设置密码"}}</div>
+      <div class="item-detail"><span></span><img src="../assets/class_next_icon@3x.png" alt=""></div>
     </div>
     <modal 
       title="提示" 
@@ -29,7 +33,8 @@ export default {
     return {
       phone: '',
       showCancle:　true,
-      showModal: false
+      showModal: false,
+      setPassword: 0
     }
   },
   activated() {
@@ -42,15 +47,13 @@ export default {
     let phone = userInfo.mobile
     phone = phone.substring(0,3) + '****' + phone.substring(7,11)
     this.phone = phone
+    this.setPassword = userInfo.has_set_password
   },
-  mounted() {
-    document.getElementsByClassName('bindAccount-page')[0].style.minHeight = window.innerHeight + 'px'
-  },
+  
   methods: {
 
     changeTEL() {
       this.showModal = true
-      
     },
     confirm() {
       this.showModal = false
@@ -61,6 +64,10 @@ export default {
     cancel() {
       this.showModal = false
     },
+    linkEditPawd() {
+      this.$router.push({name: 'inputCode', query:{isSet: this.userInfo.has_set_password}})
+    }
+    
   },
   components: {
     

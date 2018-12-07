@@ -8,7 +8,7 @@ export function getSign(params) {
   return fetch('/api/my/signature?url=' + params)
 }
 
-
+// 腾讯视频签名
 export function getTecSign() {
   return fetch('/api/my/vod_signature')
 }
@@ -28,6 +28,19 @@ export function getUser() {
 
 export function getWx() { 
   return fetch('/api/lesson/get_service_wechat')
+}
+
+// 检测是否微信和手机号互相绑定过
+export function checkPhone(phone) {
+  return fetch(`/api/my/check_mobile_user?mobile=${phone}`)
+}
+
+// 修改密码
+export function changePhone(params) {
+  return fetch(`/api/my/password`, {
+    method: 'post',
+    data: params
+  })
 }
 
 // 我的课程
@@ -300,9 +313,9 @@ export function buyCourse(params) {
  * 
  * 查看订单状态
  */
-export function getOrder(params) { 
-  return fetch(`/api/order/status`)
-}
+// export function getOrder(params) { 
+//   return fetch(`/api/order/status`)
+// }
 
 
 /**

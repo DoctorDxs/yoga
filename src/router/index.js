@@ -105,6 +105,8 @@ const abouts = () => import(/* webpackChunkName: 'abouts' */ '@/pages/abouts')
 
 const beVip = () => import(/* webpackChunkName: 'beVip' */ '@/pages/beVip')
 
+const changePwd = () => import(/* webpackChunkName: 'changePwd' */ '@/pages/changePwd')
+
 Vue.use(Router)
 
 export default new Router({
@@ -275,6 +277,11 @@ export default new Router({
       path: '/bindAccount',
       name: 'bindAccount',
       component: bindAccount
+    },
+    {
+      path: '/changePwd',
+      name: 'changePwd',
+      component: changePwd
     },
     {
       path: '/beVip',

@@ -160,7 +160,7 @@
       @on-confirm='confirm'
       v-show='showModal'>
     </modal>
-    <infinite-loading @infinite="infiniteHandler">
+    <infinite-loading @infinite="infiniteHandler" :identifier="infiniteId">
       <div slot="no-more" class="no-more-data"> {{comments.length > 9 ? "没有更多了..." : ""}}</div>
       <div slot="no-results"> </div>
     </infinite-loading>
@@ -185,16 +185,17 @@ export default {
       content: '',
       imgs: [],
       replayInput: 1,
-      page: 1,
+      page: 0,
       showModal: false,
       modalShow: false,
-      showPost: true
+      showPost: true,
+      infiniteId: +new Date(),
     }
   },
   activated() {
     const query = this.$route.query
     this.trendIndex = query.index
-    if (this.id && query.id ) {
+    if (this.id) {
       if (this.id == query.id) {
         updataDetailTrend(this.id, data => {
           this.detail = data
@@ -206,20 +207,20 @@ export default {
         this.type = query.type
         this.group_type = query.group_type
         this.id = query.id
-        this.page = 1
+        this.page = 0
         this.content = ''
         this.imgs = []
         this.comments = []
         this.detail = {
           img_path: []
         }
-        this.getData(this.state)
+        this.infiniteId += 1
       }
     } else {
       this.type = query.type
       this.group_type = query.group_type
       this.id = query.id
-      this.page = 1
+      this.page = 0
       this.comments = []
       this.content = ''
       this.imgs = []
@@ -228,8 +229,6 @@ export default {
       }
     }
     document.title = '动态详情'
-  },
-  mounted() {
   },
   methods: {
     playVideo() {
@@ -245,9 +244,11 @@ export default {
     },
     infiniteHandler($state) {
       this.state = $state
+      this.page += 1;
       this.getData($state)
     },
     getData($state) {
+      
       getSomeoneTrend({id: this.id, page: this.page}).then(res => {
         if(res.state == 200) {
           let detail = res.data.detail
@@ -274,8 +275,11 @@ export default {
                 })
               }
             })
-            this.page += 1;
+            
+            
             this.comments.push(...comments)
+            
+            
             $state.loaded();
           } else {
             $state.complete()
@@ -330,9 +334,10 @@ export default {
             this.$router.go(-1)
           } else if (this.delType == 2) {
             // 删一条评论 本页面 评论数 -1 评论列表中删除
-            updateDetailEval('comment_id=' + this.deleteEvalId, data => {
-              this.comments.splice(this.deleteEvalIndex,1)
+            updataDetailTrend(this.id, data => {
+              this.detail = data
             })
+            this.comments.splice(this.deleteEvalIndex,1)
             let trendUpdate = JSON.parse(localStorage.getItem('trendUpdate'))
             trendUpdate.doWhat = 1
             localStorage.setItem('trendUpdate', JSON.stringify(trendUpdate))

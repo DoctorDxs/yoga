@@ -105,6 +105,7 @@
 
 <script>
 import { getSign, addSuport, delEval, updataTrend } from '../fetch/api'
+import { updataTrendOne } from '../utils/updata.js'
 export default {
   name: 'trendList',
   data () {
@@ -112,6 +113,7 @@ export default {
       previewImages: {},
       showModal: false,
       videoIndex: null,
+      times: 0
     }
   },
   activated() {
@@ -121,13 +123,7 @@ export default {
     };
     this.userInfo = userInfo
     // 列表页无刷新 更新数据  （点赞数，评论数、删除某一动态） （回答问题、添加动态、提问等需要清空列表 重新请求数据  page 1）
-    let trendUpdate = localStorage.getItem("trendUpdate")
-    if (trendUpdate) {
-      trendUpdate = JSON.parse(trendUpdate)
-      setTimeout(() => {
-        this.updateTrend(trendUpdate)
-      }, 1500)
-    }
+    this.updata()
   },
   mounted() {
   },
@@ -137,32 +133,30 @@ export default {
       this.$emit('getTrend', $state)
     },
 
-    updateTrend(trendUpdate) {
-      const evaluteList = this.evaluteList
-      const trendIndex = trendUpdate.trendIndex
-      const doWhat = trendUpdate.doWhat
-      if (doWhat == 1) {
-        let id;
-        if (evaluteList[trendIndex]) {
-          id = evaluteList[trendIndex].id
-        }
-        updataTrend(id).then(res => {
-          if (res.state == 200) {
-            if (res.data.img_paths) {
-              res.data.img_paths = res.data.img_paths.split(',')
-            }
-            this.evaluteList.splice(trendIndex, 1, res.data)
-          } else {
-            this.evaluteList.splice(trendIndex, 1)
+    updata() {
+      if (this.evaluteList.length) {
+        this.times = 4
+        updataTrendOne(this.evaluteList, data => {
+          if (data === true) {
+            this.$emit('updataTrends', this.state)
+          } else if (data === false ){
+            return false
+          } else if (Array.isArray(data)) {
+           this.evaluteList = data
           }
         })
-      } else if (doWhat == 2) {
-        this.$emit('updataTrends', this.$state)
-        localStorage.removeItem('trendUpdate')
+
+      } else {
+        if (this.times == 4 ) {
+          return false
+        } else {
+          setTimeout(() => {
+            this.updata()
+            this.times += 1
+          }, 1000)
+        }
       }
     },
-
-
 
     // 点赞
     suportTrend(id, is_thumb, index) {
