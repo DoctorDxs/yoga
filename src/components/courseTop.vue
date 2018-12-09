@@ -1,10 +1,10 @@
 <template>
   <div class="course-top-comp">
     <div class="course-top-cover">
-      <div class="course-cover"><img :src="detail.goods_cover" alt=""></div>
+      <div class="course-cover"><img :src="details.goods_cover" alt="" style="width: 100%;"></div>
       <div class="course-comp-btn">
-        <img src="../assets/class_collect_nor@3x.png" alt="" v-if='detail.is_collection == 0' @click="collect(detail.id)">
-        <img src="../assets/class_collect_pre@3x.png" alt="" v-if='detail.is_collection == 1' @click="cancleCollect(detail.id)">
+        <img src="../assets/class_collect_nor@3x.png" alt="" v-if='details.is_collection == 0' @click="collect(details.id)">
+        <img src="../assets/class_collect_pre@3x.png" alt="" v-if='details.is_collection == 1' @click="cancleCollect(details.id)">
         <img src="../assets/class_gift@3x.png" alt="" @click="snedBtn">
       </div>
     </div>
@@ -13,9 +13,9 @@
       <div class="send-modal-box">
         <div class="send-modal">
           <div class="course-info">
-            <img :src="detail.goods_cover" alt="">
+            <img :src="details.goods_cover" alt="">
             <div class='course-desc'>
-              <div>{{detail.name}}</div>
+              <div>{{details.name}}</div>
               <div>{{type == 1 ? '训练营' : '课程'}}</div>
             </div>
           </div>
@@ -25,9 +25,9 @@
           <div class="send-studep"><span>3</span><span>在我的赠送中，查看领取情况</span></div>
         </div>
         <div class="send-buy-btn">
-            <div>实付 <span>￥{{detail.price}}</span></div>
-            <div @click="buyNow">立即支付</div>
-          </div>
+          <div>实付 <span>￥{{details.price}}</span></div>
+          <div @click="buyNow">立即支付</div>
+        </div>
       </div>
     </div>
 
@@ -38,14 +38,14 @@
         <div class="content-box">
           <div class="sender-info"><div><img src="../assets/class_gift_zhifu_icon@3x.png" alt=""></div></div>
           <div class='pay-success'>支付成功</div>
-          <div class="gift-detail">
-            <img :src="detail.goods_cover" alt="">
+          <div class="gift-details">
+            <img :src="details.goods_cover" alt="">
             <div class="course-desc">
-              <div>{{detail.name}}</div>
+              <div>{{details.name}}</div>
               <div>课程</div>
             </div>
           </div>
-          <div class="course-price"><span>价值</span><span>￥{{detail.price}}</span></div>
+          <div class="course-price"><span>价值</span><span>￥{{details.price}}</span></div>
 
           <div class="get-course-btn" @click.stop="sendFriends">赠送好友</div>
           
@@ -59,12 +59,86 @@
       @on-confirm='confirm'
       v-show='showModal'>
     </modal>
+
+    <div class="buy-modal-bg" @click="hidePayModal" v-show="paymodal">
+      <div class="buy-modal-box" @click.stop="stopFather">
+        <div class="buy-modal-title" @click="hidePayModal">
+          <img :src="details.goods_cover" alt="" class="modal-goods-cover">
+          <div class="buy-modal-course">
+            <div class="buy-modal-name">{{details.name}}</div>
+            <div class="buy-modal-price">{{details.price}}</div>
+          </div>
+        </div>
+        <div class="modal-hr"></div>
+        <div class="discount-select-title"><span class="modal-hr-line"></span>折扣</div>
+        <!-- 普通用户 -->
+        <div class="select1 select-commen" v-if='userInfo.status == 0' @click="selectThis(1)">
+          <div :style="dis ? 'color:rgba(171,179,186,1);': ''">暂无可用折扣</div>
+          <div><img src="../assets/class_select_pre@3x.png" alt="" class="select-icon"></div>
+        </div>
+        <div class="select2 select-commen" v-if='userInfo.status == 0 && details.vip_discount != 100' @click="selectThis(2)">
+          <div class="vip-descount" >
+            <span :style="!dis ? 'color:rgba(171,179,186,1);': ''">{{details.type == 1 ? '私教' : ''}}会员{{details.vip_discount != 0 ? details.vip_discount/10 + '折' : '免费'}}</span>
+            <div class="vip-descount-icon"  @click.stop="linkBevip"><img src="../assets/class_zhekoubg@3x.png" alt=""><span>成为会员享受专属折扣</span></div>
+          </div>
+          <div><img src="../assets/class_select_nor@3x.png" alt="" class="select-icon"></div>
+        </div>
+
+        <!-- 普通会员 -->
+        <div class="select1 select-commen" v-if='userInfo.status == 1' @click="selectThis(1)">
+          {{details.type}}
+          <div :style="dis ? 'color:rgba(171,179,186,1);': ''">{{details.type == 1 ? "暂无可用折扣" : details.vip_discount == 100 ? '暂无可用折扣' : '不使用折扣'}}</div>
+          <div><img src="../assets/class_select_nor@3x.png" alt="" class="select-icon" v-if='dis'><img src="../assets/class_select_pre@3x.png" alt="" class="select-icon" v-if='!dis'></div>
+        </div>
+        <div class="select2 select-commen" v-if='userInfo.status == 1 && details.vip_discount != 100' @click="selectThis(2)">
+          <div class="vip-descount">
+            <span :style="!dis ? 'color:rgba(171,179,186,1);' : ''">{{details.type == 1 ? '私教' : ''}}会员{{details.vip_discount != 0 ? details.vip_discount/10 + '折' : '免费'}}</span>
+            <div class="vip-descount-icon" v-if='details.type = 1' @click.stop="linkBevip"><img src="../assets/class_zhekoubg@3x.png" alt=""><span>成为会员享受专属折扣</span></div>
+          </div>
+          <div><img src="../assets/class_select_nor@3x.png" alt="" class="select-icon" v-if='!dis'><img src="../assets/class_select_pre@3x.png" alt="" class="select-icon" v-if='dis'></div>
+        </div>
+
+
+
+        <!-- 私教会员 -->
+        <div class="select1 select-commen" v-if='userInfo.status == 2' @click="selectThis(1)">
+          <div :style="dis ? 'color:rgba(171,179,186,1);': ''">{{details.vip_discount == 100 ? "暂无可用折扣" : "不使用折扣"}}</div>
+          <div><img src="../assets/class_select_nor@3x.png" alt="" class="select-icon" v-if='dis'><img src="../assets/class_select_pre@3x.png" alt="" class="select-icon" v-if='!dis'></div>
+        </div>
+        <div class="select2 select-commen" v-if='userInfo.status == 2 && details.vip_discount != 100' @click="selectThis(2)">
+          <div class="vip-descount">
+            <span :style="!dis ? 'color:rgba(171,179,186,1);': ''">{{details.type == 1 ? '私教' : ''}}会员{{details.vip_discount != 0 ? details.vip_discount/10 + '折' : '免费'}}</span>
+          </div>
+          <div><img src="../assets/class_select_nor@3x.png" alt="" class="select-icon" v-if='!dis'><img src="../assets/class_select_pre@3x.png" alt="" class="select-icon" v-if='dis'></div>
+        </div>
+
+
+       
+        <div class="modal-hr"></div>
+        <div class="discount-select-title"><span class="modal-hr-line"></span>付款方式</div>
+        <div class="select-commen">
+          <div>微信支付</div>
+          <div><img src="../assets/class_select_pre@3x.png" alt="" class="select-icon"></div>
+        </div>
+        <div class="pay-tips" @click="hidePayModal">
+          <div class="pay-tips-title">温馨提示：</div>
+          <div class="pay-tips-text">虚拟商品不支持退款、转让、退换，请斟酌确认。已支付的订单可以在“首页”中点击“练习”查看。</div>
+        </div>
+      </div>
+      <div class="pay-btn">
+        <div>
+          <span>实付</span>
+          <span class="real-pay">￥{{relPrice}}</span>
+          <span class="orgin-pay" v-if='dis'>￥{{details.price}}</span>
+        </div>
+        <div @click.stop="submitOrder">立即支付</div>
+      </div>
+    </div>
   </div> 
 </template>
 
 <script>
-import { collectCourse, cancleCollect, getSign, sendCourse, getShareInfo } from '../fetch/api'
-import trendListVue from './trendList.vue';
+import { collectCourse, cancleCollect, getSign, sendCourse, getShareInfo, buyCourse } from '../fetch/api'
 export default {
   name: 'courseTop',
   data () {
@@ -74,13 +148,34 @@ export default {
       shareInfo: {},
       showCancle: false,
       modalContent: '请点击窗口右上角发送到好友或朋友圈来赠送给好友',
-      showModal: false  
+      showModal: false,
+      paymodal: false,
+      dis: false,
+      relPrice: 0,
+      userInfo: {}
     }
   },
-  created() {
+  activated() {
+    this.dis = false
+    this.paymodal = false
+    let userInfo = localStorage.getItem("userInfo")
+    if (userInfo) {
+      userInfo = JSON.parse(userInfo)
+      this.userInfo = userInfo
+    }
+
   },
 
   methods: {
+    hidePayModal() {
+      this.paymodal = false
+    },
+    showPayModal() {
+      this.paymodal = true
+    },
+    submitOrder() {
+      this.paymodal = false
+    },
     getShareInfo(params) {
       this.showShareSendModal = true
       setTimeout(() => {
@@ -93,17 +188,102 @@ export default {
       }, 1500)
       
     },
+    stopFather() {
+      return false
+    },
 
+    selectThis(params) {
+      if (this.userInfo.status == 0) {
+        this.relPrice = this.details.price
+        if (this.details.type == 1) {
+          alert('您还不是私教会员，不能享受私教会员折扣')
+        } else {
+          alert('您还不是会员，不能享受会员折扣')
+        }
+      } else if (this.userInfo.status == 1) {
+        if (this.details.type == 1) {
+          if (params == 1) {
+            this.relPrice = this.details.price
+            this.dis = false
+          } else {
+            this.relPrice = this.details.vip_price
+            this.dis = true
+          }
+        } else {
+          alert('您还不是私教会员，不能享受私教会员折扣')
+        }
+      } else if (this.userInfo.status == 2) {
+        if (params == 1) {
+          this.relPrice = this.details.price
+          this.dis = false
+        } else {
+          this.relPrice = this.details.vip_price
+          this.dis = true
+        }
+      }
+    },
+
+    payForCourse() {
+      let params = {
+        group_id: this.details.id,
+        is_web: 1
+      }
+      if (this.details.type == 1) {
+        params.phase_id = this.details.now_phase_id
+      };
+      if (this.dis) {
+        params.is_vip_discount = 1
+      } else {
+        params.is_vip_discount = 0
+      }
+      buyCourse(params).then(res => {
+        if (res.state == 200) {
+          this.submitPay(res.data)
+        } else {
+          this.$toast.top(res.msg)
+        }
+      })
+    },
+
+    submitPay(payConfig) {
+      let that = this
+      wx.ready(function(){
+        wx.chooseWXPay({
+          timestamp: payConfig.pay.timeStamp, // 支付签名时间戳，注意微信jssdk中的所有使用timestamp字段均为小写。但最新版的支付后台生成签名使用的timeStamp字段名需大写其中的S字符
+          nonceStr: payConfig.pay.nonceStr, // 支付签名随机串，不长于 32 位
+          package: payConfig.pay.package, // 统一支付接口返回的prepay_id参数值，提交格式如：prepay_id=***）
+          signType: payConfig.pay.signType, // 签名方式，默认为'SHA1'，使用新版支付需传入'MD5'
+          paySign: payConfig.pay.sign, // 支付签名
+          success: function(res) {
+            that.$emit('showconsult', 1)
+          },
+          fail:function(res){
+          }
+        })
+      })
+    },
+    linkBevip() {
+      this.$router.push({
+        name: 'beVip'
+      })
+    },
     // 普通分享
-    commonShare(detail) {
-      this.detail = detail
+    commonShare(details) {
+      console.log(details)
+      this.details = details
+      this.relPrice = details.price
     },
     snedBtn() {
-      if (this.detail.price == 0) {
-        alert('免费课程不能赠送')
+      if (this.userInfo.mobile) {
+        if (this.details.price == 0) {
+          alert('免费课程不能赠送')
+        } else {
+          this.showSendModal = true
+        }
       } else {
-        this.showSendModal = true
+        this.$router.push({name: 'bindTel'})
       }
+      
     },
     hideSendModal() {
       this.showSendModal = false
@@ -117,7 +297,7 @@ export default {
         collectCourse(id).then(res => {
           if (res.state == 200) {
             this.$toast.top(res.msg)
-            this.detail.is_collection = 1
+            this.details.is_collection = 1
           } else {
             this.$toast.top(res.msg)
           }
@@ -135,7 +315,7 @@ export default {
         cancleCollect(id).then(res => {
           if (res.state == 200) {
             this.$toast.top(res.msg)
-            this.detail.is_collection = 0
+            this.details.is_collection = 0
           } else {
             this.$toast.top(res.msg)
           }
@@ -145,17 +325,16 @@ export default {
       }
     },
     buyNow() {
-      console.log(this.detail)
       let params;
-      if (this.detail.type == '2') {
+      if (this.details.type == '2') {
         params = {
-          group_id: this.detail.id,
+          group_id: this.details.id,
           is_web: 1
         }
       } else {
         params = {
-          phase_id: this.detail.now_phase_id,
-          group_id: this.detail.id,
+          phase_id: this.details.now_phase_id,
+          group_id: this.details.id,
           is_web: 1
         }
       }
@@ -227,8 +406,12 @@ export default {
     
   },
   props: {
-    detail: {
+    details: {
       type: Object,
+      required: true
+    },
+    type: {
+      type: String,
       required: true
     }
   }
@@ -239,6 +422,206 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+.buy-modal-bg {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  background: rgba(0, 0, 0, .5);
+  z-index: 99999991;
+  top: 0;
+}
+
+.buy-modal-box {
+  position: absolute;
+  height: 1080px;
+  width: 100%;
+  border-radius: 10px 10px 0 0;
+  background:rgba(244,246,249,1);
+  bottom: 0;
+}
+
+.buy-modal-title {
+  height: 180px;
+  padding: 0 30px;
+  display: flex;
+  align-items: center;
+  background: #fff;
+}
+
+
+.modal-goods-cover {
+  width: 240px;
+  height: 120px;
+  margin-right: 32px;
+  flex-shrink: 0;
+}
+
+.buy-modal-course {
+  height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  width: 400px;
+}
+
+.buy-modal-name {
+  font-weight:bold;
+  color:rgba(68,76,82,1);
+  font-size:32px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.buy-modal-price {
+  font-weight:500;
+  color:rgba(255,125,140,1);
+  font-size:32px;
+}
+
+.modal-hr {
+  height: 20px;
+  background:rgba(244,246,249,1);
+}
+
+.discount-select-title {
+  height:100px;
+  display: flex;
+  align-items: center;
+  font-weight:bold;
+  font-size:32px;
+  color:rgba(68,76,82,1);
+  padding: 0 30px;
+  background: #fff;
+}
+
+.modal-hr-line {
+  width:8px;
+  height:38px;
+  background:rgba(183,143,218,1);
+  border-radius: 4px;
+  margin-right: 17px;
+}
+
+.select-commen {
+  height: 100px;
+  border-top: 1px solid rgba(228,234,241,1);
+  padding: 0 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size:30px;
+  font-weight:500;
+  color:rgba(68,76,82,1);
+  background:#fff;
+}
+
+.vip-descount {
+  display: flex;
+  align-items: center;
+}
+
+.vip-descount-icon {
+  position: relative;
+  margin-left: 18px;
+  width:370px;
+  height:66px;
+}
+
+.vip-descount-icon img {
+  width:370px;
+  height:66px;
+  border-radius: 4px;
+}
+
+.vip-descount-icon span {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  margin: auto;
+  color: #fff;
+  font-size: 32px;
+  text-align: center;
+  line-height: 66px;
+}
+
+.select-icon {
+  height: 44px;
+}
+
+.pay-tips-title {
+  font-size:26px;
+  font-weight:bold;
+  color:rgba(68,76,82,1);
+  margin-top: 20px;
+  padding: 0 30px;
+}
+
+.pay-tips-text {
+  font-size:24px;
+  font-weight:500;
+  color:rgba(127,140,146,1);
+  margin-top: 16px;
+  padding: 0 30px;
+}
+
+.pay-btn {
+  position: absolute;
+  height: 100px;
+  width: 100%;
+  background: #fff;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  text-align: center;
+  line-height: 100px;
+}
+
+.pay-btn > div:nth-child(1) {
+  font-size: 34px;
+}
+
+.real-pay {
+  font-size: 32px;
+  color: #FF7D8C;
+  margin: 0 10px 0 20px;
+}
+
+.orgin-pay {
+  font-size: 28px;
+  text-decoration: line-through;
+}
+
+.pay-btn > div:nth-child(1) {
+  width: 454px;
+}
+
+
+.pay-btn > div:nth-child(2) {
+  width: 300px;
+  background: #B78FDA;
+  color: #fff;
+  font-size: 36px;
+  font-weight: 600;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 .course-top-cover {
   width: 750px;
   height: 422px;
@@ -448,7 +831,7 @@ export default {
   border-radius: 50%;
 }
 
-.gift-detail {
+.gift-details {
   width: 570px;
   height: 140px;
   margin: 40px auto 30px;
@@ -458,7 +841,7 @@ export default {
   align-items: center;
 }
 
-.gift-detail img {
+.gift-details img {
   height: 104px;
   width: 104px;
   margin-right: 20px;

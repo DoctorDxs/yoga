@@ -35,24 +35,6 @@ import 'amfe-flexible/index.js'
 Vue.config.productionTip = false
 
 
-router.beforeEach((to, from, next) => {
-  if (to.matched.some(record => record.meta.requirePhone)){ // 判断该路由是否需要登录权限
-      let userInfo = localStorage.getItem("userInfo")
-      if (userInfo) {
-        userInfo = JSON.parse(userInfo)
-      };
-      // 判断是否存在   phone
-      if (userInfo.mobile) { // phone
-          next();
-      }else {
-          next('/bindTel')
-     }
-  } else {
-      next();
-  }
-});
-
-
 
 /* eslint-disable no-new */
 new Vue({

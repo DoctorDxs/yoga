@@ -263,14 +263,19 @@ export default {
           is_web: 1
         }
       }
-      buyVip(params).then(res => {
-        if (res.state == 200) {
-          this.payConfig = res.data
-          this.getSign()
-        } else {
-          this.$toast.top(res.msg)
-        }
-      })
+      if (this.userInfo.mobile) {
+        buyVip(params).then(res => {
+          if (res.state == 200) {
+            this.payConfig = res.data
+            this.getSign()
+          } else {
+            this.$toast.top(res.msg)
+          }
+        })
+      } else {
+        this.$router.push({name: 'bindTel'})
+      }
+      
     },
     beCommonVip() {
       let params;
@@ -288,14 +293,19 @@ export default {
           is_web: 1
         }
       // }
-      buyVip(params).then(res => {
-        if (res.state == 200) {
-          this.payConfig = res.data
-          this.getSign()
-        } else {
-          this.$toast.top(res.msg)
-        }
-      })
+      if (this.userInfo.mobile) {
+        buyVip(params).then(res => {
+          if (res.state == 200) {
+            this.payConfig = res.data
+            this.getSign()
+          } else {
+            this.$toast.top(res.msg)
+          }
+        })
+      } else {
+        this.$router.push({name: 'bindTel'})
+      }
+      
     },
     getSign() {
       getSign(encodeURIComponent(location.href)).then(res => {

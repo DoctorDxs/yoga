@@ -70,9 +70,9 @@ export default {
     // 检测  手机号是否绑定过
     checkPhone() {
       checkPhone(this.mobile).then(res => {
-        if (res.state == 200) {
+        if (res.data.state == 0) {
           this.canGetCode = true
-        } else if (res.state == 400){
+        } else if (res.data.state == 1){
           this.showModal = true
         }
         
@@ -82,7 +82,7 @@ export default {
     getCode() {
       if (this.canGetCode) {
         this.timeEnd()
-        sedCode({type: 2, mobile: this.mobile}).then(res => {
+        sedCode({type: 1, mobile: this.mobile}).then(res => {
           if (res.state == 200) {
             this.$toast.top('验证码已发送！')
           } else {
@@ -126,12 +126,12 @@ export default {
       checkCode({mobile: this.mobile, captcha: this.code}).then(res => {
         if (res.state == 200) {
           this.$toast.top('操作成功')
+          localStorage.setItem('api_token', res.data.api_token)
           this.getUserInfo()
         } else {
           this.$toast.top(res.msg)
         }
       })
-      
     },
     getUserInfo() {
       getUser().then(res => {

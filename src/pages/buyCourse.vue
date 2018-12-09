@@ -53,7 +53,7 @@
           </div>
         </div>
 
-        <div class="pay-btn" v-if='!inputFocus'>
+        <div class="pay-btn">
           <div>
             <span>实付</span>
             <span class="real-pay">￥{{price_discount !== 0 ? price_discount : price}}</span>

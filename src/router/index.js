@@ -170,7 +170,6 @@ export default new Router({
       path: '/buyCourse',
       name: 'buyCourse',
       component: buyCourse,
-      meta: {requirePhone: true}
     },
     {
       path: '/selectType',
@@ -211,7 +210,6 @@ export default new Router({
       path: '/mine',
       name: 'mine',
       component: mine,
-      meta: {requirePhone: true}
     },
     {
       path: '/mineMsg',

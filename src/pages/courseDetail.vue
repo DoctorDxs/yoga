@@ -1,38 +1,38 @@
 <template>
-  <div class="course-detail-page">
+  <div class="course-details-page">
     <bg></bg>
     <backhome></backhome>
 
-    <course-top :detail='detail' ref='courseTop'></course-top>
+    <course-top :details='details' ref='courseTop' @showconsult='showconsult'></course-top>
     <div class="course-tab">
 
       <div class="course-tab-box">
         <div :class="index == tabIndex ? 'active-color' : '' " v-for='(item, index) in tabItems' :key='index' @click='switchTabbar(index)'>
-          <div>{{item}} {{index == 1 && detail.video_count ? '(' + detail.video_count + ')' : ''}}</div>
+          <div>{{item}} {{index == 1 && details.video_count ? '(' + details.video_count + ')' : ''}}</div>
           <div :class="index == tabIndex ? 'tab-bottom-border-show' : 'tab-bottom-border-hide'"></div>
         </div>
       </div>
 
     </div>
 
-    <div class="tab-item-detail">
+    <div class="tab-item-details">
       <!-- 详情 -->
       <div v-if='tabIndex == 0'>
         <div class="students-study">
           <div class="students-avatar">
-            <img :src="item" alt="" v-for='(item, index) in detail.circle' :key='index'>
+            <img :src="item" alt="" v-for='(item, index) in details.circle' :key='index'>
           </div>
-          <div class="course-detail-info">
-            <div>{{detail.video_count}}节课</div>
-            <div>{{detail.subscribe_num}}人正在练习</div>
+          <div class="course-details-info">
+            <div>{{details.video_count}}节课</div>
+            <div>{{details.subscribe_num}}人正在练习</div>
           </div>
         </div>
-        <div class="course-des-detail" v-html='detail.desc' v-if='detail.desc'></div>
-        <div class="no-data-icon" v-if='!detail.desc'><img src="../assets/all_none@3x.png" alt="" ></div>
+        <div class="course-des-details" v-html='details.desc' v-if='details.desc'></div>
+        <div class="no-data-icon" v-if='!details.desc'><img src="../assets/all_none@3x.png" alt="" ></div>
       </div>
       <!-- 课表 -->
       <div v-if='tabIndex == 1'>
-        <div class="course-table-item" v-for='(item, index) in detail.videos' :key='index' @click="linkVideo(item.group_id, item.id, item.is_can_see, item.is_try_free, detail.in_circle)">
+        <div class="course-table-item" v-for='(item, index) in details.videos' :key='index' @click="linkVideo(item.group_id, item.id, item.is_can_see, item.is_try_free, details.in_circle)">
           <div class="course-item-cover">
             <div class="course-item-left">
               <img :src='item.cover' alt="">
@@ -50,7 +50,7 @@
             <div v-if='item.is_can_see == 1  && item.is_try_free == "0"' class="course-play"><img src="../assets/class_play@3x.png" alt=""></div>
           </div>
         </div>
-        <div class="no-data-icon" v-if='!detail.videos.length'><img src="../assets/all_none@3x.png" alt="" ></div>
+        <div class="no-data-icon" v-if='!details.videos.length'><img src="../assets/all_none@3x.png" alt="" ></div>
       </div>
       <!-- 圈子 -->
       <div v-if='tabIndex == 2'>
@@ -58,8 +58,8 @@
       </div>
     </div>
 
-    <div class="course-no-buy" v-if='detail.in_circle != 1'>
-      <div class="consult-course" @click="showConsult">
+    <div class="course-no-buy" v-if='details.in_circle != 1'>
+      <div class="consult-course" @click="showconsult">
         <div><img src="../assets/class_consult@3x.png" alt=""></div>
         <div>咨询</div>
       </div>
@@ -70,7 +70,7 @@
       <div class="add-to-practice" @click="buyCourse">加入练习</div>
     </div>
 
-    <div class="course-is-buy" v-if='detail.in_circle == 1'>
+    <div class="course-is-buy" v-if='details.in_circle == 1'>
       <div class="write-trend" @click="linkAddTrend(1)">
         <div><img src="../assets/class_issue@3x.png" alt=""></div>
         <div>写动态</div>
@@ -91,10 +91,10 @@
       v-show='showModal'>
     </modal>
 
-    <div class="consult-modal-bg" v-if="showConsultModal" @click="hideConsult">
+    <div class="consult-modal-bg" v-if="showconsultModal" @click="hideConsult">
       <div class="consult-modal">
         <div class="modal-title">添加客服微信</div>
-        <div class="modal-desc">亲爱的伽人，请添加轻瑜伽客服微信，获取专属服务</div>
+        <div class="modal-desc">{{modaldesc}}</div>
         <div hidden><input type="text" v-model="wxCode"></div> 
         <div class="modal-content">{{wxCode}}</div>
         <div class="copy-btn" v-clipboard:copy="wxCode"
@@ -102,6 +102,7 @@
              v-clipboard:error="onError">复制微信号</div>
       </div>
     </div>
+    
   </div>
      
 </template>
@@ -109,18 +110,19 @@
 <script>
 import trendList from '@/components/trendList'
 import courseTop from '@/components/courseTop'
-import { getDetail, getCurrentCourseEval, getWx, getSign, getShareInfo } from '../fetch/api'
+import { getDetail, getCurrentCourseEval, getWx, getSign, getShareInfo,buyCourse } from '../fetch/api'
 
 export default {
-  name: 'courseDetail',
+  name: 'coursedetails',
   data () {
     return {
-      detail: {},
+      details: null,
       tabItems: ['详情','课表','圈子'],
       tabIndex: 0,
       id: '',
       showShareModal: false,
-      showConsultModal: false,
+      modaldesc: '亲爱的伽人，请添加轻瑜伽客服微信，获取专属服务',
+      showconsultModal: false,
       wxCode: '',
       evaluteList: [],
       showCancle: false,
@@ -128,6 +130,7 @@ export default {
       showModal: false,
       page: 1,
       trySee: 0,
+      paymodal: false
     }
   },
   
@@ -137,17 +140,41 @@ export default {
     if (query.receive_id) {
       this.receive_id = query.receive_id 
     }
-    this.getDetail(query.id )
-  },
-  mounted() {
-    
+    this.getdetails(query.id )
+    let userInfo = localStorage.getItem("userInfo")
+    if (userInfo) {
+      userInfo = JSON.parse(userInfo)
+      this.userInfo = userInfo
+    }
   },
   methods: {
+
     switchTabbar(index) {
       this.tabIndex = index
     },
     buyCourse() {
-      this.$router.push({name: 'buyCourse', query: {id: this.id, price: this.detail.price,name: this.detail.name,type: 2, vip_discount: this.detail.vip_discount}})
+      if (this.details.price != 0) {
+        if (this.userInfo.mobile) {
+          this.$refs.courseTop.showPayModal()
+        } else {
+          this.$router.push({name: 'bindTel'})
+        }
+      } else {
+        this.addMycourse()
+      }
+    },
+    addMycourse () {
+      let params = {
+        group_id: this.details.id,
+        is_web: 1
+      }
+      buyCourse(params).then(res => {
+        if (res.state == 200) {
+          this.getdetails(this.id )
+        } else {
+          this.$toast.top(res.msg)
+        }
+      })
     },
     linkAddTrend(type) {
       this.$router.push({name: 'submitTrend', query: {type: type, group_id: this.id}})
@@ -160,7 +187,7 @@ export default {
         this.$toast.top('您还未购买该课程')
       } else {
         this.$router.push({
-          name: 'videoDetail', query: {group_id: group_id, learn_id: learn_id, type: this.detail.type, in_circle: in_circle, courseNmae: this.detail.name, count: this.detail.video_count}
+          name: 'videodetails', query: {group_id: group_id, learn_id: learn_id, type: this.details.type, in_circle: in_circle, courseNmae: this.details.name, count: this.details.video_count}
         })
       }
     },
@@ -173,18 +200,23 @@ export default {
     hideShare() {
       this.showShareModal = false
     },
-    showConsult() {
+    showconsult(params) {
+      if (params == 1) {
+        this.modaldesc = '亲爱的伽人，你已成功购买【'+ this.details.name+'】请添加轻伽瑜伽客服微信，获取专属服务'
+      } else {
+        this.modaldesc = '亲爱的伽人，请添加轻瑜伽客服微信，获取专属服务'
+      }
       getWx().then(res => {
         if (res.state == 200) {
           this.wxCode = res.data.wechat
-          this.showConsultModal = true
+          this.showconsultModal = true
         } else {
           this.$toast.top(res.msg)
         }
       })
     },
     hideConsult() {
-      this.showConsultModal = false
+      this.showconsultModal = false
     },
     onCopy: function (e) {
       this.$toast.top('复制成功！')
@@ -192,13 +224,15 @@ export default {
     onError: function (e) {
       this.$toast.top('复制失败！')
     },
-    getDetail(id) {
+    getdetails(id) {
       getDetail(id).then(res => {
         if (res.state == 200) {
-          document.title = res.data.name;
-          this.detail = res.data
-          this.$refs.courseTop.commonShare(res.data); 
-          if (res.data.videos.length) {
+          document.title = res.data.name
+          const data = res.data
+          this.details = data
+          this.$refs.courseTop.commonShare(data); 
+          
+          if (data.videos.length) {
             if (res.data.videos[0].is_try_free == '1') {
               this.trySee = 1
             } else {
@@ -211,7 +245,7 @@ export default {
             this.$refs.courseTop.giftShare(this.receive_id); 
             this.receive_id = ''
           };
-          this.getShareInfo({id: res.data.id, type: 1})
+          this.getShareInfo({id: data.id, type: 2})
         }
       })
     },
@@ -304,7 +338,7 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-.course-detail-page {
+.course-details-page {
   background: #F4F6F9;
   padding-bottom: 120px;
   position: relative;
@@ -340,7 +374,7 @@ export default {
 .tab-bottom-border-show {width: 46px;height: 6px;background: #B78FDA;border-radius: 12px; margin: -6px auto 0;}
 .tab-bottom-border-hide {width: 46px;height: 6px;background: #ffffff;border-radius: 12px; margin: -6px auto 0;}
 
-.tab-item-detail {
+.tab-item-details {
   margin-top: 20px;
 }
 
@@ -369,13 +403,13 @@ export default {
   background: #F4F6F9;
 }
 
-.course-detail-info {
+.course-details-info {
   font-size: 26px;
   color: #808C92;
   text-align: right;
 }
 
-.course-des-detail {
+.course-des-details {
   margin-top: 20px;
   min-height: 500px;
   background: #fff;
@@ -384,7 +418,7 @@ export default {
   font-size: 28px;
 }
 
-.course-des-detail >>> img {
+.course-des-details >>> img {
   width: 100%!important;
   margin-top: 20px;
 }
