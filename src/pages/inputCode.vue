@@ -2,7 +2,7 @@
   <div class="bindTel-page">
     <bg></bg>
     <div class="input-box">
-      <input type="number" name='tel' placeholder="请输入手机号码" v-model.trim="mobile" maxlength="11" class="input-mobile">
+      <input type="number" name='tel' placeholder="请输入手机号码" v-model.trim="mobile" maxlength="11" class="input-mobile" readonly="readonly">
     </div>
 
     <div class="input-box">
@@ -26,7 +26,8 @@ export default {
       canBind: false,
       showModal: false,
       limiteTime: 60,
-      codeBtnText: '获取验证码'
+      codeBtnText: '获取验证码',
+      userInfo: {}
     }
   },
   activated() {
@@ -37,7 +38,12 @@ export default {
     this.showModal = false
     this.limiteTime = 60
     this.codeBtnText = '获取验证码'
-    this.mobile = ''
+    let userInfo = localStorage.getItem("userInfo")
+    if (userInfo) {
+      userInfo = JSON.parse(userInfo)
+      this.userInfo = userInfo
+      this.mobile = userInfo.mobile
+    }
   },
 
   watch: {

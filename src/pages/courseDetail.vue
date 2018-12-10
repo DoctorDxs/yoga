@@ -2,8 +2,7 @@
   <div class="course-details-page">
     <bg></bg>
     <backhome></backhome>
-
-    <course-top :details='details' ref='courseTop' @showconsult='showconsult'></course-top>
+    <course-top :details='details' ref='courseTop' @showconsult='showconsult' @getdetails='getdetails'></course-top>
     <div class="course-tab">
 
       <div class="course-tab-box">
@@ -116,7 +115,7 @@ export default {
   name: 'coursedetails',
   data () {
     return {
-      details: null,
+      details: {},
       tabItems: ['详情','课表','圈子'],
       tabIndex: 0,
       id: '',
@@ -181,8 +180,6 @@ export default {
       localStorage.setItem('trendUpdate',JSON.stringify({trendIndex: null, doWhat: 0, trendId: null}))
     },
     linkVideo(group_id, learn_id, can_see, try_see, in_circle) {
-      
-
       if (can_see == '0') {
         this.$toast.top('您还未购买该课程')
       } else {
@@ -245,7 +242,7 @@ export default {
             this.$refs.courseTop.giftShare(this.receive_id); 
             this.receive_id = ''
           };
-          this.getShareInfo({id: data.id, type: 2})
+          this.getShareInfo({id: data.id, type: 1})
         }
       })
     },
@@ -253,6 +250,8 @@ export default {
       getShareInfo(params).then(res => {
         if (res.state == 200) {
           this.shareInfo = res.data
+          this.getSign()
+        } else {
           this.getSign()
         }
       }) 
@@ -268,6 +267,7 @@ export default {
     setConfig(params) {
       let shareInfo = this.shareInfo
       let that = this
+      console.log(2222)
       wx.config({
         debug: false, // 开启调试模式,
         appId: params.appId, // 必填，企业号的唯一标识，此处填写企业号corpid
@@ -617,7 +617,7 @@ export default {
 
   .consult-modal {
     width: 440px;
-    height: 440px;
+    height: 480px;
     position: absolute;
     top: 0;
     left: 0;
@@ -639,6 +639,8 @@ export default {
     color: #808C92;
     font-size: 28px;
     margin-top: 30px; 
+    max-height: 110px;
+    overflow-y: scroll;
   }
 
   .modal-content {

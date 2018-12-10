@@ -2,11 +2,10 @@
   <div class="classroom-page">
     <bg style="background: #fff"></bg>
     <div class="ads-banner">
-      <mt-swipe :auto="2000">
-        <mt-swipe-item  v-for='(item, index) in banner' :key='index'>
-          <img :src="item.image" alt="" @click="bannerLink(item.type,item.url)">
-        </mt-swipe-item>
-      </mt-swipe>
+      <!-- <div class="silder-box" ref="slider">
+        <div class="slider-items" ref="sliderItem" v-for='(item, index) in banner' :key='index'><img :src="item.image" alt="" @click="bannerLink(item.type,item.url)"></div>
+      </div> -->
+      <swiper :slideData="banner"  :begin="0" :interval="2000" :dot="true"></swiper>
     </div>
     <div class="tab-bar">
       <div :class="index == tabIndex ? 'active-color' : '' " v-for='(item, index) in tabbar' :key='index' @click='switchTabbar(index)'>
@@ -25,6 +24,8 @@
 import navBar from '@/components/navBar'
 import course from '@/components/course2'
 import camp from '@/components/camp'
+import swiper from "@/components//swiper";
+
 import underline from '@/components/underline'
 import articleList from '@/components/articleList'
 import { getArticleList, getCourseList, getBanner, getArticleUrl, getClass } from '../fetch/api'
@@ -58,9 +59,11 @@ export default {
     this.getData(this.tabIndex)
     this.getBanner()
   },
+
+  mounted() {
+  },
   
   methods: {
-
     switchTabbar(index) {
       this.tabIndex = index
       this.currentView = 'components' + index
@@ -115,23 +118,23 @@ export default {
         }
       })
     },
-    bannerLink(type, url) {
-      if (type == '1' ) {
-        this.$router.push({
-          name: 'campDetail', query: {id: url}
-        })
-      } else if (type == '2') {
-        this.$router.push({
-          name: 'courseDetail', query: {id: url}
-        })
-      } else if (type == "3") {
-        return false
-      } else if (type == "4") {
-        this.linkDetail(url)
-      } else if (type == '5') {
-        window.location.href = url
-      }
-    },
+    // bannerLink(type, url) {
+    //   if (type == '1' ) {
+    //     this.$router.push({
+    //       name: 'campDetail', query: {id: url}
+    //     })
+    //   } else if (type == '2') {
+    //     this.$router.push({
+    //       name: 'courseDetail', query: {id: url}
+    //     })
+    //   } else if (type == "3") {
+    //     return false
+    //   } else if (type == "4") {
+    //     this.linkDetail(url)
+    //   } else if (type == '5') {
+    //     window.location.href = url
+    //   }
+    // },
 
     linkDetail(id) {
       getArticleUrl(id).then(res => {
@@ -140,6 +143,7 @@ export default {
         }
       })
     },
+
 
     getClass() {
       getClass(this.page1).then(res => {
@@ -158,7 +162,8 @@ export default {
     components0: course,
     components1: camp,
     components2: underline,
-    components3: articleList
+    components3: articleList,
+    swiper
   }
 
 }
@@ -168,6 +173,16 @@ export default {
 <style scoped>
 .classroom-page {padding-bottom: 120px;}
 .ads-banner{padding: 0 30px;height: 230px;position: relative;margin-top: 30px;}
+.silder-box {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.slider-items {
+  width: 690px;height: 230px;
+  flex-shrink: 0;
+}
 .ads-banner img{width: 690px;height: 230px;}
 .tab-bar {display: flex;font-size: 32px;color: #444C52;font-weight: 600;justify-content: space-around;margin-top: 30px;padding: 0 30px;}
 .tab-bar > div {opacity: 0.3;}

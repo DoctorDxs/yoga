@@ -1,7 +1,7 @@
 <template>
   <div class="more-course-list">
     <div class="more-course-wrap">
-      <div class="course-list" v-for="(item, index) in currentList" :key='index'>
+      <div class="course-list" v-for="(item, index) in currentList" :key='index' @click="linkDetail(item.id)">
         <img :src="item.goods_cover" alt="" class="goods-cover">
         <img src="../assets/vip_nor_small_icon@3x.png" alt="" class="course-vip" v-if='item.price != 0 && item.vip_discount != 0'>
         <div class="course-title">{{item.name}}</div>
@@ -24,7 +24,7 @@ export default {
     return {
       currentList: [],
       id: '',
-      page: 1,
+      page: 0,
       infiniteId: +new Date(),
     }
   },
@@ -36,7 +36,7 @@ export default {
     if (this.id && this.id != query.id) {
       this.id = query.id
       this.currentList = []
-      this.page = 1
+      this.page = 0
       this.infiniteId += 1;
     } else {
       this.id = query.id
@@ -50,17 +50,12 @@ export default {
       this.getData($state)
     },
     getData($state) {
-      this.get
+      this.page += 1;
       getMoreCourse({id: this.id, page: this.page}).then(res => {
         if (res.state == 200) {
           const lists = res.data.data
           if (lists.length) {
-            this.page += 1;
-            if (this.currentList.length  && this.page == 1) {
-              return false
-            } else {
-              this.currentList.push(...lists)
-            }
+            this.currentList.push(...lists)
             $state.loaded();
           } else {
             $state.complete()

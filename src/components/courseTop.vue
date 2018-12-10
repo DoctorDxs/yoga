@@ -26,7 +26,7 @@
         </div>
         <div class="send-buy-btn">
           <div>实付 <span>￥{{details.price}}</span></div>
-          <div @click="buyNow">立即支付</div>
+          <div @click.stop="buyNow">立即支付</div>
         </div>
       </div>
     </div>
@@ -62,7 +62,7 @@
 
     <div class="buy-modal-bg" @click="hidePayModal" v-show="paymodal">
       <div class="buy-modal-box" @click.stop="stopFather">
-        <div class="buy-modal-title" @click="hidePayModal">
+        <div class="buy-modal-title" @click.stop="hidePayModal">
           <img :src="details.goods_cover" alt="" class="modal-goods-cover">
           <div class="buy-modal-course">
             <div class="buy-modal-name">{{details.name}}</div>
@@ -86,14 +86,14 @@
 
         <!-- 普通会员 -->
         <div class="select1 select-commen" v-if='userInfo.status == 1' @click="selectThis(1)">
-          {{details.type}}
+
           <div :style="dis ? 'color:rgba(171,179,186,1);': ''">{{details.type == 1 ? "暂无可用折扣" : details.vip_discount == 100 ? '暂无可用折扣' : '不使用折扣'}}</div>
           <div><img src="../assets/class_select_nor@3x.png" alt="" class="select-icon" v-if='dis'><img src="../assets/class_select_pre@3x.png" alt="" class="select-icon" v-if='!dis'></div>
         </div>
         <div class="select2 select-commen" v-if='userInfo.status == 1 && details.vip_discount != 100' @click="selectThis(2)">
           <div class="vip-descount">
             <span :style="!dis ? 'color:rgba(171,179,186,1);' : ''">{{details.type == 1 ? '私教' : ''}}会员{{details.vip_discount != 0 ? details.vip_discount/10 + '折' : '免费'}}</span>
-            <div class="vip-descount-icon" v-if='details.type = 1' @click.stop="linkBevip"><img src="../assets/class_zhekoubg@3x.png" alt=""><span>成为会员享受专属折扣</span></div>
+            <div class="vip-descount-icon" v-if='details.type == 1' @click.stop="linkBevip"><img src="../assets/class_zhekoubg@3x.png" alt=""><span>成为会员享受专属折扣</span></div>
           </div>
           <div><img src="../assets/class_select_nor@3x.png" alt="" class="select-icon" v-if='!dis'><img src="../assets/class_select_pre@3x.png" alt="" class="select-icon" v-if='dis'></div>
         </div>
@@ -125,7 +125,7 @@
           <div class="pay-tips-text">虚拟商品不支持退款、转让、退换，请斟酌确认。已支付的订单可以在“首页”中点击“练习”查看。</div>
         </div>
       </div>
-      <div class="pay-btn">
+      <div class="pay-btn" @click.stop="stopFather">
         <div>
           <span>实付</span>
           <span class="real-pay">￥{{relPrice}}</span>
@@ -162,8 +162,7 @@ export default {
     if (userInfo) {
       userInfo = JSON.parse(userInfo)
       this.userInfo = userInfo
-    }
-
+    };
   },
 
   methods: {
@@ -174,6 +173,7 @@ export default {
       this.paymodal = true
     },
     submitOrder() {
+      this.payForCourse()
       this.paymodal = false
     },
     getShareInfo(params) {
@@ -186,7 +186,6 @@ export default {
           }
        }) 
       }, 1500)
-      
     },
     stopFather() {
       return false
@@ -202,6 +201,8 @@ export default {
         }
       } else if (this.userInfo.status == 1) {
         if (this.details.type == 1) {
+          alert('您还不是私教会员，不能享受私教会员折扣')
+        } else {
           if (params == 1) {
             this.relPrice = this.details.price
             this.dis = false
@@ -209,8 +210,6 @@ export default {
             this.relPrice = this.details.vip_price
             this.dis = true
           }
-        } else {
-          alert('您还不是私教会员，不能享受私教会员折扣')
         }
       } else if (this.userInfo.status == 2) {
         if (params == 1) {
@@ -238,24 +237,38 @@ export default {
       }
       buyCourse(params).then(res => {
         if (res.state == 200) {
-          this.submitPay(res.data)
+          if (this.relPrice == 0) {
+            this.$emit('getdetails', this.details.id)
+          } else {
+            this.submitPay(res.data, false)
+          }
         } else {
           this.$toast.top(res.msg)
         }
       })
     },
 
-    submitPay(payConfig) {
+    submitPay(payConfig, type) {
       let that = this
       wx.ready(function(){
         wx.chooseWXPay({
+          debug: false,
           timestamp: payConfig.pay.timeStamp, // 支付签名时间戳，注意微信jssdk中的所有使用timestamp字段均为小写。但最新版的支付后台生成签名使用的timeStamp字段名需大写其中的S字符
           nonceStr: payConfig.pay.nonceStr, // 支付签名随机串，不长于 32 位
           package: payConfig.pay.package, // 统一支付接口返回的prepay_id参数值，提交格式如：prepay_id=***）
           signType: payConfig.pay.signType, // 签名方式，默认为'SHA1'，使用新版支付需传入'MD5'
           paySign: payConfig.pay.sign, // 支付签名
           success: function(res) {
-            that.$emit('showconsult', 1)
+            
+            if (type) {
+              that.getShareInfo({id: payConfig.giving_id, type: 3})
+              that.showSendModal = false
+            } else {
+              that.paymodal = false
+              that.$emit('showconsult', 1)
+              that.$emit('getdetails', that.details.id)
+            }
+            
           },
           fail:function(res){
           }
@@ -269,7 +282,6 @@ export default {
     },
     // 普通分享
     commonShare(details) {
-      console.log(details)
       this.details = details
       this.relPrice = details.price
     },
@@ -341,7 +353,7 @@ export default {
       sendCourse(params).then(res => {
          if (res.state == 200) {
             this.payConfig = res.data
-            this.wxPay()
+            this.submitPay(res.data, true)
           } else {
             this.$toast.top(res.msg)
           }
@@ -353,6 +365,7 @@ export default {
       let shareInfo = this.shareInfo
       const that = this
       // 分享到盆友圈
+      alert(shareInfo.url)
         wx.onMenuShareTimeline({
           title: shareInfo.title,
           link: shareInfo.url,
@@ -371,24 +384,7 @@ export default {
         })
     },
 
-    wxPay() {
-      const that = this
-      const payConfig = this.payConfig
-      wx.ready(function(){
-        wx.chooseWXPay({
-          timestamp: payConfig.pay.timeStamp, // 支付签名时间戳，注意微信jssdk中的所有使用timestamp字段均为小写。但最新版的支付后台生成签名使用的timeStamp字段名需大写其中的S字符
-          nonceStr: payConfig.pay.nonceStr, // 支付签名随机串，不长于 32 位
-          package: payConfig.pay.package, // 统一支付接口返回的prepay_id参数值，提交格式如：prepay_id=***）
-          signType: payConfig.pay.signType, // 签名方式，默认为'SHA1'，使用新版支付需传入'MD5'
-          paySign: payConfig.pay.sign, // 支付签名
-          success: function(res) {
-            that.getShareInfo({id: payConfig.giving_id, type: 3})
-          },
-          fail:function(res){
-          }
-        })
-      })
-    },
+    
 
     giftShare(giving_id) {
       this.getShareInfo({id: giving_id, type: 3})
@@ -408,11 +404,7 @@ export default {
   props: {
     details: {
       type: Object,
-      required: true
-    },
-    type: {
-      type: String,
-      required: true
+      required: true,
     }
   }
   

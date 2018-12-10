@@ -66,7 +66,7 @@ export default {
     },
     receiveNow() {
       const limit_time = new Date(this.sendDetail.limit_time.replace(/-/g, "/")) 
-      let differ = new Date() - limit_time
+      let differ = limit_time - new Date() 
       if (this.sendDetail.limit_time) {
         if (differ > 0) {
           if (this.sendDetail.is_mine == '1') {

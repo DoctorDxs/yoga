@@ -34,7 +34,7 @@
       <div>地址</div>
       <div class="item-detail"><span>{{add ? add : "请选择地址"}}</span><img src="../assets/class_next_icon@3x.png" alt=""></div>
     </div>
-    <div class="layout" v-if='!inputFocus' @click="submitGetInfo">立即领取</div>
+    <div class="layout" @click="submitGetInfo">立即领取</div>
     <awesome-picker
       ref="pickerArea"
       :textTitle="pickerArea.textTitle"

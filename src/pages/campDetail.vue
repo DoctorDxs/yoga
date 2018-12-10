@@ -2,7 +2,7 @@
   <div class="course-details-page">
     <backhome></backhome>
 
-    <course-top :details='details' ref='courseTop' @showconsult='showconsult'></course-top>
+    <course-top :details='details' ref='courseTop' @showconsult='showconsult' @getdetails='getdetails'></course-top>
     <div class="course-tab">
 
       <div class="course-tab-box">
@@ -41,7 +41,7 @@
           <div class="course-item-cover">
             <div class="course-item-left">
               <img :src='item.cover' alt="">
-              <div class="course-sort" v-if='item.is_try_free != 1'>DAY{{ trySee == 1 ? index  :  index + 1}}</div>
+              <!-- <div class="course-sort" v-if='item.is_try_free != 1'>DAY{{ trySee == 1 ? index  :  index + 1}}</div> -->
             </div>
             <div class="course-item-info">
               <div>{{item.name}}</div>
@@ -150,7 +150,7 @@
 <script>
 import trendList from '@/components/trendList'
 import courseTop from '@/components/courseTop'
-import { getdetails, getCurrentCourseEval, getWx, getSign, getShareInfo,buyCourse } from '../fetch/api'
+import { getDetail, getCurrentCourseEval, getWx, getSign, getShareInfo,buyCourse } from '../fetch/api'
 export default {
   name: 'campdetails',
   data () {
@@ -304,11 +304,10 @@ export default {
       this.$toast.top('复制失败！')
     },
     getdetails(id) {
-      getdetails(id).then(res => {
+      getDetail(id).then(res => {
         if (res.state == 200) {
           this.details = res.data
           document.title = res.data.name
-          res.data.type = '1'
           let startclass = res.data.now_phase.started_at.replace(/-/g, "/")
           let endclass = res.data.now_phase.ended_at.replace(/-/g, "/")
           if (res.data.videos.length) {

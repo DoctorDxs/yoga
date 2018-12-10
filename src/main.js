@@ -14,9 +14,6 @@ import bg from './plugins/bg/index';
 import backhome from './plugins/backhome/index';
 
 import './plugins/toast/index.css';
-import 'mint-ui/lib/style.css'
-import Mint from 'mint-ui';
-Vue.use(Mint);
 
 
 Vue.use(InfiniteLoading)

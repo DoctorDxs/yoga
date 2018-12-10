@@ -65,7 +65,12 @@ export default {
       this.showModal = false
     },
     linkEditPawd() {
-      this.$router.push({name: 'inputCode', query:{isSet: this.userInfo.has_set_password}})
+      if (!this.phone) {
+        alert('请先绑定手机号，再设置密码')
+      } else {
+        this.$router.push({name: 'inputCode', query:{isSet: this.userInfo.has_set_password}})
+      }
+      
     }
     
   },
