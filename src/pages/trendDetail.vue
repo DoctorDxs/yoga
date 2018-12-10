@@ -11,7 +11,7 @@
         <div class="trend-content">
           {{detail.content}}
         </div>
-        <div v-if='detail.img_paths'>
+        <div>
 
           <div class="trend-img1" v-if='detail.img_paths.length == 1 || detail.img_paths.length == 2'>
             <div v-for='(imgTtem, imgIndex) in detail.img_paths' :key='imgIndex'><img :src="imgTtem" alt="" @click.stop="previewImage({currentImg: imgTtem, currentImgLists: detail.img_paths})"></div>
@@ -20,6 +20,9 @@
             <div v-for='(imgTtem, imgIndex) in detail.img_paths' :key='imgIndex'><img :src="imgTtem" alt="" @click.stop="previewImage({currentImg: imgTtem, currentImgLists: detail.img_paths})"></div>
           </div>
           <div class="trend-img3" v-if='detail.img_paths.length == 4'>
+            <div v-for='(imgTtem, imgIndex) in detail.img_paths' :key='imgIndex'><img :src="imgTtem" alt="" @click.stop="previewImage({currentImg: imgTtem, currentImgLists: detail.img_paths})"></div>
+          </div>
+          <div class="trend-img4" v-if='detail.img_paths.length > 4'>
             <div v-for='(imgTtem, imgIndex) in detail.img_paths' :key='imgIndex'><img :src="imgTtem" alt="" @click.stop="previewImage({currentImg: imgTtem, currentImgLists: detail.img_paths})"></div>
           </div>
         </div>
@@ -108,6 +111,9 @@
               </div>
               <div class="trend-img3" v-if='item.img_path.length == 4'>
                 <div v-for='(imgTtem, imgIndex) in item.img_path' :key='imgIndex'><img :src="imgTtem" alt="" @click.stop="previewImage({currentImg: imgTtem, currentImgLists:item.img_path})"></div>
+              </div>
+              <div class="trend-img4" v-if='detail.img_paths.length > 4'>
+                <div v-for='(imgTtem, imgIndex) in detail.img_paths' :key='imgIndex'><img :src="imgTtem" alt="" @click.stop="previewImage({currentImg: imgTtem, currentImgLists: detail.img_paths})"></div>
               </div>
             </div>
             <div class="user-reply" v-if='item.comments.length > 0'>
@@ -212,7 +218,7 @@ export default {
         this.imgs = []
         this.comments = []
         this.detail = {
-          img_path: []
+          img_paths: []
         }
         this.infiniteId += 1
       }
@@ -225,7 +231,7 @@ export default {
       this.content = ''
       this.imgs = []
       this.detail = {
-        img_path: []
+        img_paths: []
       }
     }
     document.title = '动态详情'
@@ -253,11 +259,12 @@ export default {
         if(res.state == 200) {
           let detail = res.data.detail
           let  comments;
-          if (detail.img_paths) {
+          if (detail.img_paths.length) {
             detail.img_paths = detail.img_paths.split(',')
           } else {
             detail.img_paths = []
           }
+          this.detail = detail
           comments = res.data.comments.data
           if (comments.length > 0) {
             comments.forEach((item, index) => {
@@ -275,16 +282,12 @@ export default {
                 })
               }
             })
-            
-            
             this.comments.push(...comments)
-            
-            
             $state.loaded();
           } else {
             $state.complete()
           }
-          this.detail = detail
+         
         } else {
           this.$toast.top(res.msg)
         }
@@ -757,7 +760,7 @@ body {
   }
 
   .trend-info {
-    width: 570px;
+    width: 610px;
   }
 
   .trend-username {
@@ -808,6 +811,29 @@ body {
     height: 200px;
   }
 
+   .trend-img4 {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .trend-img4 > div {
+    background: #F4F6F9;
+    width: 200px;
+    height: 200px;
+    margin-bottom: 10px;
+  }
+
+  .trend-img4 > div:nth-child(3n-1) {
+    margin-right: 5px;
+    margin-left: 5px;
+  }
+
+  .trend-img4 > div img {
+    width: 200px;
+    height: 200px;
+  }
+
   .trend-img3 {
     display: flex;
     align-items: center;
@@ -834,7 +860,7 @@ body {
     display: flex;
     align-items: center;
     margin-top: 20px;
-    width: 100%;
+    width: 570px;
   }
 
   .video-box {

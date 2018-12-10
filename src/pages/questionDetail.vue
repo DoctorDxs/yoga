@@ -25,6 +25,9 @@
         <div class="trend-img3" v-if='trendDetails.img_path.length == 4'>
           <div v-for='(imgTtem, imgIndex) in trendDetails.img_path' :key='imgIndex'><img :src="imgTtem" alt="" @click.stop="previewImage({currentImg: imgTtem, currentImgLists: trendDetails.img_path})"></div>
         </div>
+        <div class="trend-img4" v-if='detail.img_paths.length > 4'>
+          <div v-for='(imgTtem, imgIndex) in detail.img_paths' :key='imgIndex'><img :src="imgTtem" alt="" @click.stop="previewImage({currentImg: imgTtem, currentImgLists: detail.img_paths})"></div>
+        </div>
         <div class="video-box" v-if='trendDetails.video_path'>
           <video 
             x5-video-player-type="h5" 
@@ -85,6 +88,9 @@
             <div class="trend-img3" v-if='item.img_path.length == 4'>
               <div v-for='(imgTtem, imgIndex) in item.img_path' :key='imgIndex'><img :src="imgTtem" alt="" @click.stop="previewImage({currentImg: imgTtem, currentImgLists:item.img_path})"></div>
             </div>
+            <div class="trend-img4" v-if='detail.img_paths.length > 4'>
+                <div v-for='(imgTtem, imgIndex) in detail.img_paths' :key='imgIndex'><img :src="imgTtem" alt="" @click.stop="previewImage({currentImg: imgTtem, currentImgLists: detail.img_paths})"></div>
+              </div>
             <div class="user-reply" v-if='item.comments.length > 0'>
               <div v-for='(commentItem, commentIndex) in item.comments' :key='commentIndex'>
                 <span class="evaluate-user" @click.stop="replay(false ,commentItem.id, commentItem.username, item.index, item.id)">{{commentItem.username}}</span>
@@ -859,6 +865,30 @@ body {
     height: 304px;
   }
 
+  .trend-img4 {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .trend-img4 > div {
+    background: #F4F6F9;
+    width: 200px;
+    height: 200px;
+    margin-bottom: 10px;
+  }
+
+  .trend-img4 > div:nth-child(3n-1) {
+    margin-right: 5px;
+    margin-left: 5px;
+  }
+
+  .trend-img4 > div img {
+    width: 200px;
+    height: 200px;
+  }
+
+
   .trend-img2 > div {
     background: #F4F6F9;
     width: 200px;
@@ -896,7 +926,7 @@ body {
     display: flex;
     align-items: center;
     margin-top: 20px;
-    width: 100%;
+    width: 570px;
   }
 
 .video-box {

@@ -786,7 +786,7 @@ export default {
     background: #F4F6F9;
     width: 200px;
     height: 200px;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
   }
 
   .trend-img4 > div:nth-child(3n-1) {
