@@ -12,6 +12,7 @@ export function updataTrendOne(trendList, callback) {
     const doWhat = trendUpdate.doWhat
     if (doWhat == 2) {
       callback(true) 
+      localStorage.removeItem('trendUpdate')
     } else if (doWhat == 1){
       if (trendList[index]) {
         let id = trendList[index].id

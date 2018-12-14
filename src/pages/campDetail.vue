@@ -58,7 +58,7 @@
       </div>
       <!-- 圈子 -->
       <div v-if='tabIndex == 2'>
-        <trend-list :evaluteList='evaluteList' @getTrend='getTrend' @updataTrends='updataTrends'></trend-list>
+        <trend-list :evaluteList='evaluteList' @getTrend='getTrend' @updataTrends='updataTrends' :infiniteId='infiniteId'></trend-list>
       </div>
     </div>
     <!-- 圈外 -->
@@ -175,9 +175,10 @@ export default {
       leftTime: '0天0时0分0秒',
       startclass: false,
       endclass: false,
-      page: 1,
+      page: 0,
       userInfo: {},
-      setTime: null
+      setTime: null,
+      infiniteId: +new Date(),
     }
   },
   activated() {
@@ -410,6 +411,7 @@ export default {
     },
 
     getTrend($state) {
+      this.page += 1;
       getCurrentCourseEval({id: this.id, page: this.page}).then(res => {
         if (res.state == 200) {
           const lists = res.data.data
@@ -419,7 +421,7 @@ export default {
                 item.img_paths = item.img_paths.split(',')
               }
             })
-            this.page += 1;
+            
             this.evaluteList.push(...lists)
             $state.loaded();
           } else {
@@ -432,8 +434,9 @@ export default {
     },
     
     updataTrends($state) {
-      this.page = 1
+      this.page = 0
       this.evaluteList = []
+      this.infiniteId += 1
     }
   },
   filters: {

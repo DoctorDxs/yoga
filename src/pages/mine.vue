@@ -43,7 +43,7 @@
       <div class="line-left-border"></div>
       <div>我的动态</div>
     </div>
-    <trend-list :evaluteList='evaluteList' @getTrend='getTrend' @updataTrends='updataTrends'></trend-list>
+    <trend-list :evaluteList='evaluteList' @getTrend='getTrend' @updataTrends='updataTrends' :infiniteId='infiniteId'></trend-list>
     <nav-bar></nav-bar>
   </div>
      
@@ -59,7 +59,8 @@ export default {
     return {
       evaluteList: [],
       userInfo: {},
-      page: 1
+      page: 0,
+      infiniteId: +new Date(),
     }
   },
   activated() {
@@ -90,6 +91,7 @@ export default {
       this.$router.push({name: 'giftRecord'})
     },
     getTrend($state) {
+       this.page += 1;
       myTrend(this.page).then(res => {
         if (res.state == 200) {
           const lists = res.data.data
@@ -99,7 +101,7 @@ export default {
                 item.img_paths = item.img_paths.split(',')
               }
             })
-            this.page += 1;
+           
             this.evaluteList.push(...lists)
             $state.loaded();
           } else {
@@ -111,8 +113,9 @@ export default {
       })
     },
     updataTrends($state) {
-      this.page = 1
+      this.page = 0
       this.evaluteList = []
+      this.infiniteId += 1
     }
   },
   components: {

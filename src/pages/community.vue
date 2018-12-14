@@ -1,7 +1,7 @@
 <template>
   <div class="community-page">
     <bg></bg>
-    <trend-list :evaluteList='evaluteList' @getTrend='getTrend' @updataTrends='updataTrends'></trend-list>
+    <trend-list :evaluteList='evaluteList' @getTrend='getTrend' @updataTrends='updataTrends' :infiniteId='infiniteId'></trend-list>
     <nav-bar></nav-bar>
   </div>
      
@@ -16,7 +16,8 @@ export default {
   data () {
     return {
       evaluteList: [],
-      page: 0
+      page: 0,
+      infiniteId: +new Date(),
     }
   },
   activated() {
@@ -25,7 +26,8 @@ export default {
   },
   methods: {
     getTrend($state) {
-      getTrend(this.page + 1).then(res => {
+      this.page += 1;
+      getTrend(this.page).then(res => {
         if (res.state == 200) {
           let lists = res.data.data
           if (lists.length) {
@@ -34,7 +36,7 @@ export default {
                 item.img_paths = item.img_paths.split(',')
               }
             })
-            this.page += 1;
+            
             this.evaluteList.push(...lists)
             $state.loaded();
           }else {
@@ -48,6 +50,7 @@ export default {
     updataTrends($state) {
       this.page = 0
       this.evaluteList = []
+      this.infiniteId += 1
     }
   },
   

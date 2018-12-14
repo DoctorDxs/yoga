@@ -53,7 +53,7 @@
       </div>
       <!-- 圈子 -->
       <div v-if='tabIndex == 2'>
-        <trend-list :evaluteList='evaluteList' @getTrend='getTrend' @updataTrends='updataTrends'></trend-list>
+        <trend-list :evaluteList='evaluteList' @getTrend='getTrend' @updataTrends='updataTrends' :infiniteId='infiniteId'></trend-list>
       </div>
     </div>
 
@@ -127,9 +127,10 @@ export default {
       showCancle: false,
       modalContent: '请点击窗口右上角分享给好友或分享到朋友圈',
       showModal: false,
-      page: 1,
+      page: 0,
       trySee: 0,
-      paymodal: false
+      paymodal: false,
+      infiniteId: +new Date(),
     }
   },
   
@@ -297,6 +298,7 @@ export default {
     },
 
     getTrend($state) {
+      this.page += 1;
       getCurrentCourseEval({id: this.id, page: this.page}).then(res => {
         if (res.state == 200) {
           const lists = res.data.data
@@ -306,7 +308,7 @@ export default {
                 item.img_paths = item.img_paths.split(',')
               }
             })
-            this.page += 1;
+            
             this.evaluteList.push(...lists)
             $state.loaded();
           } else {
@@ -318,8 +320,9 @@ export default {
       })
     },
     updataTrends($state) {
-      this.page = 1
+      this.page = 0
       this.evaluteList = []
+      this.infiniteId += 1
     }
   },
   filters: {

@@ -48,7 +48,8 @@ export default {
       })
     },
     showCodeModal() {
-      this.showModal = true
+      window.location.href = this.aboutData.about_url
+      // this.showModal = true
     },
     hideModal() {
       this.showModal = false
@@ -81,7 +82,7 @@ export default {
   width: 120px;
   height: 120px;
   background-color: #fff;
-  border-radius: 50%;
+  border-radius: 28px;
   margin-top: 112px;
 }
 

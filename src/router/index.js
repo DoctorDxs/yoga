@@ -1,41 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-// import bindTel from '@/pages/bindTel'
 
-// import inputCode from '@/pages/inputCode'
-
-// import index from '@/pages/index'
-
-// import classroom from '@/pages/classroom'
-// import courseDetail from '@/pages/courseDetail'
-// import videoDetail from '@/pages/videoDetail'
-// import complated1 from '@/pages/complated1'
-// import complated2 from '@/pages/complated2'
-// import complated3 from '@/pages/complated3'
-// import campDetail from '@/pages/campDetail'
-// import buyCourse from '@/pages/buyCourse'
-// import selectType from '@/pages/selectType'
-// import community from '@/pages/community'
-// import trendDetail from '@/pages/trendDetail'
-// import questionDetail from '@/pages/questionDetail'
-// import moreEval from '@/pages/moreEval'
-// import answerDetail from '@/pages/answerDetail'
-// import submitTrend from '@/pages/submitTrend'
-// import mine from '@/pages/mine'
-// import mineMsg from '@/pages/mineMsg'
-// import msgDetail from '@/pages/msgDetail'
-// import sysMsgDetail from '@/pages/sysMsgDetail'
-// import collections from '@/pages/collections'
-// import giftRecord from '@/pages/giftRecord'
-// import receive from '@/pages/receive'
-// import sendPage from '@/pages/sendPage'
-// import setting from '@/pages/setting'
-// import sysSetting from '@/pages/sysSetting'
-// import feedback from '@/pages/feedback'
-// import accountSet from '@/pages/accountSet'
-// import bindAccount from '@/pages/bindAccount'
-// import beVip from '@/pages/beVip'
-// import abouts from '@/pages/abouts'
 
 const bindTel = () => import(/* webpackChunkName: 'bindTel' */ '@/pages/bindTel')
 
@@ -58,8 +23,6 @@ const complated2 = () => import(/* webpackChunkName: 'complated2' */ '@/pages/co
 const complated3 = () => import(/* webpackChunkName: 'complated3' */ '@/pages/complated3')
 
 const campDetail = () => import(/* webpackChunkName: 'campDetail' */ '@/pages/campDetail')
-
-const buyCourse = () => import(/* webpackChunkName: 'buyCourse' */ '@/pages/buyCourse')
 
 const selectType = () => import(/* webpackChunkName: 'selectType' */ '@/pages/selectType')
 
@@ -165,11 +128,6 @@ export default new Router({
       path: '/campDetail',
       name: 'campDetail',
       component: campDetail
-    },
-    {
-      path: '/buyCourse',
-      name: 'buyCourse',
-      component: buyCourse,
     },
     {
       path: '/selectType',

@@ -22,7 +22,6 @@
 
 <script>
 import { getSysMsg } from '../fetch/api'
-import getDate from '../utils/timeFormat'
 export default {
   name: 'sysMsgDetail',
   data () {

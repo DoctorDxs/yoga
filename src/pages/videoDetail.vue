@@ -33,7 +33,7 @@
         </div>
       </div>
     </div>
-    <div class="trend-list-box"><trend-list :evaluteList='evaluteList' @getTrend='getTrend' @updataTrends='updataTrends'></trend-list></div>
+    <div class="trend-list-box"><trend-list :evaluteList='evaluteList' @getTrend='getTrend' @updataTrends='updataTrends' :infiniteId='infiniteId'></trend-list></div>
     <div class="course-is-buy">
       <div class="write-trend" @click="linkAddTrend(1)">
         <div><img src="../assets/class_issue@3x.png" alt=""></div>
@@ -62,7 +62,8 @@ export default {
       evaluteList: [],
       showPost: true,
       showPlayIcon: true,
-      page: 1
+      page: 0,
+      infiniteId: +new Date(),
     }
   },
   activated() {
@@ -77,7 +78,7 @@ export default {
         this.group_id = query.group_id
         this.learn_id = query.learn_id
         this.in_circle = query.in_circle
-        this.page = 1
+        this.page = 0
         this.evaluteList = []
         this.showPost = true
         this.showPlayIcon = true
@@ -131,6 +132,7 @@ export default {
 
     getTrend($state) {
       this.state = $state
+      this.page += 1;
       getCurrentCourseEval({page: this.page, id: this.group_id}).then(res => {
         if (res.state == 200) {
           const lists = res.data.data
@@ -140,7 +142,7 @@ export default {
                 item.img_paths = item.img_paths.split(',')
               }
             })
-            this.page += 1;
+            
             this.evaluteList.push(...lists)
             $state.loaded();
           } else {
@@ -153,8 +155,9 @@ export default {
     },
     
     updataTrends($state) {
-      this.page = 1
+      this.page = 0
       this.evaluteList = []
+      this.infiniteId += 1
     }
   },
   components: {

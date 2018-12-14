@@ -66,7 +66,7 @@
           <img :src="details.goods_cover" alt="" class="modal-goods-cover">
           <div class="buy-modal-course">
             <div class="buy-modal-name">{{details.name}}</div>
-            <div class="buy-modal-price">{{details.price}}</div>
+            <div class="buy-modal-price">￥{{details.price}}</div>
           </div>
         </div>
         <div class="modal-hr"></div>

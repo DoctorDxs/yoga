@@ -204,7 +204,6 @@ export default {
             this.$router.go(-1)
           };
           this.deleteAnswer = false
-          this.getData()
         } else {
           this.$toast.top(res.msg)
           this.$router.go(-1)

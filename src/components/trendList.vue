@@ -96,7 +96,7 @@
       @on-confirm='confirm'
       v-show='showModal'>
     </modal>
-    <infinite-loading @infinite="infiniteHandler">
+    <infinite-loading @infinite="infiniteHandler"  :identifier="infiniteId">
       <div slot="no-more" class="no-more-data">{{evaluteList.length > 9 ? "没有更多了..." : " "}}</div>
       <div slot="no-results"> </div>
     </infinite-loading>
@@ -113,7 +113,7 @@ export default {
       previewImages: {},
       showModal: false,
       videoIndex: null,
-      times: 0
+      times: 0,
     }
   },
   activated() {
@@ -280,6 +280,9 @@ export default {
       type: Array,
       required: true,
       default: []
+    },
+    infiniteId: {
+      type: Number
     }
   }
 }
