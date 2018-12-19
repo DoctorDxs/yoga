@@ -241,11 +241,24 @@ export default {
       }
     },
     endVideo() {
+      this.exitFullscreen()
       this.showPost = true
       this.$refs.videoTime.webkitExitFullScreen()
     },
+
     pauseVideo() {
+      this.exitFullscreen()
       this.showPost = true
+    },
+    exitFullscreen() {
+      var de = document;
+      if (de.exitFullscreen) {
+          de.exitFullscreen();
+      } else if (de.mozCancelFullScreen) {
+          de.mozCancelFullScreen();
+      } else if (de.webkitCancelFullScreen) {
+          de.webkitCancelFullScreen();
+      }
     },
     
     

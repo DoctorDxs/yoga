@@ -282,11 +282,24 @@ export default {
           element.webkitRequestFullScreen(); 
       }
     },
+    
     endVideo() {
+      this.exitFullscreen()
       this.currentVideo.webkitExitFullScreen()
+    },
+    exitFullscreen() {
+      var de = document;
+      if (de.exitFullscreen) {
+          de.exitFullscreen();
+      } else if (de.mozCancelFullScreen) {
+          de.mozCancelFullScreen();
+      } else if (de.webkitCancelFullScreen) {
+          de.webkitCancelFullScreen();
+      }
     },
 
     pauseVideo() {
+      this.exitFullscreen()
       this.videoIndex = null
     }
 

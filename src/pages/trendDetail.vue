@@ -252,11 +252,23 @@ export default {
           element.webkitRequestFullScreen(); 
       }
     },
+    exitFullscreen() {
+      var de = document;
+      if (de.exitFullscreen) {
+          de.exitFullscreen();
+      } else if (de.mozCancelFullScreen) {
+          de.mozCancelFullScreen();
+      } else if (de.webkitCancelFullScreen) {
+          de.webkitCancelFullScreen();
+      }
+    },
     endVideo() {
+      this.exitFullscreen()
       this.showPost = true
       this.$refs.videoTime.webkitExitFullScreen()
     },
     pauseVideo() {
+      this.exitFullscreen()
       this.showPost = true
     },
     infiniteHandler($state) {

@@ -4,6 +4,7 @@
     <div class="video-box">
       <video controls='controls'
              @ended="endVideo()"
+             @pause='pauseVideo'
              :src="videoInfo.url"
              x5-video-player-type="h5" 
              x5-video-player-fullscreen="true" 
@@ -114,6 +115,10 @@ export default {
       this.$refs.videoTime.play()
       this.launchFullScreen()
     },
+    pauseVideo() {
+      this.exitFullscreen()
+      this.showPost = true
+    },
     launchFullScreen() {
       var element = document.documentElement;
       if(element.requestFullScreen) {
@@ -124,7 +129,18 @@ export default {
           element.webkitRequestFullScreen(); 
       }
     },
+    exitFullscreen() {
+      var de = document;
+      if (de.exitFullscreen) {
+          de.exitFullscreen();
+      } else if (de.mozCancelFullScreen) {
+          de.mozCancelFullScreen();
+      } else if (de.webkitCancelFullScreen) {
+          de.webkitCancelFullScreen();
+      }
+    },
      endVideo() {
+      this.exitFullscreen()
       this.$refs.videoTime.webkitExitFullScreen()
       this.showPost = true
       this.$router.push({name: 'complated1', query: {group_id: this.group_id, learn_id: this.learn_id, good_name: this.videoInfo.good_name, type: this.type, videoTime: this.$refs.videoTime.duration, courseNmae: this.courseNmae}})

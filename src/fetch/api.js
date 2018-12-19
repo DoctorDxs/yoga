@@ -1,7 +1,6 @@
 import { fetch } from "./fetch"; //引用fetch.js
-const appid = 'wx607cf098ef356470'
-// https://yoga.17link.cc/api/my/web_auth
-// https://yoga.17link.cc/dist/index.html
+// const appid = 'wx607cf098ef356470'
+
 
 // jsdk 签名
 export function getSign(params) { 

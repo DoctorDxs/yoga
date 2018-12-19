@@ -83,9 +83,9 @@ export default {
     };
     if(localStorage.getItem('api_token')) {
       // 获取用户信息
-      this.getUserInfo()
-    } else {
-      window.location.href = 'https://yoga.17link.cc/api/my/web_auth?page=https://yoga.17link.cc/dist/index.html' 
+      setTimeout(() =>  {
+        this.getUserInfo()
+      }, 50)
     }
     
   },
