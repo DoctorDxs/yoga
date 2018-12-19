@@ -112,6 +112,17 @@ export default {
     playVideo() {
       this.showPost = false
       this.$refs.videoTime.play()
+      this.launchFullScreen()
+    },
+    launchFullScreen() {
+      var element = document.documentElement;
+      if(element.requestFullScreen) {
+          element.requestFullScreen(); 
+      } else if(element.mozRequestFullScreen) {
+          element.mozRequestFullScreen(); 
+      } else if(element.webkitRequestFullScreen) {
+          element.webkitRequestFullScreen(); 
+      }
     },
      endVideo() {
       this.$refs.videoTime.webkitExitFullScreen()

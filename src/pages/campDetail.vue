@@ -340,6 +340,8 @@ export default {
             this.$refs.courseTop.giftShare(this.receive_id); 
           };
           this.getShareInfo({id: res.data.id, type: 1})
+        } else {
+          this.$toast.top(res.msg)
         }
       })
     },

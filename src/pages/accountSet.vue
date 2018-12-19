@@ -89,7 +89,7 @@
 import areaData from '../utils/area.js'
 import { changUserInfo, postImg, getUser } from '../fetch/api'
 const ageData = []
-for (let i = 0;i < 100; i++) {
+for (let i = 1;i < 100; i++) {
   ageData.push(i)
 }
 export default {

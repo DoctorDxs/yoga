@@ -1,4 +1,4 @@
-import { updataTrend,  updateEval} from '../fetch/api.js'
+import { updataTrend,  updateEval, getSomeOneAnswer} from '../fetch/api.js'
 
 
 
@@ -30,10 +30,10 @@ export function updataTrendOne(trendList, callback) {
           }
         })
       } else {
-        callback(false) 
+        callback(trendList) 
       }
     } else {
-      callback(false) 
+      callback(trendList) 
     }
   }
 }
@@ -110,4 +110,59 @@ export function updateDetailEval(params,callback) {
       callback(data)
     }
   })
+}
+
+
+
+
+// questionDetail  页面数据的更新
+
+export function updataAnswer(answersList, callback) {
+  let answerUpdate = localStorage.getItem("answerUpdate")
+  console.log(answersList)
+  if (answerUpdate) {
+    answerUpdate = JSON.parse(answerUpdate)
+    const index = answerUpdate.answerIndex
+    const doWhat = answerUpdate.doWhat
+    if (doWhat == 2) {
+      callback(true) 
+      localStorage.removeItem('trendUpdate')
+    } else if (doWhat == 1){
+      if (answersList[index]) {
+        let id = answersList[index].id
+        getSomeOneAnswer(id).then(res => {
+          if (res.state == 200) {
+            if (res.data.detail.length > 0) {
+              let detail = res.data.detail[0]
+              let comments = detail.comments
+              if (detail.img_paths) {
+                detail.img_paths = detail.img_paths.split(',')
+              } else {
+                detail.img_paths = []
+              }
+              if (comments.length > 0) {
+                comments.forEach((item, index) => {
+                  if (item.img_path) {
+                    item.img_path = item.img_path.split(',')
+                  } else {
+                    item.img_path = []
+                  }
+                })
+              };
+              detail.comments = comments
+              answersList.splice(index, 1, detail)
+            }
+            callback(answersList)
+          } else {
+            answersList.splice(index, 1)
+            callback(answersList)
+          }
+        })
+      } else {
+        callback(answersList) 
+      }
+    } else {
+      callback(answersList) 
+    }
+  }
 }

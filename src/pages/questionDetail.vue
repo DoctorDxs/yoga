@@ -59,7 +59,7 @@
 
     <div class="evaluate-list" v-if='comments.length'>
       <div v-for='(item, index) in comments' :key='index' class="mar-boot">
-        <div class="trend-user" @click.stop="item.is_mine ? linkAnswers(item.id,index) : replay(true ,item.id, item.username, item.index, item.id)">
+        <div class="trend-user" @click.stop="item.is_mine ? linkAnswers(item.id,index) : replay(true ,item.id, item.username, index, item.id)">
           <div class="trend-user-avatar">
             <div>
               <img :src="item.user_avatar" alt="">
@@ -93,7 +93,7 @@
               </div>
             <div class="user-reply" v-if='item.comments.length > 0'>
               <div v-for='(commentItem, commentIndex) in item.comments' :key='commentIndex'>
-                <span class="evaluate-user" @click.stop="replay(false ,commentItem.id, commentItem.username, item.index, item.id)">{{commentItem.username}}</span>
+                <span class="evaluate-user" @click.stop="commentItem.is_mine == '1' ? showModal(commentItem.id,commentIndex) : replay(false ,commentItem.id, commentItem.username, index, item.id)">{{commentItem.username}}</span>
                 <span class="replay-text" v-if='commentItem.parent_username'> 回复 </span>
                 <span class="evaluate-user" v-if='commentItem.parent_username'>{{commentItem.parent_username}}</span>:
                 <span class="evaluate-content" @click="commentItem.is_mine == '1' ? showModal(commentItem.id,commentIndex) : ''">{{commentItem.content}} </span>  
@@ -152,7 +152,8 @@
 </template>
 
 <script>
-import { getSomeoneTrend, replayOrCommit, postImg, deleteImg, getSign, addSuport, delEval, addTrend,getShareInfo,updataTrend} from '../fetch/api.js'
+import { getSomeoneTrend, replayOrCommit, postImg, deleteImg, getSign, addSuport, delEval, addTrend,getShareInfo} from '../fetch/api.js'
+import { updataDetailTrend, updataAnswer}  from '../utils/updata.js'
 export default {
   name: 'questionDetail',
   data () {
@@ -183,7 +184,14 @@ export default {
     const query = this.$route.query
     if (this.id ) {
       if (this.id == query.id) {
-        return false
+        // 更新头部问题的数据
+        updataDetailTrend(this.id, data => {
+          this.trendDetails = data
+        })
+        // 跟新某一条回答详情  删除、评论回答、删除评论回答
+        updataAnswer(this.comments, data => {
+          this.comments = data
+        })
       } else {
         this.type = query.type
         this.group_type = query.group_type
@@ -220,6 +228,17 @@ export default {
     playVideo() {
       this.showPost = false
       this.$refs.videoTime.play()
+      this.launchFullScreen()
+    },
+    launchFullScreen() {
+      var element = document.documentElement;
+      if(element.requestFullScreen) {
+          element.requestFullScreen(); 
+      } else if(element.mozRequestFullScreen) {
+          element.mozRequestFullScreen(); 
+      } else if(element.webkitRequestFullScreen) {
+          element.webkitRequestFullScreen(); 
+      }
     },
     endVideo() {
       this.showPost = true
@@ -244,10 +263,10 @@ export default {
           comments = res.data.answers.data
           if (comments.length > 0) {
             comments.forEach((item, index) => {
-              if (item.img_path) {
-                item.img_path = item.img_path.split(',')
+              if (item.img_paths) {
+                item.img_paths = item.img_paths.split(',')
               } else {
-                item.img_path = []
+                item.img_paths = []
               }
               if (item.comments.length > 0) {
                 item.comments.forEach(item2 => {
@@ -335,7 +354,12 @@ export default {
         if (res.state == 200) {
           this.$toast.top(res.msg)
           this.trendId = res.data.id
-          this.updataTrend(res.data)
+          updataDetailTrend(this.id, data => {
+            this.trendDetails = data
+          })
+          let trendUpdate = JSON.parse(localStorage.getItem('trendUpdate'))
+          trendUpdate.doWhat = 2
+          localStorage.setItem('trendUpdate', JSON.stringify(trendUpdate))
           this.content = ''
           this.imgs = []
         } else {
@@ -344,33 +368,6 @@ export default {
       })
     },
 
-
-    updataTrend() {
-      updataTrend(this.trendId).then(res => {
-          if (res.state == 200) {
-            if (res.data.img_path) {
-              res.data.img_path = res.data.img_path.split(',')
-            }
-            let data = res.data
-            data.comments = []
-            // 添加一条新动态
-            if(this.replayInput == 1) {
-              this.comments.unshift(data)
-              let trendDetails = this.trendDetails
-              trendDetails.evaluate_sum = trendDetails.evaluate_sum - 0 + 1
-              this.trendDetails = trendDetails
-              let trendUpdate = JSON.parse(localStorage.getItem('trendUpdate'))
-              trendUpdate.doWhat = 2
-              localStorage.setItem('trendUpdate', JSON.stringify(trendUpdate))
-            } else {
-              this.comments.splice(this.trendIndex, 1, data)
-              let trendUpdate = JSON.parse(localStorage.getItem('trendUpdate'))
-              trendUpdate.doWhat = 1
-              localStorage.setItem('trendUpdate', JSON.stringify(trendUpdate))
-            }
-          }
-        })
-    },
     // 评论
     comment(params) {
       replayOrCommit(params).then(res => {
@@ -378,12 +375,16 @@ export default {
           this.content = ''
           this.imgs = []
           this.addComment = false
-          this.updataTrend()
+          localStorage.setItem('answerUpdate',JSON.stringify({answerIndex: this.trendIndex, doWhat: 1}))
+          updataAnswer(this.comments, data => {
+            this.comments = data
+          })
         } else {
           this.$toast.top(res.msg)
         }
       })
     },
+    
     selectImg(e) {
       const inputFile = this.$refs.inputImg1
       if(inputFile.files[0] && inputFile.files[0].length !== 0){ 
@@ -416,10 +417,17 @@ export default {
     },
     previewImage(params) {
       // 图片预览
-      wx.previewImage({
-        current: params.currentImg, // 当前显示图片的http链接
-        urls: params.currentImgLists, // 需要预览的图片http链接列表
-      });
+      if (!this.pre) {
+        wx.previewImage({
+          current: params.currentImg, // 当前显示图片的http链接
+          urls: params.currentImgLists, // 需要预览的图片http链接列表
+        });
+      } else {
+        setTimeout(() => {
+          this.pre = true
+        }, 1500)
+      }
+      
     },
 
     getSign() {
@@ -578,7 +586,7 @@ export default {
       this.$router.push({
         name: 'answerDetail', query: {id: id, type: this.type, index: index}
       }) 
-      localStorage.setItem('trendUpdate',JSON.stringify({trendIndex: index, doWhat: 0}))
+      localStorage.setItem('answerUpdate',JSON.stringify({answerIndex: index, doWhat: 0}))
     }
   },
 

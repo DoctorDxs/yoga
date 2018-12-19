@@ -240,6 +240,17 @@ export default {
     playVideo() {
       this.showPost = false
       this.$refs.videoTime.play()
+      this.launchFullScreen()
+    },
+    launchFullScreen() {
+      var element = document.documentElement;
+      if(element.requestFullScreen) {
+          element.requestFullScreen(); 
+      } else if(element.mozRequestFullScreen) {
+          element.mozRequestFullScreen(); 
+      } else if(element.webkitRequestFullScreen) {
+          element.webkitRequestFullScreen(); 
+      }
     },
     endVideo() {
       this.showPost = true
@@ -471,10 +482,17 @@ export default {
           ]
         });
         // 图片预览
-        wx.previewImage({
-          current: previewImages.currentImg, // 当前显示图片的http链接
-          urls: previewImages.currentImgLists, // 需要预览的图片http链接列表
-        });
+        if (!that.pre) {
+          wx.previewImage({
+            current: previewImages.currentImg, // 当前显示图片的http链接
+            urls: previewImages.currentImgLists, // 需要预览的图片http链接列表
+          });
+        } else {
+          setTimeout(() => {
+            that.pre = false
+          }, 1500)
+        }
+        
       })
     },
     // 点赞

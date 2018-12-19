@@ -244,6 +244,8 @@ export default {
             this.receive_id = ''
           };
           this.getShareInfo({id: data.id, type: 1})
+        } else {
+          this.$toast.top(res.msg)
         }
       })
     },

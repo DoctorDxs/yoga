@@ -121,6 +121,7 @@ export default {
     playVideo() {
       this.showPost = false
       this.$refs.videoTime.play()
+      this.launchFullScreen()
     },
     
     endVideo() {
@@ -129,6 +130,16 @@ export default {
     },
     pauseVideo() {
       this.showPost = true
+    },
+    launchFullScreen() {
+      var element = document.documentElement;
+      if(element.requestFullScreen) {
+          element.requestFullScreen(); 
+      } else if(element.mozRequestFullScreen) {
+          element.mozRequestFullScreen(); 
+      } else if(element.webkitRequestFullScreen) {
+          element.webkitRequestFullScreen(); 
+      }
     },
     getSignature(callback) {
       getTecSign().then(result => {

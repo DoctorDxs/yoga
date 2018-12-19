@@ -4,7 +4,7 @@
     <backhome></backhome>
 
     <div class="moreEval-list">
-      <div class="trend-user" @click.stop="comment.is_mine == '1' ? showdelModal(comment.id, '', 1) : toComment(comment.id, comment.username)">
+      <div class="trend-user" @click.stop="comment.is_mine == '1' ? showdelModal(comment.id, '', 1) : toComment(comment.id, comment.username, true)">
         <div class="trend-user-avatar">
           <div>
             <img :src="comment.user_avatar" alt="">
@@ -14,7 +14,7 @@
             <div>{{comment.time_desc}}</div>
           </div>
         </div>
-        <div class="support-icon" @click.stop='suportComment(comment.id, 1)'>
+        <div class="support-icon" @click.stop='suportComment(comment.id, 1, true)'>
           <span class="suport-num" :style="comment.is_thumb == '1' ? '' : 'color: #D4D9DD;'">{{comment.thumbs}}</span>
           <img src="../assets/circle_like_nor_icon@3x.png" alt="" v-if='comment.is_thumb === "0"'>
           <img src="../assets/circle_like_pre_icon@3x.png" alt="" v-if='comment.is_thumb === "1"'>
@@ -136,6 +136,7 @@ export default {
       comment_id: '',
       modalShow:　false,
       infiniteId: +new Date(),
+      trend: true
     }
   },
   activated() {
@@ -215,12 +216,12 @@ export default {
       if (type == 1) {
         if (comment.is_thumb == '1') {
           params = {
-            comment_id: id,
+            news_id: id,
             is_thumb: 0,
           }
         } else {
           params = {
-            comment_id: id,
+            news_id: id,
             is_thumb: 1,
           }
         }
@@ -244,22 +245,32 @@ export default {
             if (comment.is_thumb == '1') {
               comment.thumbs =  comment.thumbs - 1 + ''
               comment.is_thumb =  '0'
+              let answerUpdate = JSON.parse(localStorage.getItem('answerUpdate'))
+              answerUpdate.doWhat = 1
+              localStorage.setItem('answerUpdate', JSON.stringify(answerUpdate))
             } else {
               comment.thumbs =  comment.thumbs - 0 + 1 + ''
               comment.is_thumb =  '1'
+              let answerUpdate = JSON.parse(localStorage.getItem('answerUpdate'))
+              answerUpdate.doWhat = 1
+              localStorage.setItem('answerUpdate', JSON.stringify(answerUpdate))
             }
-            let evalUpdate = JSON.parse(localStorage.getItem('evalUpdate'))
-            evalUpdate.doWhat = 1
-            localStorage.setItem('evalUpdate', JSON.stringify(evalUpdate))
-           this.comment = comment
+            
+            this.comment = comment
           } else {
             let replies = this.replies
             if (is_thumb == 1) {
               replies[index].is_thumb = '0'
               replies[index].thumbs = replies[index].thumbs - 1 + ''
+              let evalUpdate = JSON.parse(localStorage.getItem('evalUpdate'))
+              evalUpdate.doWhat = 1
+              localStorage.setItem('evalUpdate', JSON.stringify(evalUpdate))
             } else {
               replies[index].is_thumb = '1'
               replies[index].thumbs = replies[index].thumbs - 0 + 1 + ''
+              let evalUpdate = JSON.parse(localStorage.getItem('evalUpdate'))
+              evalUpdate.doWhat = 1
+              localStorage.setItem('evalUpdate', JSON.stringify(evalUpdate))
             }
             this.replies = replies
           }
@@ -274,9 +285,12 @@ export default {
         let params = {
           content: this.content,
           img_path: this.imgs.length > 0 ? this.imgs.join(',') : '',
-          comment_id: this.comment_id
         }
-        
+        if (this.trend && this.type === 'answer') {
+          params.news_id = this.comment_id
+        } else {
+          params.comment_id = this.comment_id
+        }
         replayOrCommit(params).then(res => {
           if (res.state == 200) {
             this.content = ''
@@ -287,13 +301,19 @@ export default {
             } else {
               this.getData(`${this.id}?page=${this.page}`, this.state)
             }
-            let evalUpdate = JSON.parse(localStorage.getItem('evalUpdate'))
-            evalUpdate.doWhat = 1
-            localStorage.setItem('evalUpdate', JSON.stringify(evalUpdate))
+            if (this.trend && this.type === 'answer') {
+              let answerUpdate = JSON.parse(localStorage.getItem('answerUpdate'))
+              answerUpdate.doWhat = 1
+              localStorage.setItem('answerUpdate', JSON.stringify(answerUpdate))
+            } else {
+              let evalUpdate = JSON.parse(localStorage.getItem('evalUpdate'))
+              evalUpdate.doWhat = 1
+              localStorage.setItem('evalUpdate', JSON.stringify(evalUpdate))
+            }
+            
             let comment = this.comment
             comment.evaluate_sum = comment.evaluate_sum - 0 +1
             this.comment = comment
-            alert(comment.evaluate_sum)
             document.title = '共' + comment.evaluate_sum + '条回复'
           } else {
             this.$toast.top(res.msg)
@@ -354,12 +374,14 @@ export default {
       this.imgs = []
       this.$refs.commentInput.setAttribute('placeholder', '回复 ' + username)
       this.comment_id = id
+      this.trend = true
     },
     toreplay (id, username) {
       this.content = ''
       this.imgs = []
       this.$refs.commentInput.setAttribute('placeholder', '回复 ' + username)
       this.comment_id = id
+      this.trend = false
     },
 
 
@@ -377,23 +399,44 @@ export default {
         if (res.state == 200) {
           this.$toast.top('已删除！')
           // 删除动态
-          if (this.delType == 1) {
-            // 删除整条评论   上一页删除相应的评论
-            let evalUpdate = JSON.parse(localStorage.getItem('evalUpdate'))
-            evalUpdate.doWhat = 1
-            localStorage.setItem('evalUpdate', JSON.stringify(evalUpdate))
-            this.$router.go(-1)
+          if (this.trend && this.type === 'answer') {
+            if (this.delType == 1) {
+              // 删除整条评论   上一页删除相应的评论
+              let answerUpdate = JSON.parse(localStorage.getItem('answerUpdate'))
+              answerUpdate.doWhat = 1
+              localStorage.setItem('answerUpdate', JSON.stringify(answerUpdate))
+              this.$router.go(-1)
+            } else {
+              // 删除  评论下的某一条回复  上一页更新相应的评论
+              this.replies.splice(this.delIndex, 1)
+              let answerUpdate = JSON.parse(localStorage.getItem('answerUpdate'))
+              answerUpdate.doWhat = 1
+              localStorage.setItem('answerUpdate', JSON.stringify(answerUpdate))
+              let comment = this.comment
+              comment.evaluate_sum = comment.evaluate_sum - 1
+              this.comment = comment
+              document.title = '共' + comment.evaluate_sum + '条回复'
+            }
           } else {
-            // 删除  评论下的某一条回复  上一页更新相应的评论
-            this.replies.splice(this.delIndex, 1)
-            let evalUpdate = JSON.parse(localStorage.getItem('evalUpdate'))
-            evalUpdate.doWhat = 1
-            localStorage.setItem('evalUpdate', JSON.stringify(evalUpdate))
-            let comment = this.comment
-            comment.evaluate_sum = comment.evaluate_sum - 1
-            this.comment = comment
-            document.title = '共' + comment.evaluate_sum + '条回复'
+            if (this.delType == 1) {
+              // 删除整条评论   上一页删除相应的评论
+              let evalUpdate = JSON.parse(localStorage.getItem('evalUpdate'))
+              evalUpdate.doWhat = 1
+              localStorage.setItem('evalUpdate', JSON.stringify(evalUpdate))
+              this.$router.go(-1)
+            } else {
+              // 删除  评论下的某一条回复  上一页更新相应的评论
+              this.replies.splice(this.delIndex, 1)
+              let evalUpdate = JSON.parse(localStorage.getItem('evalUpdate'))
+              evalUpdate.doWhat = 1
+              localStorage.setItem('evalUpdate', JSON.stringify(evalUpdate))
+              let comment = this.comment
+              comment.evaluate_sum = comment.evaluate_sum - 1
+              this.comment = comment
+              document.title = '共' + comment.evaluate_sum + '条回复'
+            }
           }
+          
         } else {
            this.$toast.top(res.msg)
         }
